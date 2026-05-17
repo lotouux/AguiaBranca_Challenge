@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
-fun LoginScreen(isTransitioning: Boolean = false) {
+fun LoginScreen(isTransitioning: Boolean = false, onProfileConfirmed: (String) -> Unit = {}) {
     var selectedProfile by remember { mutableStateOf("") }
 
     // Controla o surgimento dos botões e textos. (Surgem do nada quando a animação acaba)
@@ -124,7 +124,7 @@ fun LoginScreen(isTransitioning: Boolean = false) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { /*TODO: Navegar para a plataforma */},
+                onClick = { onProfileConfirmed(selectedProfile) },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
