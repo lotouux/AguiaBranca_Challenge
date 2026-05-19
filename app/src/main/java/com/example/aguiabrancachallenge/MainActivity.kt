@@ -17,6 +17,9 @@ import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
 import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
 
+// Tela ideias operador
+import com.example.aguiabrancachallenge.operador.OperadorIdeiasScreen
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,12 +76,23 @@ class MainActivity : ComponentActivity() {
                         }
 
                         "home" -> {
-                            // O app ve qual home vai mostrar de acordo como perfil selecionado
-                            when (selectedProfile) {
-                                "Gestor" -> GestorHomeScreen()
-                                "Liderança" -> LiderancaHomeScreen()
-                                else -> OperadorHomeScreen() // O Operador é o padrão
+                            val navigationHandler: (String) -> Unit = { route ->
+                                currentScreen = if (route == "inicio") "home" else route
                             }
+
+                            when (selectedProfile) {
+                                "Gestor" -> GestorHomeScreen(onNavigateBottomBar = navigationHandler)
+                                "Liderança" -> LiderancaHomeScreen(onNavigateBottomBar = navigationHandler)
+                                else -> OperadorHomeScreen(onNavigateBottomBar = navigationHandler)
+                            }
+                        }
+
+                        "ideias" -> {
+                            OperadorIdeiasScreen(
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                }
+                            )
                         }
                     }
 
