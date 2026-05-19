@@ -12,6 +12,11 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
 import com.example.aguiabrancachallenge.ui.theme.*
 
+// Telas home
+import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
+import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
+import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,11 +24,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             AguiaBrancaChallengeTheme {
 
-                // appState controla a animação inicial:
-                // 0 = Loading, 1 = Transição, 2 = App Pronto
+                // appState que controla a animação (NÃO MEXER NESSA BOMBA PELO AMOR DE DEUS EU JURO LELECO QUE SE EU TOCAR NISSO E NÃO ESTIVER FUNCIONANDO VOCÊ ESTARÁ COM OS SEUS DIAS CONTADOS):
+                // 0 = Loading, 1 = Transição, 2 = Cabo a animação
                 var appState by remember { mutableIntStateOf(0) }
 
-                // currentScreen controla a tela atual após a animação
+                // currentScreen que controla a tela atual após a animação (TAMBÉM NÃO MEXE NISSO PELO AMOR DE DEUS)
                 var currentScreen by remember { mutableStateOf("login_selection") }
 
                 // selectedProfile guarda se a pessoa é Operador, Gestor ou Liderança
@@ -38,26 +43,43 @@ class MainActivity : ComponentActivity() {
 
                 Box(modifier = Modifier.fillMaxSize().background(AguiaDarkBackground)) {
 
-                    // Tela de Senha (Só aparece quando um perfil foi clicado)
-                    if (currentScreen == "credentials") {
-                        CredentialLoginScreen(
-                            profile = selectedProfile,
-                            onBackClick = { currentScreen = "login_selection" }, // Ação de voltar
-                            onLoginClick = {
-                                println("Login realizado com sucesso como $selectedProfile!")
-                                // TODO: Aqui faremos a navegação para o Dashboard depois!
+                    // O 'when' decide qual tela vai renderizar
+                    when (currentScreen) {
+
+                        "login_selection" -> {
+                            // Seleção de Perfis (Aparece a partir da fase 1 da animação)
+                            if (appState >= 1) {
+                                LoginScreen(
+                                    isTransitioning = appState == 1,
+                                    onProfileConfirmed = { profile ->
+                                        selectedProfile = profile
+                                        currentScreen = "credentials" // Vai para a tela de senha
+                                    }
+                                )
                             }
-                        )
-                    }
-                    // Seleção de Perfis (Aparece a partir da fase 1 da animação)
-                    else if (appState >= 1) {
-                        LoginScreen(
-                            isTransitioning = appState == 1,
-                            onProfileConfirmed = { profile ->
-                                selectedProfile = profile
-                                currentScreen = "credentials" // Troca a tela para a senha
+                        }
+
+                        "credentials" -> {
+                            // Tela de Senha
+                            CredentialLoginScreen(
+                                profile = selectedProfile,
+                                onBackClick = { currentScreen = "login_selection" }, // Ação de voltar
+                                onLoginClick = {
+                                    println("Login realizado com sucesso como $selectedProfile!")
+                                    // Vai para a rota 'home'
+                                    currentScreen = "home"
+                                }
+                            )
+                        }
+
+                        "home" -> {
+                            // O app ve qual home vai mostrar de acordo como perfil selecionado
+                            when (selectedProfile) {
+                                "Gestor" -> GestorHomeScreen()
+                                "Liderança" -> LiderancaHomeScreen()
+                                else -> OperadorHomeScreen() // O Operador é o padrão
                             }
-                        )
+                        }
                     }
 
                     // Tela de Loading Animada (Começa por cima de tudo e some na fase 2)

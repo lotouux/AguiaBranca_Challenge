@@ -24,3 +24,17 @@ val AguiaCardBorderActive = Color(0xFF2A598C)
 val AguiaCardBorderInactive = Color(0xFF2A2A30)
 val AguiaIconBackground = Color(0xFF25252A)
 val AguiaButtonDisabled = Color(0xFF2A2A30)
+
+// Cores da Home e Status
+val AguiaBottomNavBg = Color(0xFF122841)
+val AguiaBottomNavSelected = Color(0xFF4A90E2)
+val AguiaBottomNavUnselected = Color(0xFF8BA6C1)
+
+val StatusAprovadaBg = Color(0xFF1B3320)
+val StatusAprovadaText = Color(0xFF4CAF50)
+val StatusAnaliseBg = Color(0xFF1A3D63)
+val StatusAnaliseText = Color(0xFF64B5F6)
+val StatusEnviadaBg = Color(0xFF2A2A30)
+val StatusEnviadaText = Color(0xFFB0B0B0)
+
+// OBS: Fiquei com preguiça de passar o resto das cores para cá, se alguém quiser fique a vontade
