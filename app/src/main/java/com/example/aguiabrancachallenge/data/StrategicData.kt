@@ -37,6 +37,7 @@ val Ideia.statusColor: Color
         "Aprovada" -> Color(0xFF43A047)    // Verde
         "Em Execução" -> Color(0xFFFF8F00) // Laranja
         "Concluída" -> Color(0xFFFDD835)   // Amarelo
+        "Arquivada" -> Color.DarkGray
         else -> Color.Gray
     }
 
@@ -47,6 +48,7 @@ val Ideia.progress: Float
         "Aprovada" -> 0.6f
         "Em Execução" -> 0.8f
         "Concluída" -> 1.0f
+        "Arquivada" -> 1.0f
         else -> 0.0f
     }
 
