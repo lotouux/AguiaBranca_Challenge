@@ -94,11 +94,15 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
         bottomBar = {
             val navItemsGestor = listOf(
                 Triple("Início", R.drawable.ic_home, "inicio"),
-                Triple("Inbox", R.drawable.ic_lamp, "inbox"),
+                Triple("Inbox", R.drawable.ic_inbox, "inbox"),
                 Triple("Projetos", R.drawable.ic_target, "projetos"),
                 Triple("Perfil", R.drawable.ic_person, "perfil")
             )
-            BottomNavBar(currentRoute = "inbox", items = navItemsGestor, onNavigate = onNavigateBottomBar)
+            BottomNavBar(
+                currentRoute = "inicio",
+                items = navItemsGestor,
+                onNavigate = onNavigateBottomBar
+            )
         },
         containerColor = AguiaDarkBackground
     ) { paddingValues ->
