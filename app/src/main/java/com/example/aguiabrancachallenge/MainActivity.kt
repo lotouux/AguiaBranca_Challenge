@@ -15,6 +15,7 @@ import com.example.aguiabrancachallenge.ui.theme.*
 // Telas home
 import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
+import com.example.aguiabrancachallenge.gestor.GestorProjetosScreen
 import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
 
 // Tela ideias operador
@@ -26,7 +27,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AguiaBrancaChallengeTheme {
-
                 // appState que controla a animação (NÃO MEXER NESSA BOMBA PELO AMOR DE DEUS EU JURO LELECO QUE SE EU TOCAR NISSO E NÃO ESTIVER FUNCIONANDO VOCÊ ESTARÁ COM OS SEUS DIAS CONTADOS):
                 // 0 = Loading, 1 = Transição, 2 = Cabo a animação
                 var appState by remember { mutableIntStateOf(0) }
@@ -92,6 +92,12 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
                                 }
+                            )
+                        }
+
+                        "projetos" -> {
+                            GestorProjetosScreen(
+
                             )
                         }
                     }
