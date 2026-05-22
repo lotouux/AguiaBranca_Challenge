@@ -2,6 +2,7 @@ package com.example.aguiabrancachallenge.gestor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,10 @@ import com.example.aguiabrancachallenge.ui.theme.AguiaDarkBackground
 import com.example.aguiabrancachallenge.ui.theme.AguiaProgressIndicator
 
 @Composable
-fun GestorProjetosScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+fun GestorProjetosScreen(
+    onNavigateBottomBar: (String) -> Unit = {},
+    onProjetoClick: (Int) -> Unit
+) {
 
     val listaProjetos = ProjectStateManager.listaDeProjetos
 
@@ -80,7 +84,6 @@ fun GestorProjetosScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 
     Scaffold(
         bottomBar = {
-
             val navItemsGestor = listOf(
                 Triple("Início", R.drawable.ic_home, "inicio"),
                 Triple("Inbox", R.drawable.ic_inbox, "inbox"),
@@ -170,10 +173,12 @@ fun GestorProjetosScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             items(projetosFiltrados) { projeto ->
 
                 ProjetoListItem(
-                    id = projeto.id,
                     titulo = projeto.titulo,
                     descricao = projeto.descricao,
-                    progresso = projeto.progresso
+                    progresso = projeto.progresso,
+                    onClick = {
+                        onProjetoClick(projeto.id)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -183,11 +188,14 @@ fun GestorProjetosScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 }
 
 @Composable
-fun ProjetoListItem(id: Int, titulo: String, descricao: String, progresso: Float) {
+fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
+            .clickable {
+                onClick()
+            }
             .background(Color(0xFF17181F))
             .border(
                 width = 1.dp,
@@ -302,6 +310,6 @@ fun ProjetoListItem(id: Int, titulo: String, descricao: String, progresso: Float
 @Composable
 private fun PreviewGestorProjetosScreen(){
     AguiaBrancaChallengeTheme {
-        GestorProjetosScreen()
+        GestorProjetosScreen({}, {})
     }
 }

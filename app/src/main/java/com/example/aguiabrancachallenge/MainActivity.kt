@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.example.aguiabrancachallenge.data.ProjectStateManager
+import com.example.aguiabrancachallenge.gestor.DetalhesProjetoScreen
 import kotlinx.coroutines.delay
 import com.example.aguiabrancachallenge.ui.theme.*
 
@@ -36,6 +38,8 @@ class MainActivity : ComponentActivity() {
 
                 // selectedProfile guarda se a pessoa é Operador, Gestor ou Liderança
                 var selectedProfile by remember { mutableStateOf("") }
+
+                var selectedProjectId by remember { mutableIntStateOf(-1) }
 
                 LaunchedEffect(Unit) {
                     delay(2500)  // Fica 2.5s na tela de loading normal
@@ -97,8 +101,32 @@ class MainActivity : ComponentActivity() {
 
                         "projetos" -> {
                             GestorProjetosScreen(
-
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                },
+                                onProjetoClick = { projectId ->
+                                    selectedProjectId = projectId
+                                    currentScreen = "detalhes_projeto"
+                                }
                             )
+                        }
+
+                        "detalhes_projeto" -> {
+                            val projeto = ProjectStateManager.listaDeProjetos.find {
+                                it.id == selectedProjectId
+                            }
+
+                            projeto?.let {
+                                DetalhesProjetoScreen(
+                                    projeto = it,
+                                    onBack = {
+                                        currentScreen = "projetos"
+                                    },
+                                    onNavigateBottomBar = { route ->
+                                        currentScreen = if (route == "inicio") "home" else route
+                                    }
+                                )
+                            }
                         }
                     }
 
