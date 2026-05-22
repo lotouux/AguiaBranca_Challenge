@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.components.StrategicFocusCard
+import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.ui.theme.*
 
@@ -49,7 +50,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             // 1. O coisinho do OI
             item {
                 Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = "Lima Mei", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = GlobalStateManager.nomeLideranca, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 

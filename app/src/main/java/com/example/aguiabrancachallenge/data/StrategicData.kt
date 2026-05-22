@@ -64,6 +64,10 @@ val Ideia.areaColor: Color
 // 3. O Banco de Dados Global em Memória (API Simulada)
 object GlobalStateManager {
 
+    var nomeOperador by mutableStateOf("Pedro Miranda")
+    var nomeGestor by mutableStateOf("Leonardo Martin")
+    var nomeLideranca by mutableStateOf("Beatriz Camargo")
+
     // Guarda o Foco do Mês (Se a Liderança mudar aqui, muda no app todo)
     var currentFocus by mutableStateOf(
         StrategicFocus(

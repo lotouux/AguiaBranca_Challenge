@@ -28,10 +28,8 @@ import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
 fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
-    // 1. Puxa as ideias da nossa "API" simulada
     val minhasIdeias = GlobalStateManager.listaDeIdeias
 
-    // 2. Calcula a soma total de KM de Inovação do usuário
     val totalKm = minhasIdeias.sumOf { ideia ->
         ideia.baseKM + if (ideia.isStrategicBonus) 250 else 0
     }
@@ -57,7 +55,7 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
         ) {
             item {
                 Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = "Abobrinha da Silva", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = GlobalStateManager.nomeOperador, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
@@ -66,7 +64,6 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 3. Passa o total de KM calculado para o Card de Gamificação
             item {
                 GamificationCard(totalKm = totalKm)
                 Spacer(modifier = Modifier.height(40.dp))
@@ -80,7 +77,6 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 ) {
                     Text("Minhas Ideias", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
-                    // Navega para a tela de ideias
                     Text(
                         text = "Ver Todas",
                         color = AguiaBottomNavUnselected,
@@ -91,7 +87,6 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 5. Deixa a lista de ideias da Home dinâmica (mostra apenas as 3 mais recentes)
             items(minhasIdeias.take(3)) { ideia ->
                 IdeaCardHome(ideia)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -102,9 +97,7 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 
 @Composable
 fun GamificationCard(totalKm: Int) {
-    // Definimos uma meta de 5.000 KM para encher a barra
     val metaMaxKm = 5000
-    // Calcula o progresso (garantindo que não passe de 1.0f - 100%)
     val progresso = (totalKm.toFloat() / metaMaxKm).coerceIn(0f, 1f)
 
     Column(
@@ -131,14 +124,12 @@ fun GamificationCard(totalKm: Int) {
             Column {
                 Text("KM de Inovação", color = Color.Gray, fontSize = 12.sp)
 
-                // Formata o número (ex: 1350 vira 1.350)
                 val formatado = String.format("%,d", totalKm).replace(',', '.')
                 Text(formatado, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // A barra agora cresce com o progresso real!
         LinearProgressIndicator(
             progress = { progresso },
             modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(50)),
@@ -147,7 +138,6 @@ fun GamificationCard(totalKm: Int) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Texto dinâmico: Se atingir a meta, parabeniza. Se não, mostra quanto falta.
         if (totalKm >= metaMaxKm) {
             Text("Nível máximo atingido!", color = Color.DarkGray, fontSize = 10.sp)
         } else {
@@ -156,7 +146,6 @@ fun GamificationCard(totalKm: Int) {
     }
 }
 
-// Card simplificado para a Home
 @Composable
 fun IdeaCardHome(ideia: Ideia) {
     Row(
@@ -182,12 +171,11 @@ fun IdeaCardHome(ideia: Ideia) {
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f),
-            maxLines = 1 // Evita que um título gigante quebre o layout da Home
+            maxLines = 1
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Pílula com a cor exata do status
         Box(
             modifier = Modifier
                 .background(ideia.statusColor.copy(alpha = 0.2f), RoundedCornerShape(50))

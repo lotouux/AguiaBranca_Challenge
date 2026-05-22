@@ -59,7 +59,7 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             // 1. O Oizinho da página
             item {
                 Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = "Larissa Linguiça", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = GlobalStateManager.nomeGestor, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
