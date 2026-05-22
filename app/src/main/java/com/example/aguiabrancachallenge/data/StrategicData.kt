@@ -11,7 +11,8 @@ import androidx.compose.ui.graphics.Color
 data class StrategicFocus(
     val mes: String,
     val titulo: String,
-    val descricao: String
+    val descricao: String,
+    val areasPotenciais: List<String> = emptyList()
 )
 
 // 2. O molde de como uma Ideia é formada no sistema
@@ -37,6 +38,7 @@ val Ideia.statusColor: Color
         "Aprovada" -> Color(0xFF43A047)    // Verde
         "Em Execução" -> Color(0xFFFF8F00) // Laranja
         "Concluída" -> Color(0xFFFDD835)   // Amarelo
+        "Arquivada" -> Color.DarkGray
         else -> Color.Gray
     }
 
@@ -47,6 +49,7 @@ val Ideia.progress: Float
         "Aprovada" -> 0.6f
         "Em Execução" -> 0.8f
         "Concluída" -> 1.0f
+        "Arquivada" -> 1.0f
         else -> 0.0f
     }
 
@@ -66,7 +69,8 @@ object GlobalStateManager {
         StrategicFocus(
             mes = "Maio",
             titulo = "Redução de Emissões",
-            descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%."
+            descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%.",
+            areasPotenciais = listOf("Logística", "Passageiros")
         )
     )
 

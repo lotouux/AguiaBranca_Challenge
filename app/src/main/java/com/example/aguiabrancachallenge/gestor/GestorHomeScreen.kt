@@ -19,11 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.components.StrategicFocusCard
+import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
 fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+    // Puxando a lista de ideias da nossa "API" simulada
+    val listaIdeias = GlobalStateManager.listaDeIdeias
+
+    // Contando os dados reais
+    val ideiasPendentes = listaIdeias.count { it.status == "Enviada" }
+    val ideiasEmAnalise = listaIdeias.count { it.status == "Em Análise" }
+
     Scaffold(
         bottomBar = {
             // Itens específicos do Gestor do BottomNavBar
@@ -83,10 +91,18 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 
             // 4. Cardzin de ideias pedentes
             item {
+                // Trata o plural/singular para o texto ficar gramaticalmente correto
+                val textoSubtitulo = if (ideiasPendentes == 1) {
+                    "1 ideia aguardando avaliação"
+                } else {
+                    "$ideiasPendentes ideias aguardando avaliação"
+                }
+
                 CuradoriaCard(
                     title = "Curadoria de Ideias",
-                    subtitle = "1 ideias aguardando avaliação",
-                    onClick = { /* TODO */ }
+                    subtitle = textoSubtitulo,
+                    // Ao clicar, o gestor é levado para o Inbox
+                    onClick = { onNavigateBottomBar("inbox") }
                 )
             }
         }
@@ -120,7 +136,6 @@ fun CuradoriaCard(title: String, subtitle: String, onClick: () -> Unit) {
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Quadrado de ícone para Curadoria
         Box(
             modifier = Modifier
                 .size(40.dp)
