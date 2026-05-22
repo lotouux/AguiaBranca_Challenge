@@ -17,6 +17,7 @@ import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorProjetosScreen
 import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
 import com.example.aguiabrancachallenge.operador.OperadorIdeiasScreen
+import com.example.aguiabrancachallenge.operador.OperadorEstrategiaScreen
 import com.example.aguiabrancachallenge.gestor.GestorInboxScreen
 
 class MainActivity : ComponentActivity() {
@@ -93,6 +94,14 @@ class MainActivity : ComponentActivity() {
 
                         "inbox" -> {
                             GestorInboxScreen(
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                }
+                            )
+                        }
+
+                        "estrategia" -> {
+                            OperadorEstrategiaScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
                                 }

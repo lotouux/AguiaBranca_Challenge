@@ -11,7 +11,8 @@ import androidx.compose.ui.graphics.Color
 data class StrategicFocus(
     val mes: String,
     val titulo: String,
-    val descricao: String
+    val descricao: String,
+    val areasPotenciais: List<String> = emptyList()
 )
 
 // 2. O molde de como uma Ideia é formada no sistema
@@ -68,7 +69,8 @@ object GlobalStateManager {
         StrategicFocus(
             mes = "Maio",
             titulo = "Redução de Emissões",
-            descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%."
+            descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%.",
+            areasPotenciais = listOf("Logística", "Passageiros")
         )
     )
 
