@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,14 +122,21 @@ fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenci
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = titulo, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = titulo,
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis)
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
                             .border(1.dp, Color.DarkGray, RoundedCornerShape(50))
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(text = mes, color = Color.LightGray, fontSize = 9.sp)
+                        Text(text = mes, color = Color.LightGray, fontSize = 9.sp, maxLines = 1)
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
