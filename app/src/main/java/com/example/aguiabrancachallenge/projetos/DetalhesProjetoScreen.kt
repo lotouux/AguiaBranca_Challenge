@@ -145,11 +145,11 @@ fun DetalhesProjetoScreen(
                             .padding(start = 16.dp)
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1E212B))
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
                             .clickable { onBack() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.LightGray)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -176,9 +176,9 @@ fun DetalhesProjetoScreen(
                     Text(text = projeto.area, color = projeto.areaColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = projeto.titulo, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text(text = projeto.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = projeto.descricao, color = Color.Gray, fontSize = 14.sp, lineHeight = 20.sp)
+                Text(text = projeto.descricao, color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp, lineHeight = 20.sp)
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
@@ -190,21 +190,21 @@ fun DetalhesProjetoScreen(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Definir Plano de Execução", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Definir Plano de Execução", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             } else {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Prazo", valor = projeto.prazo.ifEmpty { "Não definido" }, valorCor = Color.White)
+                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Prazo", valor = projeto.prazo.ifEmpty { "Não definido" }, valorCor = MaterialTheme.colorScheme.onBackground)
                         val roiText = if (projeto.roiEsperado > 0) "${(projeto.roiEsperado * 100).toInt()}%" else "0%"
                         CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "ROI Esperado", valor = roiText, valorCor = Color(0xFF53D769))
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Investimento", valor = formatarMoedaAbreviada(projeto.investimento), valorCor = Color.White)
-                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Retorno", valor = formatarMoedaAbreviada(projeto.retorno), valorCor = Color.White)
+                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Investimento", valor = formatarMoedaAbreviada(projeto.investimento), valorCor = MaterialTheme.colorScheme.onBackground)
+                        CardMetricaFigma(modifier = Modifier.weight(1f), titulo = "Retorno", valor = formatarMoedaAbreviada(projeto.retorno), valorCor = MaterialTheme.colorScheme.onBackground)
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
@@ -220,7 +220,7 @@ fun DetalhesProjetoScreen(
                             .padding(20.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Progresso", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "Progresso", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Text(text = "$porcentagemReal%", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -254,7 +254,7 @@ fun DetalhesProjetoScreen(
                             .padding(20.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Marcos", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "Marcos", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             IconButton(onClick = { showAdicionarMarco = true }) {
                                 Icon(Icons.Default.Add, contentDescription = "Adicionar Tarefa", tint = MaterialTheme.colorScheme.primary)
                             }
@@ -280,7 +280,7 @@ fun DetalhesProjetoScreen(
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column(modifier = Modifier.padding(bottom = if (index < projeto.marcos.size - 1) 24.dp else 0.dp)) {
-                                    Text(text = marco.titulo, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                    Text(text = marco.titulo, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                     if (marco.isCompleto && marco.dataCompleto.isNotEmpty()) {
                                         Text(text = marco.dataCompleto, color = Color.Gray, fontSize = 12.sp)
                                     } else {
@@ -311,7 +311,7 @@ fun DetalhesProjetoScreen(
                         .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                         .padding(20.dp)
                 ) {
-                    Text(text = "Responsável", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Responsável", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -322,7 +322,7 @@ fun DetalhesProjetoScreen(
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
-                            Text(text = nomeResponsavel, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text(text = nomeResponsavel, color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                             if (projeto.responsavel.isNotEmpty()) {
                                 Text(text = profile, color = Color.Gray, fontSize = 12.sp)
                             }

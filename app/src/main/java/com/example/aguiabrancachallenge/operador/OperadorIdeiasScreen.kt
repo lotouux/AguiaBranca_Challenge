@@ -64,7 +64,7 @@ fun OperadorIdeiasScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text(text = "Minhas Ideias", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Minhas Ideias", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                         Text(text = "${minhasIdeias.size} ideias registradas", color = Color.Gray, fontSize = 14.sp)
                     }
 
@@ -73,7 +73,7 @@ fun OperadorIdeiasScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                         modifier = Modifier
                             .size(56.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF1A3D63))
+                            .background(MaterialTheme.colorScheme.secondary)
                             .clickable { showAddDialog = true }, // Abre o modal
                         contentAlignment = Alignment.Center
                     ) {
@@ -113,7 +113,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
         titleContentColor = Color.White,
         textContentColor = Color.White,
         title = {
-            Text("Registrar Nova Ideia", fontWeight = FontWeight.Bold)
+            Text("Registrar Nova Ideia", color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.Bold)
         },
         text = {
             Column {
@@ -122,8 +122,8 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                     onValueChange = { titulo = it },
                     label = { Text("Título da Ideia", color = Color.Gray) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
@@ -138,8 +138,8 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                     onValueChange = { descricao = it },
                     label = { Text("Descrição detalhada", color = Color.Gray) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
@@ -148,7 +148,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Área de Impacto:", color = Color.LightGray, fontSize = 14.sp)
+                Text("Área de Impacto:", color = Color.Gray, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Seleção de Área (Botões)
@@ -161,7 +161,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                                 .weight(1f)
                                 .padding(horizontal = 4.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF2A2A30))
+                                .background(if (isSelected) ProgressIndicator else MaterialTheme.colorScheme.primary.copy(.65f))
                                 .clickable { areaSelecionada = area }
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
@@ -233,7 +233,7 @@ fun IdeiaProgressCard(ideia: Ideia) {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = ideia.titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text = ideia.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(12.dp))
 
         Box(
@@ -241,7 +241,7 @@ fun IdeiaProgressCard(ideia: Ideia) {
                 .background(ideia.statusColor.copy(alpha = 0.2f), RoundedCornerShape(50))
                 .padding(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            Text(text = ideia.status, color = ideia.statusColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(text = ideia.status, color = ideia.statusColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
 
         if (isExpanded) {
@@ -249,7 +249,7 @@ fun IdeiaProgressCard(ideia: Ideia) {
             HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(text = ideia.descricao, color = Color.LightGray, fontSize = 14.sp, lineHeight = 20.sp)
+            Text(text = ideia.descricao, color = Color.Gray, fontSize = 14.sp, lineHeight = 20.sp)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -257,7 +257,7 @@ fun IdeiaProgressCard(ideia: Ideia) {
 
             Text(
                 text = "+$totalKm KM de Inovação",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -267,7 +267,7 @@ fun IdeiaProgressCard(ideia: Ideia) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text(text = "Evolução", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Evolução", color = MaterialTheme.colorScheme.onBackground.copy(.75f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
 
             IdeaStepper(currentStatus = ideia.status, activeColor = ideia.statusColor)
@@ -326,7 +326,7 @@ fun IdeaStepper(currentStatus: String, activeColor: Color) {
 
                 Text(
                     text = label,
-                    color = if (index <= currentIndex) Color.White else Color.DarkGray,
+                    color = if (index <= currentIndex) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(.5f),
                     fontSize = 10.sp,
                     fontWeight = if (index == currentIndex) FontWeight.Bold else FontWeight.Normal
                 )

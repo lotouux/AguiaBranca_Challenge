@@ -13,9 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.aguiabrancachallenge.ThemeManager
+import com.example.aguiabrancachallenge.ThemePreferences
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
@@ -32,7 +35,7 @@ fun PrivacidadeScreen(onBackClick: () -> Unit) {
         ) {
             Text(
                 text = "Termos e Políticas de Privacidade",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -49,8 +52,14 @@ fun PrivacidadeScreen(onBackClick: () -> Unit) {
 
 @Composable
 fun ConfiguracoesScreen(onBackClick: () -> Unit) {
+    val context = LocalContext.current
+
+    val themePreferences = remember {
+        ThemePreferences(context)
+    }
+
     var notificacoes by remember { mutableStateOf(true) }
-    var modoEscuro by remember { mutableStateOf(true) }
+    var modoEscuro by remember { mutableStateOf(ThemeManager.isDarkMode.value) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -64,7 +73,13 @@ fun ConfiguracoesScreen(onBackClick: () -> Unit) {
         ) {
             ConfigToggleItem("Notificações de Ideias", notificacoes) { notificacoes = it }
             Spacer(modifier = Modifier.height(16.dp))
-            ConfigToggleItem("Modo Escuro", modoEscuro) { modoEscuro = it }
+            ConfigToggleItem("Modo Escuro", modoEscuro) {
+                modoEscuro = it
+
+                ThemeManager.isDarkMode.value = it
+
+                themePreferences.saveDarkMode(it)
+            }
         }
     }
 }
@@ -83,7 +98,7 @@ fun AjudaSuporteScreen(onBackClick: () -> Unit) {
         ) {
             Text(
                 text = "Como podemos te ajudar hoje?",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -102,10 +117,10 @@ fun AjudaSuporteScreen(onBackClick: () -> Unit) {
 @Composable
 fun TopBarVoltar(titulo: String, onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text(titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+        title = { Text(titulo, color = MaterialTheme.colorScheme.primary.copy(.75f), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = MaterialTheme.colorScheme.primary)
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -124,7 +139,7 @@ fun ConfigToggleItem(texto: String, isChecked: Boolean, onCheckedChange: (Boolea
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = texto, color = Color.White, fontSize = 14.sp)
+        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp)
         Switch(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
@@ -149,6 +164,6 @@ fun SuporteCard(texto: String) {
             .clickable { }
             .padding(16.dp)
     ) {
-        Text(text = texto, color = Color.White, fontSize = 14.sp)
+        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp)
     }
 }

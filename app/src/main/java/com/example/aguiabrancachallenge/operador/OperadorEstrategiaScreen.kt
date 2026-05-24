@@ -53,7 +53,7 @@ fun OperadorEstrategiaScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
             item {
-                Text(text = "Estratégia", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Estratégia", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Text(text = "Saiba onde focar suas ideias", color = Color.Gray, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -107,13 +107,13 @@ fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenci
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFF2A2A30), RoundedCornerShape(8.dp)),
+                    .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_lamp),
                     contentDescription = null,
-                    tint = Color.Gray,
+                    tint = Color.White,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -124,7 +124,7 @@ fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenci
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = titulo,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
@@ -136,7 +136,7 @@ fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenci
                             .border(1.dp, Color.DarkGray, RoundedCornerShape(50))
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(text = mes, color = Color.LightGray, fontSize = 9.sp, maxLines = 1)
+                        Text(text = mes, color = MaterialTheme.colorScheme.primary, fontSize = 9.sp, maxLines = 1)
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -169,9 +169,9 @@ fun DicaEstrategiaCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF0A1929))
+            .background(MaterialTheme.colorScheme.tertiary.copy(.65f))
             .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-            .padding(16.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -195,7 +195,7 @@ fun DicaEstrategiaCard() {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Ideias alinhadas ao foco do mês têm 3x mais chances de serem aprovadas e implementadas rapidamente.",
-                color = Color.LightGray,
+                color = MaterialTheme.colorScheme.background,
                 fontSize = 12.sp,
                 lineHeight = 16.sp
             )

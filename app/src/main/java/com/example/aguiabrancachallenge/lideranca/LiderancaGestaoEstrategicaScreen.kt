@@ -96,7 +96,7 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
                 contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
             ) {
                 item {
-                    Text(text = "Gestão Estratégica", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Gestão Estratégica", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(text = "Defina os desafios do mês para toda a empresa", color = Color.Gray, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(24.dp))
@@ -160,14 +160,14 @@ fun MetaCard(meta: StrategicFocus, onEdit: () -> Unit, onDelete: () -> Unit, onT
                 Switch(checked = meta.ativo, onCheckedChange = onToggleActive, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = meta.titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(text = meta.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = meta.descricao, color = Color.Gray, fontSize = 14.sp)
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.inverseSurface)
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             TextButton(onClick = onEdit, modifier = Modifier.weight(1f).fillMaxHeight()) {
-                Text("Editar", color = Color.LightGray)
+                Text("Editar", color = Color.Gray)
             }
             VerticalDivider(color = MaterialTheme.colorScheme.inverseSurface)
             TextButton(onClick = onDelete, modifier = Modifier.weight(1f).fillMaxHeight()) {
@@ -192,32 +192,32 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
         contentPadding = PaddingValues(top = 40.dp, bottom = 40.dp)
     ) {
         item {
-            Text(text = if (initialFocus == null) "Nova meta" else "Editar meta", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = if (initialFocus == null) "Nova meta" else "Editar meta", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Defina o foco estratégico", color = Color.Gray, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Título", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text("Título", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = titulo,
                 onValueChange = { titulo = it },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.85f), unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.85f), focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
                 shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
-            Text("Descrição", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text("Descrição", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = descricao,
                 onValueChange = { descricao = it },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4,
-                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.85f), unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.85f), focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
                 shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Mês de Vigência", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text("Mês de Vigência", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(16.dp))
             Column {
                 for (i in 0 until 3) {
@@ -235,7 +235,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                                     .padding(vertical = 12.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = mes, color = Color.White, fontSize = 14.sp)
+                                Text(text = mes, color = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp)
                             }
                         }
                     }
@@ -249,7 +249,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Ativar Imediatamente", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text("Ativar Imediatamente", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Será exibido para todos agora", color = Color.Gray, fontSize = 12.sp)
                 }
@@ -258,7 +258,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
             Spacer(modifier = Modifier.height(40.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Button(onClick = onCancel, modifier = Modifier.weight(1f).height(50.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent), border = border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp)), shape = RoundedCornerShape(12.dp)) {
-                    Text("Cancelar", color = Color.LightGray)
+                    Text("Cancelar", color = Color.Gray)
                 }
                 Button(
                     onClick = {

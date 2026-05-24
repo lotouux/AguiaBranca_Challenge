@@ -28,7 +28,7 @@ fun StrategicFocusCard() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFF162536))
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 1f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .65f), RoundedCornerShape(16.dp))
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -113,7 +113,7 @@ fun ProjetosScreen(
                     Column {
                         Text(
                             text = if (profile == "Liderança") "Resultados" else "Projetos",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -141,7 +141,7 @@ fun ProjetosScreen(
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = ProgressIndicator,
                                 selectedLabelColor = Color.White,
-                                labelColor = Color.White
+                                labelColor = MaterialTheme.colorScheme.onBackground.copy(.5f)
                             )
                         )
                     }
@@ -170,10 +170,10 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, corArea
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .clickable { onClick() }
-            .background(Color(0xFF17181F))
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
             .border(
                 width = 1.dp,
-                color = Color(0xFF2A2C36),
+                color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(14.dp)
             )
             .padding(horizontal = 14.dp, vertical = 12.dp)
@@ -201,7 +201,7 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, corArea
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = titulo,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f), // Adicionado para o texto não empurrar a bolinha

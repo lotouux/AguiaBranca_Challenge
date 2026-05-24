@@ -163,7 +163,7 @@ fun ProfileCard(title: String, subtitle: String, iconResId: Int, isSelected: Boo
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text(text = subtitle, color = Color.Gray, fontSize = 13.sp)
         }
         Box(modifier = Modifier.size(24.dp).border(width = 2.dp, color = animatedBorderColor, shape = CircleShape), contentAlignment = Alignment.Center) {

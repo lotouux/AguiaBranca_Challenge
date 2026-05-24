@@ -30,6 +30,7 @@ private val DarkColorScheme = darkColorScheme(
 
     primaryContainer = DarkHeader,
     secondaryContainer = DarkIconBackground,
+    tertiaryContainer = DarkTertiaryContainer,
 
     inverseSurface = DarkDisabled
 )
@@ -39,21 +40,22 @@ private val LightColorScheme = lightColorScheme(
     secondary = BlueSecondary,
     tertiary = BlueAccent,
 
-    background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkHeader,
+    background = LightBackground,
+    surface = LightSurface,
+    surfaceVariant = LightHeader,
 
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onBackground = Color.White,
-    onSurface = Color.White,
+    onSecondary = Color.Black,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
 
     outline = BlueSecondary,
 
-    primaryContainer = DarkHeader,
-    secondaryContainer = DarkIconBackground,
+    primaryContainer = LightHeader,
+    secondaryContainer = LightIconBackground,
+    tertiaryContainer = LightTertiaryContainer,
 
-    inverseSurface = DarkDisabled
+    inverseSurface = LightDisabled
 )
 
 @Composable

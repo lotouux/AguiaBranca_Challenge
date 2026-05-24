@@ -106,7 +106,7 @@ fun PerfilScreen(
 
                 Text(
                     text = nomeUsuario,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -156,7 +156,7 @@ fun PerfilScreen(
                                     Icon(painterResource(id = R.drawable.ic_onibus), null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(16.dp))
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text(text = totalKm.toString(), color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                Text(text = totalKm.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = "KM de Inovação", color = Color.Gray, fontSize = 10.sp)
                             }
@@ -179,7 +179,7 @@ fun PerfilScreen(
                                     Icon(painterResource(id = R.drawable.ic_lamp), null, tint = Color(0xFFFF8F00), modifier = Modifier.size(16.dp))
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text(text = totalIdeias.toString(), color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                                Text(text = totalIdeias.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = "Ideias Enviadas", color = Color.Gray, fontSize = 10.sp)
                             }
@@ -196,7 +196,7 @@ fun PerfilScreen(
                             .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                             .padding(20.dp)
                     ) {
-                        Text(text = "Conquistas", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Conquistas", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             ConquistaBadge(cor = Color(0xFF1E88E5), titulo = "Primeira\nIdeia")
@@ -256,7 +256,7 @@ fun ConquistaBadge(cor: Color, titulo: String) {
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = titulo, color = Color.LightGray, fontSize = 9.sp, textAlign = TextAlign.Center, lineHeight = 12.sp)
+        Text(text = titulo, color = Color.Gray, fontSize = 9.sp, textAlign = TextAlign.Center, lineHeight = 12.sp)
     }
 }
 
@@ -272,7 +272,7 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = texto, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 

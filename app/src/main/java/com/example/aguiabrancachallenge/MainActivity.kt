@@ -32,8 +32,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val themePreferences = ThemePreferences(this)
+
+        ThemeManager.isDarkMode.value =
+            themePreferences.isDarkMode()
+
         setContent {
-            AguiaBrancaChallengeTheme (darkTheme = true) {
+            val darkMode = ThemeManager.isDarkMode.value
+
+            AguiaBrancaChallengeTheme (darkTheme = false) {
                 var appState by remember { mutableIntStateOf(0) }
                 var currentScreen by remember { mutableStateOf("login_selection") }
                 var selectedProfile by remember { mutableStateOf("") }

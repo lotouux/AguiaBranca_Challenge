@@ -70,14 +70,14 @@ fun CredentialLoginScreen(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF25252A))
+                .background(MaterialTheme.colorScheme.secondaryContainer)
                 .clickable { onBackClick() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -105,7 +105,7 @@ fun CredentialLoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Login $profile",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -120,21 +120,21 @@ fun CredentialLoginScreen(
         Spacer(modifier = Modifier.height(40.dp))
 
         // 3. Inputs
-        Text("Matrícula", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text("Matrícula", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = matricula,
             onValueChange = { matricula = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Ex: $demoMatricula", color = Color.DarkGray) },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color.Gray) },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color(0xFF2A2A30),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.5f),
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(.5f),
                 cursorColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent
@@ -144,14 +144,14 @@ fun CredentialLoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Senha", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text("Senha", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = senha,
             onValueChange = { senha = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("••••••••", color = Color.DarkGray) },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.Gray) },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             trailingIcon = {
                 TextButton(onClick = { passwordVisible = !passwordVisible }) {
                     Text(if (passwordVisible) "Ocultar" else "Mostrar", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
@@ -163,8 +163,8 @@ fun CredentialLoginScreen(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color(0xFF2A2A30),
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
                 cursorColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent
@@ -194,7 +194,7 @@ fun CredentialLoginScreen(
                     withStyle(style = SpanStyle(color = Color(0xFF4A90E2), fontWeight = FontWeight.Bold)) {
                         append("Demo: ")
                     }
-                    withStyle(style = SpanStyle(color = Color.LightGray)) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurface.copy(.7f))) {
                         append("Matrícula: $demoMatricula | Senha: 123")
                     }
                 },

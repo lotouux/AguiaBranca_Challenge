@@ -54,8 +54,8 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
             item {
-                Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = GlobalStateManager.nomeOperador, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Olá,", color = MaterialTheme.colorScheme.onSurface.copy(.75f), fontSize = 16.sp)
+                Text(text = GlobalStateManager.nomeOperador, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
@@ -75,7 +75,7 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Minhas Ideias", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("Minhas Ideias", color = MaterialTheme.colorScheme.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
                     Text(
                         text = "Ver Todas",
@@ -104,8 +104,8 @@ fun GamificationCard(totalKm: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -125,7 +125,7 @@ fun GamificationCard(totalKm: Int) {
                 Text("KM de Inovação", color = Color.Gray, fontSize = 12.sp)
 
                 val formatado = String.format("%,d", totalKm).replace(',', '.')
-                Text(formatado, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(formatado, color = MaterialTheme.colorScheme.onBackground, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +153,7 @@ fun IdeaCardHome(ideia: Ideia) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
+            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -167,7 +167,7 @@ fun IdeaCardHome(ideia: Ideia) {
 
         Text(
             text = ideia.titulo,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f),

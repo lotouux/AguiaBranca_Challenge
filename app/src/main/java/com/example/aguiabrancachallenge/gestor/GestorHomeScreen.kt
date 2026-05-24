@@ -71,14 +71,14 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                         modifier = Modifier.weight(1f),
                         label = "Ideias Pendentes",
                         value = ideiasPendentes.toString(),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground.copy(.7f)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     StatusIndicatorCard(
                         modifier = Modifier.weight(1f),
                         label = "Em análise",
                         value = ideiasEmAnalise.toString(),
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onBackground.copy(.7f)
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))

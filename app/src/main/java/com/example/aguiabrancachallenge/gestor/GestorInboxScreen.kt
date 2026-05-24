@@ -114,7 +114,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 .padding(top = 40.dp, bottom = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Text(text = "Inbox de Ideias", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Inbox de Ideias", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
 
             val textoSubtitulo = if (selectedTab == 0) "$countCuradoria ideias aguardando avaliação" else "$countPriorizar ideias ativas para priorizar"
             Text(text = textoSubtitulo, color = Color.Gray, fontSize = 14.sp)
@@ -155,7 +155,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                         IconButton(onClick = { if (currentIndex > 0) currentIndex-- }, enabled = currentIndex > 0) {
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Anterior", tint = if (currentIndex > 0) Color.White else Color.DarkGray)
                         }
-                        Text(text = "${currentIndex + 1} de ${ideiasCuradoria.size}", color = Color.White, fontSize = 16.sp, modifier = Modifier.padding(horizontal = 24.dp))
+                        Text(text = "${currentIndex + 1} de ${ideiasCuradoria.size}", color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 16.sp, modifier = Modifier.padding(horizontal = 24.dp))
                         IconButton(onClick = { if (currentIndex < ideiasCuradoria.size - 1) currentIndex++ }, enabled = currentIndex < ideiasCuradoria.size - 1) {
                             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Próxima", tint = if (currentIndex < ideiasCuradoria.size - 1) Color.White else Color.DarkGray)
                         }
@@ -302,7 +302,7 @@ fun PriorizarIdeiaCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> U
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
+            .border(2.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -323,7 +323,7 @@ fun PriorizarIdeiaCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> U
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = ideia.titulo, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Text(text = ideia.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Text(text = ideia.descricao, color = Color.Gray, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -387,12 +387,12 @@ fun TabButton(title: String, isSelected: Boolean, onClick: () -> Unit, modifier:
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
-            .border(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
+            .border(2.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(text = title, color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -425,7 +425,7 @@ fun InboxIdeiaCard(ideia: Ideia) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = ideia.titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text = ideia.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = ideia.descricao, color = Color.Gray, fontSize = 13.sp, lineHeight = 18.sp)
         Spacer(modifier = Modifier.height(16.dp))
@@ -436,8 +436,8 @@ fun InboxIdeiaCard(ideia: Ideia) {
             }
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text(text = ideia.autor, color = Color.LightGray, fontSize = 12.sp)
-                Text(text = "Enviado em ${ideia.data}", color = Color.DarkGray, fontSize = 10.sp)
+                Text(text = ideia.autor, color = Color.DarkGray, fontSize = 12.sp)
+                Text(text = "Enviado em ${ideia.data}", color = Color.Gray, fontSize = 10.sp)
             }
         }
 
@@ -458,7 +458,7 @@ fun MetricColumn(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = label, color = Color.Gray, fontSize = 11.sp)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = value, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(text = value, color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 

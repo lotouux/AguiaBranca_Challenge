@@ -73,8 +73,8 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
             item {
-                Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = GlobalStateManager.nomeLideranca, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Olá,", color = MaterialTheme.colorScheme.onSurface.copy(.75f), fontSize = 16.sp)
+                Text(text = GlobalStateManager.nomeLideranca, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
@@ -160,8 +160,8 @@ fun FinancialDashboardCard(roiTotal: Int, investidoTotal: Double, retornoTotal: 
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            FinanceMetricColumn("Investido", formatK(investidoTotal), Color.White)
-            FinanceMetricColumn("Retorno", formatK(retornoTotal), Color.White)
+            FinanceMetricColumn("Investido", formatK(investidoTotal), MaterialTheme.colorScheme.onBackground)
+            FinanceMetricColumn("Retorno", formatK(retornoTotal), MaterialTheme.colorScheme.onBackground)
             FinanceMetricColumn("Lucro", formatK(lucroTotal), Color(0xFF4CAF50))
         }
     }
@@ -194,7 +194,7 @@ fun MetricGridCard(modifier: Modifier, title: String, count: Int, color: Color) 
             Box(modifier = Modifier.size(16.dp).background(color, RoundedCornerShape(4.dp)))
         }
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = count.toString(), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        Text(text = count.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(4.dp))
         Text(text = title, color = Color.Gray, fontSize = 13.sp)
     }
@@ -212,7 +212,7 @@ fun ImpactByDivisionCard(ideias: List<Ideia>) {
             .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
-        Text("Impacto por Divisão", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("Impacto por Divisão", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(24.dp))
 
         divisoes.forEach { (area, listaIdeias) ->
@@ -227,16 +227,16 @@ fun ImpactByDivisionCard(ideias: List<Ideia>) {
             ) {
                 Box(modifier = Modifier.size(10.dp).background(color, CircleShape))
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(text = area, color = Color.White, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                Text(text = area, color = color, fontSize = 14.sp, modifier = Modifier.weight(1f))
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text("Ideias", color = Color.Gray, fontSize = 10.sp)
-                    Text(listaIdeias.size.toString(), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(listaIdeias.size.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.width(24.dp))
                 Column(horizontalAlignment = Alignment.End) {
                     Text("Projetos", color = Color.Gray, fontSize = 10.sp)
-                    Text(projetosCount.toString(), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(projetosCount.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -253,7 +253,7 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
             .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
-        Text("Retorno por Projeto", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("Retorno por Projeto", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(16.dp))
 
         projetos.forEach { projeto ->
@@ -282,14 +282,12 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Text(
                             text = projeto.titulo,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f),
@@ -327,7 +325,7 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
 
                             Text(
                                 text = formatK(projeto.investimento.toDouble()),
-                                color = Color.LightGray,
+                                color = Color.Gray,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 maxLines = 1
