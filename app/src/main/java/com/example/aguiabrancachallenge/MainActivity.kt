@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val darkMode = ThemeManager.isDarkMode.value
 
-            AguiaBrancaChallengeTheme (darkTheme = false) {
+            AguiaBrancaChallengeTheme (darkTheme = darkMode) {
                 var appState by remember { mutableIntStateOf(0) }
                 var currentScreen by remember { mutableStateOf("login_selection") }
                 var selectedProfile by remember { mutableStateOf("") }

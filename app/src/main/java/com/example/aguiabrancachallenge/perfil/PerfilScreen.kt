@@ -106,7 +106,7 @@ fun PerfilScreen(
 
                 Text(
                     text = nomeUsuario,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -272,7 +272,7 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.85f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 
