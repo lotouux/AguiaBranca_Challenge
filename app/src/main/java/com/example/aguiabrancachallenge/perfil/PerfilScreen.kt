@@ -272,7 +272,7 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.85f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(text = texto, color = MaterialTheme.colorScheme.onBackground.copy(.85f), fontSize = 14.sp, fontWeight = FontWeight.Bold)
     }
 }
 

@@ -117,7 +117,7 @@ fun AjudaSuporteScreen(onBackClick: () -> Unit) {
 @Composable
 fun TopBarVoltar(titulo: String, onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text(titulo, color = MaterialTheme.colorScheme.primary.copy(.75f), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+        title = { Text(titulo, color = MaterialTheme.colorScheme.onBackground.copy(.75f), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = MaterialTheme.colorScheme.primary)
@@ -139,7 +139,7 @@ fun ConfigToggleItem(texto: String, isChecked: Boolean, onCheckedChange: (Boolea
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp)
+        Text(text = texto, color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp)
         Switch(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
@@ -164,6 +164,6 @@ fun SuporteCard(texto: String) {
             .clickable { }
             .padding(16.dp)
     ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.primary.copy(.65f), fontSize = 14.sp)
+        Text(text = texto, color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp)
     }
 }
