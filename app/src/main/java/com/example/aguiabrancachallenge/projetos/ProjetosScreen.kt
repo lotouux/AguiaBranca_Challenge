@@ -74,16 +74,16 @@ fun ProjetosScreen(
 
     val navItems = when (profile) {
         "Liderança" -> listOf(
-            Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Aprovações", R.drawable.ic_lamp, "aprovacoes"),
-            Triple("Resultados", R.drawable.ic_target, "projetos"),
-            Triple("Perfil", R.drawable.ic_person, "perfil")
+            Triple("Início", com.example.aguiabrancachallenge.R.drawable.ic_home, "inicio"),
+            Triple("Projetos", com.example.aguiabrancachallenge.R.drawable.ic_target, "projetos"),
+            Triple("Resultados", com.example.aguiabrancachallenge.R.drawable.ic_lamp, "estrategia"),
+            Triple("Perfil", com.example.aguiabrancachallenge.R.drawable.ic_person, "perfil")
         )
         else -> listOf(
-            Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Inbox", R.drawable.ic_inbox, "inbox"),
-            Triple("Projetos", R.drawable.ic_target, "projetos"),
-            Triple("Perfil", R.drawable.ic_person, "perfil")
+            Triple("Início", com.example.aguiabrancachallenge.R.drawable.ic_home, "inicio"),
+            Triple("Inbox", com.example.aguiabrancachallenge.R.drawable.ic_inbox, "inbox"),
+            Triple("Projetos", com.example.aguiabrancachallenge.R.drawable.ic_target, "projetos"),
+            Triple("Perfil", com.example.aguiabrancachallenge.R.drawable.ic_person, "perfil")
         )
     }
 

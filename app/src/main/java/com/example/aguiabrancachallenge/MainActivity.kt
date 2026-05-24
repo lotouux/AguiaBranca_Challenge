@@ -72,6 +72,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         "home" -> {
+                            // Handler unificado de navegação inferior
                             val navigationHandler: (String) -> Unit = { route ->
                                 currentScreen = if (route == "inicio") "home" else route
                             }
@@ -81,14 +82,6 @@ class MainActivity : ComponentActivity() {
                                 "Liderança" -> LiderancaHomeScreen(onNavigateBottomBar = navigationHandler)
                                 else -> OperadorHomeScreen(onNavigateBottomBar = navigationHandler)
                             }
-                        }
-
-                        "ideias" -> {
-                            OperadorIdeiasScreen(
-                                onNavigateBottomBar = { route ->
-                                    currentScreen = if (route == "inicio") "home" else route
-                                }
-                            )
                         }
 
                         "projetos" -> {
@@ -119,6 +112,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                        }
+
+                        "ideias" -> {
+                            OperadorIdeiasScreen(
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                }
+                            )
                         }
 
                         "inbox" -> {
