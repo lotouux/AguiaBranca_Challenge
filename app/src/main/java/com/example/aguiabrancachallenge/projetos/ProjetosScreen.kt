@@ -1,4 +1,4 @@
-package com.example.aguiabrancachallenge.gestor
+package com.example.aguiabrancachallenge.projetos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,64 +42,61 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
-import com.example.aguiabrancachallenge.data.ProjectStateManager
+import com.example.aguiabrancachallenge.data.GlobalStateManager
+import com.example.aguiabrancachallenge.data.areaColor
+import com.example.aguiabrancachallenge.data.progressoReal
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.ui.theme.AguiaBrancaChallengeTheme
 import com.example.aguiabrancachallenge.ui.theme.AguiaDarkBackground
 import com.example.aguiabrancachallenge.ui.theme.AguiaProgressIndicator
 
 @Composable
-fun GestorProjetosScreen(
+fun ProjetosScreen(
+    profile: String,
     onNavigateBottomBar: (String) -> Unit = {},
-    onProjetoClick: (Int) -> Unit
+    onProjetoClick: (String) -> Unit
 ) {
-
-    val listaProjetos = ProjectStateManager.listaDeProjetos
-
-    var selectedProjectFilter by remember {
-        mutableStateOf("Todos")
+    val listaProjetos = GlobalStateManager.listaDeIdeias.filter {
+        it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída"
     }
 
-    // Projetos filtrados
+    var selectedProjectFilter by remember { mutableStateOf("Todos") }
+
     val projetosFiltrados = remember(selectedProjectFilter, listaProjetos) {
-
         when (selectedProjectFilter) {
-
-            "Em execução" -> {
-                listaProjetos.filter { it.progresso < 1f }
-            }
-
-            "Concluidos" -> {
-                listaProjetos.filter { it.progresso >= 1f }
-            }
-
+            "Em execução" -> listaProjetos.filter { it.progressoReal < 1f }
+            "Concluidos" -> listaProjetos.filter { it.progressoReal >= 1f }
             else -> listaProjetos
         }
     }
 
-    // Apenas projetos em andamento
-    val projetosEmAndamento = listaProjetos.count {
-        it.progresso < 1f
+    val projetosEmAndamento = listaProjetos.count { it.progressoReal < 1f }
+
+    val navItems = when (profile) {
+        "Liderança" -> listOf(
+            Triple("Início", R.drawable.ic_home, "inicio"),
+            Triple("Aprovações", R.drawable.ic_lamp, "aprovacoes"),
+            Triple("Resultados", R.drawable.ic_target, "projetos"),
+            Triple("Perfil", R.drawable.ic_person, "perfil")
+        )
+        else -> listOf(
+            Triple("Início", R.drawable.ic_home, "inicio"),
+            Triple("Inbox", R.drawable.ic_inbox, "inbox"),
+            Triple("Projetos", R.drawable.ic_target, "projetos"),
+            Triple("Perfil", R.drawable.ic_person, "perfil")
+        )
     }
 
     Scaffold(
         bottomBar = {
-            val navItemsGestor = listOf(
-                Triple("Início", R.drawable.ic_home, "inicio"),
-                Triple("Inbox", R.drawable.ic_inbox, "inbox"),
-                Triple("Projetos", R.drawable.ic_target, "projetos"),
-                Triple("Perfil", R.drawable.ic_person, "perfil")
-            )
-
             BottomNavBar(
                 currentRoute = "projetos",
-                items = navItemsGestor,
+                items = navItems,
                 onNavigate = onNavigateBottomBar
             )
         },
         containerColor = AguiaDarkBackground
     ) { paddingValues ->
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -107,24 +104,19 @@ fun GestorProjetosScreen(
                 .padding(horizontal = 24.dp),
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
-
             item {
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Column {
-
                         Text(
-                            text = "Projetos",
+                            text = if (profile == "Liderança") "Resultados" else "Projetos",
                             color = Color.White,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold
                         )
-
                         Text(
                             text = "$projetosEmAndamento projetos em andamento",
                             color = Color.Gray,
@@ -132,32 +124,20 @@ fun GestorProjetosScreen(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
             item {
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    listOf(
-                        "Todos",
-                        "Em execução",
-                        "Concluidos"
-                    ).forEach { filtroProgresso ->
-
+                    listOf("Todos", "Em execução", "Concluidos").forEach { filtroProgresso ->
                         FilterChip(
                             selected = selectedProjectFilter == filtroProgresso,
-                            onClick = {
-                                selectedProjectFilter = filtroProgresso
-                            },
-                            label = {
-                                Text(filtroProgresso)
-                            },
+                            onClick = { selectedProjectFilter = filtroProgresso },
+                            label = { Text(filtroProgresso) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = AguiaProgressIndicator,
                                 selectedLabelColor = Color.White,
@@ -166,21 +146,17 @@ fun GestorProjetosScreen(
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
             items(projetosFiltrados) { projeto ->
-
                 ProjetoListItem(
                     titulo = projeto.titulo,
                     descricao = projeto.descricao,
-                    progresso = projeto.progresso,
-                    onClick = {
-                        onProjetoClick(projeto.id)
-                    }
+                    progresso = projeto.progressoReal,
+                    corArea = projeto.areaColor,
+                    onClick = { onProjetoClick(projeto.id) }
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -188,14 +164,12 @@ fun GestorProjetosScreen(
 }
 
 @Composable
-fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick: () -> Unit) {
+fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, corArea: Color, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
             .background(Color(0xFF17181F))
             .border(
                 width = 1.dp,
@@ -204,15 +178,8 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick
             )
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(42.dp)
@@ -230,40 +197,37 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = titulo,
                             color = Color.White,
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f), // Adicionado para o texto não empurrar a bolinha
+                            maxLines = 1, // Corta o texto com "..." se for muito longo
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
-
                         Spacer(modifier = Modifier.width(6.dp))
-
+                        // Usando a cor da área conectada à API!
                         Box(
                             modifier = Modifier
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF53D769))
+                                .background(corArea)
                         )
                     }
-
                     Spacer(modifier = Modifier.height(2.dp))
-
                     Text(
                         text = descricao,
                         color = Color(0xFF8D93A5),
                         fontSize = 12.sp,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
                 }
+
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -272,10 +236,7 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick
                 )
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -283,13 +244,12 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick
                         .clip(RoundedCornerShape(50))
                         .background(Color(0xFF2A2D38))
                 ) {
-
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
                             .fillMaxWidth(progresso.coerceIn(0f, 1f))
                             .clip(RoundedCornerShape(50))
-                            .background(Color(0xFF1D8BFF))
+                            .background(if (progresso >= 1f) Color(0xFF53D769) else Color(0xFF1D8BFF))
                     )
                 }
 
@@ -308,8 +268,8 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, onClick
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewGestorProjetosScreen(){
+private fun PreviewProjetosScreen(){
     AguiaBrancaChallengeTheme {
-        GestorProjetosScreen({}, {})
+        ProjetosScreen("Gestor", {}, {})
     }
 }

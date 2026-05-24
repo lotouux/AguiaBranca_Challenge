@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.example.aguiabrancachallenge.data.ProjectStateManager
-import com.example.aguiabrancachallenge.gestor.DetalhesProjetoScreen
+import com.example.aguiabrancachallenge.data.GlobalStateManager
+import com.example.aguiabrancachallenge.projetos.DetalhesProjetoScreen
 import kotlinx.coroutines.delay
 import com.example.aguiabrancachallenge.ui.theme.*
 import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
-import com.example.aguiabrancachallenge.gestor.GestorProjetosScreen
+import com.example.aguiabrancachallenge.projetos.ProjetosScreen
 import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
 import com.example.aguiabrancachallenge.operador.OperadorIdeiasScreen
 import com.example.aguiabrancachallenge.operador.OperadorEstrategiaScreen
@@ -92,25 +92,27 @@ class MainActivity : ComponentActivity() {
                         }
 
                         "projetos" -> {
-                            GestorProjetosScreen(
+                            ProjetosScreen(
+                                profile = selectedProfile,
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
                                 },
                                 onProjetoClick = { projectId ->
-                                    selectedProjectId = projectId.toString()
+                                    selectedProjectId = projectId
                                     currentScreen = "detalhes_projeto"
                                 }
                             )
                         }
 
                         "detalhes_projeto" -> {
-                            val projeto = ProjectStateManager.listaDeProjetos.find {
-                                it.id.toString() == selectedProjectId
+                            val projeto = GlobalStateManager.listaDeIdeias.find {
+                                it.id == selectedProjectId
                             }
 
                             projeto?.let {
                                 DetalhesProjetoScreen(
                                     projeto = it,
+                                    profile = selectedProfile,
                                     onBack = { currentScreen = "projetos" },
                                     onNavigateBottomBar = { route ->
                                         currentScreen = if (route == "inicio") "home" else route

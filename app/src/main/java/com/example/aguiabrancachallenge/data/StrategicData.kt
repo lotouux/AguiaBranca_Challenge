@@ -15,6 +15,13 @@ data class StrategicFocus(
     val areasPotenciais: List<String> = emptyList()
 )
 
+data class MarcoProjeto(
+    val id: Int,
+    val titulo: String,
+    val isCompleto: Boolean = false,
+    val dataCompleto: String = ""
+)
+
 // 2. O molde de como uma Ideia é formada no sistema
 data class Ideia(
     val id: String,
@@ -28,7 +35,16 @@ data class Ideia(
     val isStrategicBonus: Boolean = false,
     val impacto: String = "Pendente",
     val esforco: String = "Pendente",
-    val prioridade: String = "Pendente"
+    val prioridade: String = "Pendente",
+
+    // Integração com projeto
+    val prazo: String = "",
+    val roiEsperado: Float = 0f,
+    val investimento: Float = 0f,
+    val retorno: Float = 0f,
+    val observacaoProgresso: String = "",
+    val marcos: List<MarcoProjeto> = emptyList(),
+    val responsavel: String = ""
 )
 
 val Ideia.statusColor: Color
@@ -53,11 +69,21 @@ val Ideia.progress: Float
         else -> 0.0f
     }
 
+// Calcula o progresso lendo os marcos do projeto
+val Ideia.progressoReal: Float
+    get() {
+        if (marcos.isNotEmpty()) {
+            val concluidos = marcos.count { it.isCompleto }
+            return concluidos.toFloat() / marcos.size.toFloat()
+        }
+        return this.progress
+    }
+
 val Ideia.areaColor: Color
     get() = when (area) {
-        "Logística" -> Color(0xFFB388FF)   // Roxo claro
-        "Passageiros" -> Color(0xFF18FFFF) // Ciano
-        "Comércio" -> Color(0xFFFF4081)    // Rosa
+        "Logística" -> Color(0xFFB388FF)
+        "Passageiros" -> Color(0xFF18FFFF)
+        "Comércio" -> Color(0xFFFF4081)
         else -> Color.LightGray
     }
 
@@ -81,11 +107,85 @@ object GlobalStateManager {
     // Guarda a lista de ideias (O Operador adiciona aqui, o Gestor lê e aprova daqui)
     var listaDeIdeias by mutableStateOf(
         listOf(
-            Ideia("1", "Sistema de Roteirização Inteligente", "Otimização de rotas via IA.", "Aprovada", "Logística", "12 ago"),
-            Ideia("2", "App de Check-in Rápido", "Implementar IA para otimizar rotas de entregas, reduzindo tempo e combustível.", "Aprovada", "Logística", "12 ago", isStrategicBonus = true /*Ganhará pontos bonûs*/),
-            Ideia("3", "Monitoramento de Pneus IoT", "Sensores para monitorar pressão e temperatura dos pneus em tempo real.", "Enviada", "Logística", "12 ago", impacto = "Alto", esforco = "Médio", prioridade = "A+"),
-            Ideia("4", "Programa de Fidelidade B2B", "Benefícios para clientes de carga regulares.", "Em Execução", "Comércio", "12 ago"),
-            Ideia("5", "Wi-Fi de Alta Velocidade", "Melhoria da conexão de internet nos ônibus.", "Concluída", "Passageiros", "12 ago")
+            Ideia(
+                id = "1",
+                titulo = "Sistema de Roteirização Inteligente",
+                descricao = "Otimização de rotas via IA.",
+                status = "Em Execução",
+                area = "Logística",
+                data = "12 ago",
+                prazo = "29/06/2026",
+                roiEsperado = 2f,
+                investimento = 150000f,
+                retorno = 450000f,
+                responsavel = "Larissa Linguiça",
+                marcos = listOf(
+                    MarcoProjeto(0, "Análise de Requisitos", true, "20/03/2026"),
+                    MarcoProjeto(1, "MVP desenvolvido", true, "29/03/2026"),
+                    MarcoProjeto(2, "Testes piloto", false, ""),
+                    MarcoProjeto(3, "Rollout completo", false, "")
+                )
+            ),
+            Ideia(
+                id = "2",
+                titulo = "App de Check-in Rápido",
+                descricao = "Implementar IA para otimizar rotas de entregas, reduzindo tempo e combustível.",
+                status = "Aprovada",
+                area = "Logística",
+                data = "12 ago",
+                isStrategicBonus = true,
+                prazo = "05/07/2026",
+                roiEsperado = 2.8f,
+                investimento = 150000f,
+                retorno = 420000f,
+                observacaoProgresso = "Integração inicial concluída.",
+                responsavel = "Larissa Linguiça",
+                marcos = listOf(
+                    MarcoProjeto(4, "Planejamento e levantamento de requisitos", true, "12/02/2026"),
+                    MarcoProjeto(5, "Desenvolvimento do backend de rastreamento", false, ""),
+                    MarcoProjeto(6, "Implementação do dashboard mobile", false, ""),
+                    MarcoProjeto(7, "Testes finais e publicação", false, "")
+                )
+            ),
+            Ideia(
+                id = "3",
+                titulo = "Monitoramento de Pneus IoT",
+                descricao = "Sensores para monitorar pressão e temperatura dos pneus em tempo real.",
+                status = "Enviada",
+                area = "Logística",
+                data = "12 ago",
+                impacto = "Alto",
+                esforco = "Médio",
+                prioridade = "A+"
+            ),
+            Ideia(
+                id = "4",
+                titulo = "Programa de Fidelidade B2B",
+                descricao = "Benefícios para clientes de carga regulares.",
+                status = "Em Execução",
+                area = "Comércio",
+                data = "12 ago"
+            ),
+            Ideia(
+                id = "5",
+                titulo = "Sistema de Feedback Automatizado",
+                descricao = "Coleta automática de feedback pós-viagem com análise de sentimento.",
+                status = "Concluída",
+                area = "Passageiros",
+                data = "12 ago",
+                prazo = "20/06/2026",
+                roiEsperado = 3.4f,
+                investimento = 85000f,
+                retorno = 289000f,
+                observacaoProgresso = "Projeto concluído e integrado ao sistema principal.",
+                responsavel = "Larissa Linguiça",
+                marcos = listOf(
+                    MarcoProjeto(8, "Definição dos fluxos de coleta de feedback", true, "10/01/2026"),
+                    MarcoProjeto(9, "Integração com serviços de envio automático", true, "05/03/2026"),
+                    MarcoProjeto(10, "Implementação da análise de sentimento", true, "28/04/2026"),
+                    MarcoProjeto(11, "Testes finais e implantação", true, "15/06/2026")
+                )
+            )
         )
     )
 }

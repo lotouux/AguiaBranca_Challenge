@@ -99,7 +99,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 Triple("Perfil", R.drawable.ic_person, "perfil")
             )
             BottomNavBar(
-                currentRoute = "inicio",
+                currentRoute = "inbox",
                 items = navItemsGestor,
                 onNavigate = onNavigateBottomBar
             )

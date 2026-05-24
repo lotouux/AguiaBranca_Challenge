@@ -25,16 +25,13 @@ import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
 fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
-    // Puxando a lista de ideias da nossa "API" simulada
     val listaIdeias = GlobalStateManager.listaDeIdeias
 
-    // Contando os dados reais
     val ideiasPendentes = listaIdeias.count { it.status == "Enviada" }
     val ideiasEmAnalise = listaIdeias.count { it.status == "Em Análise" }
 
     Scaffold(
         bottomBar = {
-            // Itens específicos do Gestor do BottomNavBar
             val navItemsGestor = listOf(
                 Triple("Início", R.drawable.ic_home, "inicio"),
                 Triple("Inbox", R.drawable.ic_inbox, "inbox"),
@@ -56,42 +53,37 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 .padding(horizontal = 24.dp),
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
-            // 1. O Oizinho da página
             item {
                 Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
                 Text(text = GlobalStateManager.nomeGestor, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
-            // 2. o Card de foco mensal (ele é reutilizavel viu galerinha, tenta fazer isso para os outros bonitinhos
             item {
                 StrategicFocusCard()
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            // 3. os card de indicador
             item {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     StatusIndicatorCard(
                         modifier = Modifier.weight(1f),
                         label = "Ideias Pendentes",
-                        value = "1",
+                        value = ideiasPendentes.toString(),
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     StatusIndicatorCard(
                         modifier = Modifier.weight(1f),
                         label = "Em análise",
-                        value = "1",
+                        value = ideiasEmAnalise.toString(),
                         color = Color.White
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // 4. Cardzin de ideias pedentes
             item {
-                // Trata o plural/singular para o texto ficar gramaticalmente correto
                 val textoSubtitulo = if (ideiasPendentes == 1) {
                     "1 ideia aguardando avaliação"
                 } else {
@@ -101,7 +93,6 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 CuradoriaCard(
                     title = "Curadoria de Ideias",
                     subtitle = textoSubtitulo,
-                    // Ao clicar, o gestor é levado para o Inbox
                     onClick = { onNavigateBottomBar("inbox") }
                 )
             }
