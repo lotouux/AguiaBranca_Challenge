@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -256,43 +257,139 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
         Spacer(modifier = Modifier.height(16.dp))
 
         projetos.forEach { projeto ->
+
             val lucro = projeto.retorno - projeto.investimento
-            val roi = if (projeto.investimento > 0) ((lucro / projeto.investimento) * 100).toInt() else 0
+            val roi =
+                if (projeto.investimento > 0)
+                    ((lucro / projeto.investimento) * 100).toInt()
+                else 0
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
-                    .padding(16.dp),
+                    .padding(vertical = 6.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.6f),
+                        RoundedCornerShape(16.dp)
+                    )
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.15f))
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(projeto.titulo, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text = projeto.titulo,
+                            color = Color.White,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        Box(modifier = Modifier.size(8.dp).background(projeto.statusColor, CircleShape))
+
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(projeto.statusColor, CircleShape)
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Investimento: ${formatK(projeto.investimento.toDouble())}", color = Color.Gray, fontSize = 11.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("|", color = Color.DarkGray, fontSize = 11.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Lucro: ${formatK(lucro.toDouble())}", color = Color(0xFF4CAF50), fontSize = 11.sp)
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "Investimento: R$",
+                                color = Color.Gray,
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = formatK(projeto.investimento.toDouble()),
+                                color = Color.LightGray,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1
+                            )
+                        }
+
+                        Text(
+                            text = "|",
+                            color = Color.DarkGray,
+                            fontSize = 16.sp
+                        )
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "Lucro: R$",
+                                color = Color(0xFF32D74B),
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = formatK(lucro.toDouble()),
+                                color = Color(0xFF32D74B),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
 
+                Spacer(modifier = Modifier.width(12.dp))
+
                 Box(
                     modifier = Modifier
-                        .background(Color(0xFF4CAF50).copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .background(
+                            Color(0xFF32D74B),
+                            RoundedCornerShape(50)
+                        )
+                        .padding(horizontal = 14.dp, vertical = 5.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("ROI $roi%", color = Color(0xFF4CAF50), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "ROI $roi%",
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.Gray)
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(22.dp)
+                )
             }
         }
     }
