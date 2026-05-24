@@ -30,7 +30,6 @@ import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
 fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
-    var showEditFocusDialog by remember { mutableStateOf(false) }
 
     val todasIdeias = GlobalStateManager.listaDeIdeias
 
@@ -54,7 +53,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             val navItemsLideranca = listOf(
                 Triple("Início", R.drawable.ic_home, "inicio"),
                 Triple("Projetos", R.drawable.ic_target, "projetos"),
-                Triple("Resultados", R.drawable.ic_lamp, "estrategia"),
+                Triple("Resultados", R.drawable.ic_lamp, "gestao_estrategica"),
                 Triple("Perfil", R.drawable.ic_person, "perfil")
             )
             BottomNavBar(
@@ -79,10 +78,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             }
 
             item {
-                StrategicFocusCard(
-                    isEditable = true,
-                    onEditClick = { showEditFocusDialog = true }
-                )
+                StrategicFocusCard()
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
@@ -126,78 +122,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 ProjectReturnsSection(projetosComFinanceiro)
             }
         }
-
-        if (showEditFocusDialog) {
-            EditFocusDialog(
-                currentFocus = GlobalStateManager.currentFocus,
-                onDismiss = { showEditFocusDialog = false },
-                onSave = { novoTitulo, novaDesc ->
-                    GlobalStateManager.currentFocus = GlobalStateManager.currentFocus.copy(
-                        titulo = novoTitulo,
-                        descricao = novaDesc
-                    )
-                    showEditFocusDialog = false
-                }
-            )
-        }
     }
-}
-
-@Composable
-fun EditFocusDialog(currentFocus: StrategicFocus, onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
-    var title by remember { mutableStateOf(currentFocus.titulo) }
-    var description by remember { mutableStateOf(currentFocus.descricao) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = AguiaCardBackground,
-        titleContentColor = Color.White,
-        textContentColor = Color.White,
-        title = { Text("Editar Foco Estratégico", fontWeight = FontWeight.Bold) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Título do Foco", color = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = AguiaPrimaryBlue,
-                        unfocusedBorderColor = AguiaCardBorderInactive
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Descrição", color = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = AguiaPrimaryBlue,
-                        unfocusedBorderColor = AguiaCardBorderInactive
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    minLines = 3
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onSave(title, description) },
-                colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue)
-            ) {
-                Text("Salvar", color = Color.White, fontWeight = FontWeight.Bold)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar", color = Color.Gray)
-            }
-        }
-    )
 }
 
 @Composable

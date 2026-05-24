@@ -18,6 +18,7 @@ import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
 import com.example.aguiabrancachallenge.projetos.ProjetosScreen
 import com.example.aguiabrancachallenge.lideranca.LiderancaHomeScreen
+import com.example.aguiabrancachallenge.lideranca.LiderancaGestaoEstrategicaScreen
 import com.example.aguiabrancachallenge.operador.OperadorIdeiasScreen
 import com.example.aguiabrancachallenge.operador.OperadorEstrategiaScreen
 import com.example.aguiabrancachallenge.gestor.GestorInboxScreen
@@ -132,6 +133,14 @@ class MainActivity : ComponentActivity() {
 
                         "estrategia" -> {
                             OperadorEstrategiaScreen(
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                }
+                            )
+                        }
+
+                        "gestao_estrategica" -> {
+                            LiderancaGestaoEstrategicaScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
                                 }

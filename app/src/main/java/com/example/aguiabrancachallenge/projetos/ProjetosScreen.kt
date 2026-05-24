@@ -76,7 +76,7 @@ fun ProjetosScreen(
         "Liderança" -> listOf(
             Triple("Início", com.example.aguiabrancachallenge.R.drawable.ic_home, "inicio"),
             Triple("Projetos", com.example.aguiabrancachallenge.R.drawable.ic_target, "projetos"),
-            Triple("Resultados", com.example.aguiabrancachallenge.R.drawable.ic_lamp, "estrategia"),
+            Triple("Resultados", com.example.aguiabrancachallenge.R.drawable.ic_lamp, "gestao_estrategica"),
             Triple("Perfil", com.example.aguiabrancachallenge.R.drawable.ic_person, "perfil")
         )
         else -> listOf(

@@ -9,10 +9,12 @@ import androidx.compose.ui.graphics.Color
 
 // 1. O molde de como o Foco Estratégico é formado
 data class StrategicFocus(
+    val id: String,
     val mes: String,
     val titulo: String,
     val descricao: String,
-    val areasPotenciais: List<String> = emptyList()
+    val areasPotenciais: List<String> = emptyList(),
+    var ativo: Boolean
 )
 
 data class MarcoProjeto(
@@ -95,14 +97,34 @@ object GlobalStateManager {
     var nomeLideranca by mutableStateOf("Beatriz Camargo")
 
     // Guarda o Foco do Mês (Se a Liderança mudar aqui, muda no app todo)
-    var currentFocus by mutableStateOf(
-        StrategicFocus(
-            mes = "Maio",
-            titulo = "Redução de Emissões",
-            descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%.",
-            areasPotenciais = listOf("Logística", "Passageiros")
+    var listaDeFocos by mutableStateOf(
+        listOf(
+            StrategicFocus(
+                id = "1",
+                mes = "Maio",
+                titulo = "Redução de Emissões",
+                descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%.",
+                ativo = true
+            ),
+            StrategicFocus(
+                id = "2",
+                mes = "Junho",
+                titulo = "Eficiência em Logística",
+                descricao = "Otimizar processos de carga e descarga para reduzir tempo em 20%.",
+                ativo = false
+            ),
+            StrategicFocus(
+                id = "3",
+                mes = "Julho",
+                titulo = "Experiência do Passageiro",
+                descricao = "Melhorar NPS de viagens rodoviárias para 75+.",
+                ativo = false
+            )
         )
     )
+
+    val currentFocus: StrategicFocus
+        get() = listaDeFocos.firstOrNull { it.ativo } ?: listaDeFocos.first()
 
     // Guarda a lista de ideias (O Operador adiciona aqui, o Gestor lê e aprova daqui)
     var listaDeIdeias by mutableStateOf(

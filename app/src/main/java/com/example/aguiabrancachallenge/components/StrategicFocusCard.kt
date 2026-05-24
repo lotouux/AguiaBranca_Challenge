@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,14 +18,9 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.ui.theme.AguiaPrimaryBlue
-import com.example.aguiabrancachallenge.ui.theme.AguiaBottomNavSelected
 
 @Composable
-fun StrategicFocusCard(
-    isEditable: Boolean = false,
-    onEditClick: () -> Unit = {}
-) {
-    // Puxa o dado do estado global. Qualquer alteração lá atualiza esse card onde ele estiver. (NÃO TOCAR NISSO)
+fun StrategicFocusCard() {
     val focus = GlobalStateManager.currentFocus
 
     Row(
@@ -51,9 +45,7 @@ fun StrategicFocusCard(
                 modifier = Modifier.size(24.dp)
             )
         }
-
         Spacer(modifier = Modifier.width(16.dp))
-
         Column(modifier = Modifier.weight(1f)) {
             Box(
                 modifier = Modifier
@@ -81,18 +73,6 @@ fun StrategicFocusCard(
                 fontSize = 12.sp,
                 lineHeight = 16.sp
             )
-        }
-
-        // Se a tela for da liderança, exibe o botão de edição
-        if (isEditable) {
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_pencil),
-                    contentDescription = "Editar Foco",
-                    tint = AguiaBottomNavSelected,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
         }
     }
 }
