@@ -1,5 +1,6 @@
 package com.example.aguiabrancachallenge
 
+import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,14 +54,14 @@ fun LoginScreen(isTransitioning: Boolean = false, onProfileConfirmed: (String) -
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AguiaDarkBackground)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Header
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = AguiaHeader,
+                    color = MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 )
                 .padding(top = 80.dp, bottom = 40.dp),
@@ -128,8 +130,8 @@ fun LoginScreen(isTransitioning: Boolean = false, onProfileConfirmed: (String) -
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = AguiaPrimaryBlue,
-                    disabledContainerColor = AguiaButtonDisabled
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.inverseSurface
                 ),
                 enabled = selectedProfile.isNotEmpty()
             ) {
@@ -147,16 +149,16 @@ fun LoginScreen(isTransitioning: Boolean = false, onProfileConfirmed: (String) -
 
 @Composable
 fun ProfileCard(title: String, subtitle: String, iconResId: Int, isSelected: Boolean, onClick: () -> Unit) {
-    val animatedBorderColor by animateColorAsState(targetValue = if (isSelected) AguiaCardBorderActive else AguiaCardBorderInactive, animationSpec = tween(durationMillis = 300), label = "border")
-    val animatedIconColor by animateColorAsState(targetValue = if (isSelected) AguiaCardBorderActive else Color.Gray, animationSpec = tween(durationMillis = 300), label = "icon")
+    val animatedBorderColor by animateColorAsState(targetValue = if (isSelected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.inverseSurface, animationSpec = tween(durationMillis = 300), label = "border")
+    val animatedIconColor by animateColorAsState(targetValue = if (isSelected) MaterialTheme.colorScheme.secondary else Color.Gray, animationSpec = tween(durationMillis = 300), label = "icon")
 
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(AguiaCardBackground)
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background)
             .border(BorderStroke(if (isSelected) 2.dp else 1.dp, animatedBorderColor), RoundedCornerShape(16.dp))
             .clickable { onClick() }.padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(48.dp).background(AguiaIconBackground, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
             Image(painter = painterResource(id=iconResId), contentDescription = null, modifier = Modifier.size(24.dp), colorFilter = ColorFilter.tint(animatedIconColor))
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -166,13 +168,15 @@ fun ProfileCard(title: String, subtitle: String, iconResId: Int, isSelected: Boo
         }
         Box(modifier = Modifier.size(24.dp).border(width = 2.dp, color = animatedBorderColor, shape = CircleShape), contentAlignment = Alignment.Center) {
             if (isSelected) {
-                Box(modifier = Modifier.size(12.dp).background(AguiaCardBorderActive, CircleShape))
+                Box(modifier = Modifier.size(12.dp).background(MaterialTheme.colorScheme.secondary, CircleShape))
             }
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 fun LoginPreview() {
     AguiaBrancaChallengeTheme {

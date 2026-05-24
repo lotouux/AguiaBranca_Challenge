@@ -42,7 +42,7 @@ fun OperadorEstrategiaScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             )
             BottomNavBar(currentRoute = "estrategia", items = navItemsOperador, onNavigate = onNavigateBottomBar)
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -98,8 +98,8 @@ fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenci
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -162,7 +162,7 @@ fun DicaEstrategiaCard() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFF0A1929))
-            .border(1.dp, AguiaPrimaryBlue.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -77,7 +77,7 @@ fun PerfilScreen(
         bottomBar = {
             BottomNavBar(currentRoute = "perfil", items = navItems, onNavigate = onNavigateBottomBar)
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -143,8 +143,8 @@ fun PerfilScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(AguiaCardBackground)
-                                .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.background)
+                                .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                                 .padding(20.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -153,7 +153,7 @@ fun PerfilScreen(
                                     modifier = Modifier.size(32.dp).background(Color(0xFF1A3D63), CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(painterResource(id = R.drawable.ic_onibus), null, tint = AguiaBottomNavSelected, modifier = Modifier.size(16.dp))
+                                    Icon(painterResource(id = R.drawable.ic_onibus), null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(16.dp))
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(text = totalKm.toString(), color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -166,8 +166,8 @@ fun PerfilScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(AguiaCardBackground)
-                                .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.background)
+                                .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                                 .padding(20.dp),
                             contentAlignment = Alignment.Center
                         ) {
@@ -192,8 +192,8 @@ fun PerfilScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(AguiaCardBackground)
-                            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.background)
+                            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                             .padding(20.dp)
                     ) {
                         Text(text = "Conquistas", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -266,8 +266,8 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically

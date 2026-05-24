@@ -1,5 +1,6 @@
 package com.example.aguiabrancachallenge
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -60,7 +61,7 @@ fun CredentialLoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AguiaDarkBackground)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 24.dp)
             .padding(top = 56.dp, bottom = 32.dp)
     ) {
@@ -91,7 +92,7 @@ fun CredentialLoginScreen(
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .background(AguiaPrimaryBlue, CircleShape),
+                    .background(MaterialTheme.colorScheme.primary, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -130,11 +131,11 @@ fun CredentialLoginScreen(
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AguiaPrimaryBlue,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color(0xFF2A2A30),
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                cursorColor = AguiaPrimaryBlue,
+                cursorColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent
             ),
@@ -153,18 +154,18 @@ fun CredentialLoginScreen(
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.Gray) },
             trailingIcon = {
                 TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Text(if (passwordVisible) "Ocultar" else "Mostrar", color = AguiaPrimaryBlue, fontSize = 12.sp)
+                    Text(if (passwordVisible) "Ocultar" else "Mostrar", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)
                 }
             },
             singleLine = true,
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AguiaPrimaryBlue,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = Color(0xFF2A2A30),
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                cursorColor = AguiaPrimaryBlue,
+                cursorColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent
             ),
@@ -177,9 +178,9 @@ fun CredentialLoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, AguiaPrimaryBlue.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .background(AguiaPrimaryBlue.copy(alpha = 0.1f))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                 .clickable {
                     // AUTO-FILL MÁGICO AQUI!
                     matricula = demoMatricula
@@ -211,8 +212,8 @@ fun CredentialLoginScreen(
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = AguiaPrimaryBlue,
-                disabledContainerColor = AguiaButtonDisabled
+                containerColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = MaterialTheme.colorScheme.inverseSurface
             ),
             enabled = matricula.isNotEmpty() && senha.isNotEmpty() // Só habilita se preencher ambos
         ) {
@@ -244,7 +245,9 @@ fun CredentialLoginScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 fun CredentialPreview() {
     AguiaBrancaChallengeTheme {

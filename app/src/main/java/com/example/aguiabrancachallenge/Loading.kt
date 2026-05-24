@@ -78,7 +78,7 @@ fun LoadingScreen(isTransitioning: Boolean = false) {
             )
             Box(
                 modifier = Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(listOf(AguiaOverlayTop, AguiaOverlayBottom))
+                    Brush.verticalGradient(listOf(OverlayTop, OverlayBottom))
                 )
             )
         }
@@ -103,8 +103,8 @@ fun LoadingScreen(isTransitioning: Boolean = false) {
         ) {
             LinearProgressIndicator(
                 progress = { animatedProgress },
-                modifier = Modifier.width(200.dp).height(8.dp).background(AguiaProgressTrack, RoundedCornerShape(50)),
-                color = AguiaProgressIndicator,
+                modifier = Modifier.width(200.dp).height(8.dp).background(ProgressTrack, RoundedCornerShape(50)),
+                color = ProgressIndicator,
                 trackColor = androidx.compose.ui.graphics.Color.Transparent,
             )
             Spacer(modifier = Modifier.height(24.dp))

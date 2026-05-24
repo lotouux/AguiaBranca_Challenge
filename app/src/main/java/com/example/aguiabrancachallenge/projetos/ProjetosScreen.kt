@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,8 +48,7 @@ import com.example.aguiabrancachallenge.data.areaColor
 import com.example.aguiabrancachallenge.data.progressoReal
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.ui.theme.AguiaBrancaChallengeTheme
-import com.example.aguiabrancachallenge.ui.theme.AguiaDarkBackground
-import com.example.aguiabrancachallenge.ui.theme.AguiaProgressIndicator
+import com.example.aguiabrancachallenge.ui.theme.ProgressIndicator
 
 @Composable
 fun ProjetosScreen(
@@ -95,7 +95,7 @@ fun ProjetosScreen(
                 onNavigate = onNavigateBottomBar
             )
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -139,7 +139,7 @@ fun ProjetosScreen(
                             onClick = { selectedProjectFilter = filtroProgresso },
                             label = { Text(filtroProgresso) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = AguiaProgressIndicator,
+                                selectedContainerColor = ProgressIndicator,
                                 selectedLabelColor = Color.White,
                                 labelColor = Color.White
                             )

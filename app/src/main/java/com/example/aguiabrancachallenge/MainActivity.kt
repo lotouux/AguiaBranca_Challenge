@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.aguiabrancachallenge.data.GlobalStateManager
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AguiaBrancaChallengeTheme {
+            AguiaBrancaChallengeTheme (darkTheme = true) {
                 var appState by remember { mutableIntStateOf(0) }
                 var currentScreen by remember { mutableStateOf("login_selection") }
                 var selectedProfile by remember { mutableStateOf("") }
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(AguiaDarkBackground)
+                        .background(MaterialTheme.colorScheme.background)
                         .navigationBarsPadding()
                 ) {
                     when (currentScreen) {

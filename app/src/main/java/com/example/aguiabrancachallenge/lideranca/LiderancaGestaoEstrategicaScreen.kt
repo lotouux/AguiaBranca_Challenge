@@ -55,14 +55,14 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
             if (editingFocus == null && !isCreating) {
                 FloatingActionButton(
                     onClick = { isCreating = true },
-                    containerColor = AguiaPrimaryBlue,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Nova Meta")
                 }
             }
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         if (editingFocus != null || isCreating) {
             EditarMetaForm(
@@ -103,11 +103,11 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
                 }
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF162536)).border(1.dp, AguiaPrimaryBlue.copy(alpha = 0.5f), RoundedCornerShape(12.dp)).padding(16.dp),
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF162536)).border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), RoundedCornerShape(12.dp)).padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(modifier = Modifier.size(24.dp).clip(CircleShape).border(2.dp, AguiaPrimaryBlue, CircleShape), contentAlignment = Alignment.Center) {
-                            Box(modifier = Modifier.size(10.dp).background(AguiaPrimaryBlue, CircleShape))
+                        Box(modifier = Modifier.size(24.dp).clip(CircleShape).border(2.dp, MaterialTheme.colorScheme.primary, CircleShape), contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.size(10.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
                         }
                         Spacer(modifier = Modifier.width(16.dp))
                         Text("As metas definidas aqui são exibidas para todos os colaboradores na tela inicial do app.", color = Color.LightGray, fontSize = 13.sp, lineHeight = 18.sp)
@@ -140,14 +140,14 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
 
 @Composable
 fun MetaCard(meta: StrategicFocus, onEdit: () -> Unit, onDelete: () -> Unit, onToggleActive: (Boolean) -> Unit) {
-    val borderColor = if (meta.ativo) AguiaPrimaryBlue else AguiaCardBorderInactive
+    val borderColor = if (meta.ativo) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface
     Column(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(AguiaCardBackground).border(1.dp, borderColor, RoundedCornerShape(16.dp))
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background).border(1.dp, borderColor, RoundedCornerShape(16.dp))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.background(if (meta.ativo) AguiaPrimaryBlue else Color.DarkGray, RoundedCornerShape(20.dp)).padding(horizontal = 12.dp, vertical = 4.dp)) {
+                    Box(modifier = Modifier.background(if (meta.ativo) MaterialTheme.colorScheme.primary else Color.DarkGray, RoundedCornerShape(20.dp)).padding(horizontal = 12.dp, vertical = 4.dp)) {
                         Text(meta.mes, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                     if (meta.ativo) {
@@ -157,19 +157,19 @@ fun MetaCard(meta: StrategicFocus, onEdit: () -> Unit, onDelete: () -> Unit, onT
                         }
                     }
                 }
-                Switch(checked = meta.ativo, onCheckedChange = onToggleActive, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = AguiaPrimaryBlue, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
+                Switch(checked = meta.ativo, onCheckedChange = onToggleActive, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = meta.titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = meta.descricao, color = Color.Gray, fontSize = 14.sp)
         }
-        HorizontalDivider(color = AguiaCardBorderInactive)
+        HorizontalDivider(color = MaterialTheme.colorScheme.inverseSurface)
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             TextButton(onClick = onEdit, modifier = Modifier.weight(1f).fillMaxHeight()) {
                 Text("Editar", color = Color.LightGray)
             }
-            VerticalDivider(color = AguiaCardBorderInactive)
+            VerticalDivider(color = MaterialTheme.colorScheme.inverseSurface)
             TextButton(onClick = onDelete, modifier = Modifier.weight(1f).fillMaxHeight()) {
                 Text("Excluir", color = Color(0xFFE53935))
             }
@@ -202,7 +202,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                 value = titulo,
                 onValueChange = { titulo = it },
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = AguiaPrimaryBlue, unfocusedBorderColor = AguiaCardBorderInactive),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
                 shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
@@ -213,7 +213,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                 onValueChange = { descricao = it },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 4,
-                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = AguiaPrimaryBlue, unfocusedBorderColor = AguiaCardBorderInactive),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface),
                 shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(32.dp))
@@ -229,8 +229,8 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isSelected) AguiaPrimaryBlue else Color.Transparent)
-                                    .border(1.dp, if (isSelected) AguiaPrimaryBlue else AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                    .border(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
                                     .clickable { mesSelecionado = mes }
                                     .padding(vertical = 12.dp),
                                 contentAlignment = Alignment.Center
@@ -244,7 +244,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
             }
             Spacer(modifier = Modifier.height(32.dp))
             Row(
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp)).padding(16.dp),
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp)).padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -253,11 +253,11 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Será exibido para todos agora", color = Color.Gray, fontSize = 12.sp)
                 }
-                Switch(checked = ativarImediatamente, onCheckedChange = { ativarImediatamente = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = AguiaPrimaryBlue, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
+                Switch(checked = ativarImediatamente, onCheckedChange = { ativarImediatamente = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
             }
             Spacer(modifier = Modifier.height(40.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(onClick = onCancel, modifier = Modifier.weight(1f).height(50.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent), border = border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp)), shape = RoundedCornerShape(12.dp)) {
+                Button(onClick = onCancel, modifier = Modifier.weight(1f).height(50.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent), border = border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp)), shape = RoundedCornerShape(12.dp)) {
                     Text("Cancelar", color = Color.LightGray)
                 }
                 Button(
@@ -265,7 +265,7 @@ fun EditarMetaForm(initialFocus: StrategicFocus?, onSave: (StrategicFocus) -> Un
                         onSave(StrategicFocus(id = initialFocus?.id ?: UUID.randomUUID().toString(), mes = mesSelecionado, titulo = titulo, descricao = descricao, ativo = ativarImediatamente))
                     },
                     modifier = Modifier.weight(1f).height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text("Salvar", color = Color.White, fontWeight = FontWeight.Bold)

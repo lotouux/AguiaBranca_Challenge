@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -13,9 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.aguiabrancachallenge.ui.theme.AguiaBottomNavBg
-import com.example.aguiabrancachallenge.ui.theme.AguiaBottomNavSelected
-import com.example.aguiabrancachallenge.ui.theme.AguiaBottomNavUnselected
+import com.example.aguiabrancachallenge.ui.theme.BottomNavUnselected
 
 @Composable
 fun BottomNavBar(
@@ -28,7 +27,7 @@ fun BottomNavBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding(),
-        color = AguiaBottomNavBg,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         tonalElevation = 0.dp,
         shadowElevation = 8.dp
     ) {
@@ -67,9 +66,9 @@ fun BottomNavBar(
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         tint = if (isSelected) {
-                            AguiaBottomNavSelected
+                            MaterialTheme.colorScheme.tertiary
                         } else {
-                            AguiaBottomNavUnselected
+                            BottomNavUnselected
                         }
                     )
                 }

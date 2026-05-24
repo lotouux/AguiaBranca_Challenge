@@ -21,7 +21,7 @@ import com.example.aguiabrancachallenge.ui.theme.*
 @Composable
 fun PrivacidadeScreen(onBackClick: () -> Unit) {
     Scaffold(
-        containerColor = AguiaDarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = { TopBarVoltar("Privacidade", onBackClick) }
     ) { paddingValues ->
         Column(
@@ -53,7 +53,7 @@ fun ConfiguracoesScreen(onBackClick: () -> Unit) {
     var modoEscuro by remember { mutableStateOf(true) }
 
     Scaffold(
-        containerColor = AguiaDarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = { TopBarVoltar("Configurações", onBackClick) }
     ) { paddingValues ->
         Column(
@@ -72,7 +72,7 @@ fun ConfiguracoesScreen(onBackClick: () -> Unit) {
 @Composable
 fun AjudaSuporteScreen(onBackClick: () -> Unit) {
     Scaffold(
-        containerColor = AguiaDarkBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = { TopBarVoltar("Ajuda e Suporte", onBackClick) }
     ) { paddingValues ->
         Column(
@@ -108,7 +108,7 @@ fun TopBarVoltar(titulo: String, onBackClick: () -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = AguiaDarkBackground)
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
@@ -118,8 +118,8 @@ fun ConfigToggleItem(texto: String, isChecked: Boolean, onCheckedChange: (Boolea
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -130,7 +130,7 @@ fun ConfigToggleItem(texto: String, isChecked: Boolean, onCheckedChange: (Boolea
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White,
-                checkedTrackColor = AguiaPrimaryBlue,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
                 uncheckedThumbColor = Color.Gray,
                 uncheckedTrackColor = Color(0xFF1E2D40)
             )
@@ -144,8 +144,8 @@ fun SuporteCard(texto: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .clickable { }
             .padding(16.dp)
     ) {

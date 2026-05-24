@@ -152,13 +152,13 @@ fun DetalhesProjetoScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.LightGray)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AguiaDarkBackground)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
             BottomNavBar(currentRoute = "projetos", items = navItems, onNavigate = onNavigateBottomBar)
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -188,7 +188,7 @@ fun DetalhesProjetoScreen(
                         onClick = { showDefinirPlano = true },
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text("Definir Plano de Execução", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
@@ -215,13 +215,13 @@ fun DetalhesProjetoScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(AguiaCardBackground)
-                            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.background)
+                            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                             .padding(20.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Progresso", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "$porcentagemReal%", color = AguiaPrimaryBlue, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "$porcentagemReal%", color = MaterialTheme.colorScheme.primary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Box(
@@ -232,7 +232,7 @@ fun DetalhesProjetoScreen(
                                     .fillMaxHeight()
                                     .fillMaxWidth(projeto.progressoReal.coerceIn(0f, 1f))
                                     .clip(RoundedCornerShape(50))
-                                    .background(if (projeto.progressoReal >= 1f) Color(0xFF53D769) else AguiaPrimaryBlue)
+                                    .background(if (projeto.progressoReal >= 1f) Color(0xFF53D769) else MaterialTheme.colorScheme.primary)
                             )
                         }
                         if (projeto.observacaoProgresso.isNotEmpty()) {
@@ -249,14 +249,14 @@ fun DetalhesProjetoScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
-                            .background(AguiaCardBackground)
-                            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.background)
+                            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                             .padding(20.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Marcos", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             IconButton(onClick = { showAdicionarMarco = true }) {
-                                Icon(Icons.Default.Add, contentDescription = "Adicionar Tarefa", tint = AguiaPrimaryBlue)
+                                Icon(Icons.Default.Add, contentDescription = "Adicionar Tarefa", tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                         Text(text = "$marcosConcluidos/${projeto.marcos.size} concluídos", color = Color.Gray, fontSize = 12.sp, modifier = Modifier.padding(bottom = 16.dp))
@@ -307,15 +307,15 @@ fun DetalhesProjetoScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(AguiaCardBackground)
-                        .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
                         .padding(20.dp)
                 ) {
                     Text(text = "Responsável", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
-                            modifier = Modifier.size(48.dp).clip(CircleShape).background(if (projeto.responsavel.isNotEmpty()) AguiaPrimaryBlue else Color.DarkGray),
+                            modifier = Modifier.size(48.dp).clip(CircleShape).background(if (projeto.responsavel.isNotEmpty()) MaterialTheme.colorScheme.primary else Color.DarkGray),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(text = iniciaisResponsavel, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -336,7 +336,7 @@ fun DetalhesProjetoScreen(
     if (showDefinirPlano) {
         AlertDialog(
             onDismissRequest = { showDefinirPlano = false },
-            containerColor = AguiaCardBackground,
+            containerColor = MaterialTheme.colorScheme.background,
             title = { Text("Definir Plano de Execução", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
@@ -349,7 +349,7 @@ fun DetalhesProjetoScreen(
             },
             confirmButton = {
                 Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {
                         iniciarExecucaoProjeto(
                             ideiaId = projeto.id,
@@ -369,7 +369,7 @@ fun DetalhesProjetoScreen(
     if (showAdicionarMarco) {
         AlertDialog(
             onDismissRequest = { showAdicionarMarco = false },
-            containerColor = AguiaCardBackground,
+            containerColor = MaterialTheme.colorScheme.background,
             title = { Text("Nova Tarefa", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             text = {
                 OutlinedTextField(
@@ -382,7 +382,7 @@ fun DetalhesProjetoScreen(
             },
             confirmButton = {
                 Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {
                         adicionarNovoMarco(projeto.id, novoMarcoTitulo)
                         showAdicionarMarco = false
@@ -400,7 +400,7 @@ fun DetalhesProjetoScreen(
 
         AlertDialog(
             onDismissRequest = { marcoSelecionadoId = null; inputObservacao = "" },
-            containerColor = AguiaCardBackground,
+            containerColor = MaterialTheme.colorScheme.background,
             title = { Text("Atualizar Marco", color = Color.White) },
             text = {
                 Column {
@@ -412,7 +412,7 @@ fun DetalhesProjetoScreen(
                         value = inputObservacao,
                         onValueChange = { inputObservacao = it },
                         placeholder = { Text("Ex: Testes finalizados com sucesso...", color = Color.DarkGray) },
-                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = AguiaPrimaryBlue, unfocusedBorderColor = Color.Gray),
+                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = Color.Gray),
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3
                     )
@@ -420,7 +420,7 @@ fun DetalhesProjetoScreen(
             },
             confirmButton = {
                 Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = AguiaPrimaryBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {
                         atualizarMarcoEObservacao(projeto.id, marcoSelecionadoId!!, inputObservacao)
                         marcoSelecionadoId = null
@@ -440,8 +440,8 @@ fun CardMetricaFigma(modifier: Modifier, titulo: String, valor: String, valorCor
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {

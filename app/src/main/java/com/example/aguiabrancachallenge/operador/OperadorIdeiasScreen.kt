@@ -48,7 +48,7 @@ fun OperadorIdeiasScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             )
             BottomNavBar(currentRoute = "ideias", items = navItemsOperador, onNavigate = onNavigateBottomBar)
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -109,7 +109,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = AguiaCardBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = Color.White,
         textContentColor = Color.White,
         title = {
@@ -124,8 +124,8 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        focusedBorderColor = AguiaPrimaryBlue,
-                        unfocusedBorderColor = AguiaCardBorderInactive
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
@@ -140,8 +140,8 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
-                        focusedBorderColor = AguiaPrimaryBlue,
-                        unfocusedBorderColor = AguiaCardBorderInactive
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.inverseSurface
                     ),
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     maxLines = 5
@@ -161,7 +161,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                                 .weight(1f)
                                 .padding(horizontal = 4.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) AguiaPrimaryBlue else Color(0xFF2A2A30))
+                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF2A2A30))
                                 .clickable { areaSelecionada = area }
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
@@ -190,7 +190,7 @@ fun AddIdeiaDialog(onDismiss: () -> Unit) {
                 },
                 enabled = isFormValid,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = AguiaPrimaryBlue,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     disabledContainerColor = Color.DarkGray
                 )
             ) {
@@ -213,8 +213,8 @@ fun IdeiaProgressCard(ideia: Ideia) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .clickable { isExpanded = !isExpanded }
             .animateContentSize()
             .padding(20.dp)

@@ -104,7 +104,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 onNavigate = onNavigateBottomBar
             )
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -141,7 +141,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(AguiaPrimaryBlue, RoundedCornerShape(50)))
+            Box(modifier = Modifier.fillMaxWidth().height(4.dp).background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)))
             Spacer(modifier = Modifier.height(24.dp))
 
             if (selectedTab == 0) {
@@ -180,8 +180,8 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                                 onClick = { atualizarStatusIdeia(ideiaAtual.id, "Em Análise") },
                                 modifier = Modifier.weight(1f).height(50.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = AguiaPrimaryBlue),
-                                border = BorderStroke(1.dp, AguiaPrimaryBlue),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                                 contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text("Analisar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
@@ -240,7 +240,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 
             AlertDialog(
                 onDismissRequest = { ideiaParaAprovar = null },
-                containerColor = AguiaCardBackground,
+                containerColor = MaterialTheme.colorScheme.background,
                 titleContentColor = Color.White,
                 textContentColor = Color.White,
                 title = { Text("Aprovar Ideia", fontWeight = FontWeight.Bold) },
@@ -259,7 +259,7 @@ fun GestorInboxScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                             Checkbox(
                                 checked = aplicarBonus,
                                 onCheckedChange = { aplicarBonus = it },
-                                colors = CheckboxDefaults.colors(checkedColor = AguiaPrimaryBlue, uncheckedColor = Color.Gray)
+                                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary, uncheckedColor = Color.Gray)
                             )
                             Text("Alinhada ao Foco Estratégico (+250 KM)", color = Color.LightGray, fontSize = 14.sp)
                         }
@@ -301,8 +301,8 @@ fun PriorizarIdeiaCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> U
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -341,7 +341,7 @@ fun PriorizarIdeiaCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> U
             Box(
                 modifier = Modifier
                     .size(28.dp)
-                    .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(4.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(4.dp))
                     .clickable { onUpClick() },
                 contentAlignment = Alignment.Center
             ) {
@@ -351,7 +351,7 @@ fun PriorizarIdeiaCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> U
             Box(
                 modifier = Modifier
                     .size(28.dp)
-                    .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(4.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(4.dp))
                     .clickable { onDownClick() },
                 contentAlignment = Alignment.Center
             ) {
@@ -386,8 +386,8 @@ fun TabButton(title: String, isSelected: Boolean, onClick: () -> Unit, modifier:
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isSelected) AguiaPrimaryBlue else AguiaCardBackground)
-            .border(1.dp, if (isSelected) AguiaPrimaryBlue else AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background)
+            .border(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
@@ -404,8 +404,8 @@ fun InboxIdeiaCard(ideia: Ideia) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -442,7 +442,7 @@ fun InboxIdeiaCard(ideia: Ideia) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider(color = AguiaCardBorderInactive)
+        HorizontalDivider(color = MaterialTheme.colorScheme.inverseSurface)
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

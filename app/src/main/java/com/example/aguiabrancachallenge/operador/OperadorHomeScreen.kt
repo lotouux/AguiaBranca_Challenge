@@ -44,7 +44,7 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             )
             BottomNavBar(currentRoute = "inicio", items = navItemsOperador, onNavigate = onNavigateBottomBar)
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -79,7 +79,7 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 
                     Text(
                         text = "Ver Todas",
-                        color = AguiaBottomNavUnselected,
+                        color = BottomNavUnselected,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable { onNavigateBottomBar("ideias") }
                     )
@@ -104,8 +104,8 @@ fun GamificationCard(totalKm: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -116,7 +116,7 @@ fun GamificationCard(totalKm: Int) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_onibus),
                     contentDescription = null,
-                    tint = AguiaBottomNavSelected,
+                    tint = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -133,7 +133,7 @@ fun GamificationCard(totalKm: Int) {
         LinearProgressIndicator(
             progress = { progresso },
             modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(50)),
-            color = AguiaBottomNavSelected,
+            color = MaterialTheme.colorScheme.tertiary,
             trackColor = Color(0xFF333333)
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -152,8 +152,8 @@ fun IdeaCardHome(ideia: Ideia) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

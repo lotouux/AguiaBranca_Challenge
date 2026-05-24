@@ -1,5 +1,6 @@
 package com.example.aguiabrancachallenge.gestor
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,7 +45,7 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 onNavigate = onNavigateBottomBar
             )
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -54,8 +55,8 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
             item {
-                Text(text = "Olá,", color = Color.LightGray, fontSize = 16.sp)
-                Text(text = GlobalStateManager.nomeGestor, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Olá,", color = MaterialTheme.colorScheme.onSurface.copy(.75f), fontSize = 16.sp)
+                Text(text = GlobalStateManager.nomeGestor, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
@@ -105,11 +106,11 @@ fun StatusIndicatorCard(modifier: Modifier, label: String, value: String, color:
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer.copy(1f))
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
-        Text(text = label, color = Color.Gray, fontSize = 12.sp)
+        Text(text = label, color = MaterialTheme.colorScheme.onSurface.copy(.5f), fontSize = 12.sp)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = value, color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold)
     }
@@ -121,8 +122,8 @@ fun CuradoriaCard(title: String, subtitle: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer.copy(1f))
             .clickable { onClick() }
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -136,19 +137,21 @@ fun CuradoriaCard(title: String, subtitle: String, onClick: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_lamp),
                 contentDescription = null,
-                tint = AguiaBottomNavSelected,
+                tint = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.size(20.dp)
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(text = title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = Color.Gray, fontSize = 13.sp)
+            Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(text = subtitle, color = MaterialTheme.colorScheme.onSurface.copy(.5f), fontSize = 13.sp)
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
 fun GestorPreview() {
     AguiaBrancaChallengeTheme {

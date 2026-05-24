@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
-import com.example.aguiabrancachallenge.ui.theme.AguiaPrimaryBlue
 
 @Composable
 fun StrategicFocusCard() {
@@ -28,14 +28,14 @@ fun StrategicFocusCard() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFF162536))
-            .border(1.dp, AguiaPrimaryBlue.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 1f), RoundedCornerShape(16.dp))
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(48.dp)
-                .background(AguiaPrimaryBlue, RoundedCornerShape(12.dp)),
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(

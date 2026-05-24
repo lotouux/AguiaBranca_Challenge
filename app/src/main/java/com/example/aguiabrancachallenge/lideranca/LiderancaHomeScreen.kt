@@ -62,7 +62,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 onNavigate = onNavigateBottomBar
             )
         },
-        containerColor = AguiaDarkBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -131,8 +131,8 @@ fun FinancialDashboardCard(roiTotal: Int, investidoTotal: Double, retornoTotal: 
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Row(
@@ -155,7 +155,7 @@ fun FinancialDashboardCard(roiTotal: Int, investidoTotal: Double, retornoTotal: 
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider(color = AguiaCardBorderInactive)
+        HorizontalDivider(color = MaterialTheme.colorScheme.inverseSurface)
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -180,8 +180,8 @@ fun MetricGridCard(modifier: Modifier, title: String, count: Int, color: Color) 
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
         Box(
@@ -207,8 +207,8 @@ fun ImpactByDivisionCard(ideias: List<Ideia>) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Text("Impacto por Divisão", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -248,8 +248,8 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(AguiaCardBackground)
-            .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
             .padding(24.dp)
     ) {
         Text("Retorno por Projeto", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -264,7 +264,7 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .border(1.dp, AguiaCardBorderInactive, RoundedCornerShape(12.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
