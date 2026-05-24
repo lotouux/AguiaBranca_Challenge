@@ -55,8 +55,8 @@ fun PerfilScreen(
         )
         "Liderança" -> listOf(
             Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Aprovações", R.drawable.ic_lamp, "aprovacoes"),
-            Triple("Resultados", R.drawable.ic_target, "resultados"),
+            Triple("Projetos", R.drawable.ic_target, "projetos"),
+            Triple("Resultados", R.drawable.ic_lamp, "gestao_estrategica"),
             Triple("Perfil", R.drawable.ic_person, "perfil")
         )
         else -> listOf(
