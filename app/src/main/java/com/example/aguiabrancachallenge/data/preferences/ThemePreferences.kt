@@ -1,4 +1,4 @@
-package com.example.aguiabrancachallenge
+package com.example.aguiabrancachallenge.data.preferences
 
 import android.content.Context
 import androidx.core.content.edit

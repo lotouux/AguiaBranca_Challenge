@@ -91,123 +91,19 @@ val Ideia.areaColor: Color
 
 // 3. O Banco de Dados Global em Memória (API Simulada)
 object GlobalStateManager {
-
     var nomeOperador by mutableStateOf("Pedro Miranda")
     var nomeGestor by mutableStateOf("Leonardo Martin")
     var nomeLideranca by mutableStateOf("Beatriz Camargo")
 
     // Guarda o Foco do Mês (Se a Liderança mudar aqui, muda no app todo)
-    var listaDeFocos by mutableStateOf(
-        listOf(
-            StrategicFocus(
-                id = "1",
-                mes = "Maio",
-                titulo = "Redução de Emissões",
-                descricao = "Foco em ideias que reduzam a pegada de carbono da frota em 15%.",
-                ativo = true
-            ),
-            StrategicFocus(
-                id = "2",
-                mes = "Junho",
-                titulo = "Eficiência em Logística",
-                descricao = "Otimizar processos de carga e descarga para reduzir tempo em 20%.",
-                ativo = false
-            ),
-            StrategicFocus(
-                id = "3",
-                mes = "Julho",
-                titulo = "Experiência do Passageiro",
-                descricao = "Melhorar NPS de viagens rodoviárias para 75+.",
-                ativo = false
-            )
-        )
+    var  listaDeFocos by mutableStateOf<List<StrategicFocus>>(
+        emptyList()
     )
-
-    val currentFocus: StrategicFocus
-        get() = listaDeFocos.firstOrNull { it.ativo } ?: listaDeFocos.first()
+    val currentFocus: StrategicFocus?
+        get() = listaDeFocos.firstOrNull { it.ativo } ?: listaDeFocos.firstOrNull()
 
     // Guarda a lista de ideias (O Operador adiciona aqui, o Gestor lê e aprova daqui)
-    var listaDeIdeias by mutableStateOf(
-        listOf(
-            Ideia(
-                id = "1",
-                titulo = "Sistema de Roteirização Inteligente",
-                descricao = "Otimização de rotas via IA.",
-                status = "Em Execução",
-                area = "Logística",
-                data = "12 ago",
-                prazo = "29/06/2026",
-                roiEsperado = 2f,
-                investimento = 150000f,
-                retorno = 450000f,
-                responsavel = "Larissa Linguiça",
-                marcos = listOf(
-                    MarcoProjeto(0, "Análise de Requisitos", true, "20/03/2026"),
-                    MarcoProjeto(1, "MVP desenvolvido", true, "29/03/2026"),
-                    MarcoProjeto(2, "Testes piloto", false, ""),
-                    MarcoProjeto(3, "Rollout completo", false, "")
-                )
-            ),
-            Ideia(
-                id = "2",
-                titulo = "App de Check-in Rápido",
-                descricao = "Implementar IA para otimizar rotas de entregas, reduzindo tempo e combustível.",
-                status = "Aprovada",
-                area = "Logística",
-                data = "12 ago",
-                isStrategicBonus = true,
-                prazo = "05/07/2026",
-                roiEsperado = 2.8f,
-                investimento = 150000f,
-                retorno = 420000f,
-                observacaoProgresso = "Integração inicial concluída.",
-                responsavel = "Larissa Linguiça",
-                marcos = listOf(
-                    MarcoProjeto(4, "Planejamento e levantamento de requisitos", true, "12/02/2026"),
-                    MarcoProjeto(5, "Desenvolvimento do backend de rastreamento", false, ""),
-                    MarcoProjeto(6, "Implementação do dashboard mobile", false, ""),
-                    MarcoProjeto(7, "Testes finais e publicação", false, "")
-                )
-            ),
-            Ideia(
-                id = "3",
-                titulo = "Monitoramento de Pneus IoT",
-                descricao = "Sensores para monitorar pressão e temperatura dos pneus em tempo real.",
-                status = "Enviada",
-                area = "Logística",
-                data = "12 ago",
-                impacto = "Alto",
-                esforco = "Médio",
-                prioridade = "A+"
-            ),
-            Ideia(
-                id = "4",
-                titulo = "Programa de Fidelidade B2B",
-                descricao = "Benefícios para clientes de carga regulares.",
-                status = "Em Execução",
-                area = "Comércio",
-                data = "12 ago"
-            ),
-            Ideia(
-                id = "5",
-                titulo = "Sistema de Feedback Automatizado",
-                descricao = "Coleta automática de feedback pós-viagem com análise de sentimento.",
-                status = "Concluída",
-                area = "Passageiros",
-                data = "12 ago",
-                prazo = "20/06/2026",
-                roiEsperado = 3.4f,
-                investimento = 85000f,
-                retorno = 289000f,
-                observacaoProgresso = "Projeto concluído e integrado ao sistema principal.",
-                responsavel = "Larissa Linguiça",
-                marcos = listOf(
-                    MarcoProjeto(8, "Definição dos fluxos de coleta de feedback", true, "10/01/2026"),
-                    MarcoProjeto(9, "Integração com serviços de envio automático", true, "05/03/2026"),
-                    MarcoProjeto(10, "Implementação da análise de sentimento", true, "28/04/2026"),
-                    MarcoProjeto(11, "Testes finais e implantação", true, "15/06/2026")
-                )
-            )
-        )
+    var listaDeIdeias by mutableStateOf<List<Ideia>>(
+        emptyList()
     )
 }

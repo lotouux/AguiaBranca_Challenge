@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.ThemeManager
-import com.example.aguiabrancachallenge.ThemePreferences
+import com.example.aguiabrancachallenge.data.preferences.ThemePreferences
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable

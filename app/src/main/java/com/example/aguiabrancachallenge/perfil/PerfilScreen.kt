@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.AuthRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
 fun getIniciais(nome: String): String {
@@ -38,13 +39,14 @@ fun PerfilScreen(
     profile: String,
     onNavigateBottomBar: (String) -> Unit = {},
     onNavigateSubScreen: (String) -> Unit = {},
+    nomeUsuario: String,
     onLogout: () -> Unit = {}
 ) {
-    val nomeUsuario = when (profile) {
-        "Gestor" -> GlobalStateManager.nomeGestor
-        "Liderança" -> GlobalStateManager.nomeLideranca
-        else -> GlobalStateManager.nomeOperador
-    }
+//    val nomeUsuario = when (profile) {
+//        "Gestor" -> GlobalStateManager.nomeGestor
+//        "Liderança" -> GlobalStateManager.nomeLideranca
+//        else -> GlobalStateManager.nomeOperador
+//    }
 
     val navItems = when (profile) {
         "Gestor" -> listOf(
@@ -280,6 +282,6 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
 @Composable
 fun PerfilScreenPreview() {
     AguiaBrancaChallengeTheme {
-        PerfilScreen(profile = "Operador")
+        PerfilScreen(profile = "Operador", nomeUsuario = "Pedro Miranda")
     }
 }

@@ -9,6 +9,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,11 +29,47 @@ import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.data.statusColor
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.EstrategiaRepository
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
-fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+fun OperadorHomeScreen(
+    onNavigateBottomBar: (String) -> Unit = {},
+    ideiaRepository: IdeiaRepository,
+    estrategiaRepository: EstrategiaRepository
+) {
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
+
     val minhasIdeias = GlobalStateManager.listaDeIdeias
+
+    val isPrimeiroCarregamento =
+        isLoading && minhasIdeias.isEmpty()
+
+    LaunchedEffect(Unit) {
+        val result = ideiaRepository.listarIdeias()
+        result.onSuccess {
+            GlobalStateManager.listaDeIdeias = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoading = false
+    }
+    LaunchedEffect(Unit) {
+        val result = estrategiaRepository.listarFocosEstrategicos()
+        result.onSuccess {
+            GlobalStateManager.listaDeFocos = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoading = false
+    }
 
     val totalKm = minhasIdeias.sumOf { ideia ->
         ideia.baseKM + if (ideia.isStrategicBonus) 250 else 0
@@ -60,7 +101,21 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             }
 
             item {
-                StrategicFocusCard()
+                    if (isPrimeiroCarregamento) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }else {
+                    StrategicFocusCard()
+                }
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
@@ -87,9 +142,28 @@ fun OperadorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(minhasIdeias.take(3)) { ideia ->
-                IdeaCardHome(ideia)
-                Spacer(modifier = Modifier.height(12.dp))
+            if (isPrimeiroCarregamento) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            } else {
+
+                items(minhasIdeias.take(3)) { ideia ->
+
+                    IdeaCardHome(ideia)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }
@@ -191,6 +265,6 @@ fun IdeaCardHome(ideia: Ideia) {
 @Composable
 fun OperadorPreview() {
     AguiaBrancaChallengeTheme {
-        OperadorHomeScreen()
+        OperadorHomeScreen(ideiaRepository = IdeiaRepository(), estrategiaRepository = EstrategiaRepository())
     }
 }

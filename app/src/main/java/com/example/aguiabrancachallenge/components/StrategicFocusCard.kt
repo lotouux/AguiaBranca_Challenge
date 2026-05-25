@@ -53,7 +53,7 @@ fun StrategicFocusCard() {
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "Foco do Mês: ${focus.mes}",
+                    text = "Foco do Mês: ${focus?.mes}",
                     color = Color.LightGray,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
@@ -61,14 +61,14 @@ fun StrategicFocusCard() {
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = focus.titulo,
+                text = focus?.titulo ?: "",
                 color = Color.White,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = focus.descricao,
+                text = focus?.descricao ?: "",
                 color = Color.Gray,
                 fontSize = 12.sp,
                 lineHeight = 16.sp

@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.aguiabrancachallenge.data.GlobalStateManager
+import com.example.aguiabrancachallenge.data.preferences.ThemePreferences
 import com.example.aguiabrancachallenge.projetos.DetalhesProjetoScreen
 import kotlinx.coroutines.delay
 import com.example.aguiabrancachallenge.ui.theme.*
@@ -27,11 +28,23 @@ import com.example.aguiabrancachallenge.perfil.PerfilScreen
 import com.example.aguiabrancachallenge.perfil.PrivacidadeScreen
 import com.example.aguiabrancachallenge.perfil.ConfiguracoesScreen
 import com.example.aguiabrancachallenge.perfil.AjudaSuporteScreen
+import com.example.aguiabrancachallenge.repository.AuthRepository
+import com.example.aguiabrancachallenge.repository.EstrategiaRepository
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val sharedPreferences = getSharedPreferences(
+            "user_prefs",
+            MODE_PRIVATE
+        )
+
+        val authRepository = AuthRepository(sharedPreferences)
+        val ideiaRepository = IdeiaRepository()
+        val estrategiaRepository = EstrategiaRepository()
 
         val themePreferences = ThemePreferences(this)
 
@@ -46,6 +59,16 @@ class MainActivity : ComponentActivity() {
                 var currentScreen by remember { mutableStateOf("login_selection") }
                 var selectedProfile by remember { mutableStateOf("") }
                 var selectedProjectId by remember { mutableStateOf("") }
+
+                val perfilLogged = authRepository.getPerfil()
+                val nomeUsuario = authRepository.getNome()
+
+                LaunchedEffect(Unit) {
+                    if (authRepository.isLogged()) {
+                        selectedProfile = perfilLogged ?: ""
+                        currentScreen = "home"
+                    }
+                }
 
                 LaunchedEffect(Unit) {
                     delay(2500)
@@ -77,7 +100,8 @@ class MainActivity : ComponentActivity() {
                             CredentialLoginScreen(
                                 profile = selectedProfile,
                                 onBackClick = { currentScreen = "login_selection" },
-                                onLoginClick = { currentScreen = "home" }
+                                onLoginClick = { currentScreen = "home" },
+                                authRepository = authRepository
                             )
                         }
 
@@ -90,7 +114,11 @@ class MainActivity : ComponentActivity() {
                             when (selectedProfile) {
                                 "Gestor" -> GestorHomeScreen(onNavigateBottomBar = navigationHandler)
                                 "Liderança" -> LiderancaHomeScreen(onNavigateBottomBar = navigationHandler)
-                                else -> OperadorHomeScreen(onNavigateBottomBar = navigationHandler)
+                                else -> OperadorHomeScreen(
+                                    onNavigateBottomBar = navigationHandler,
+                                    ideiaRepository = ideiaRepository,
+                                    estrategiaRepository = estrategiaRepository
+                                )
                             }
                         }
 
@@ -128,7 +156,9 @@ class MainActivity : ComponentActivity() {
                             OperadorIdeiasScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
-                                }
+                                },
+                                ideiaRepository = ideiaRepository,
+                                autor = nomeUsuario!!
                             )
                         }
 
@@ -144,7 +174,8 @@ class MainActivity : ComponentActivity() {
                             OperadorEstrategiaScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
-                                }
+                                },
+                                estrategiaRepository = estrategiaRepository
                             )
                         }
 
@@ -167,8 +198,10 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onLogout = {
                                     currentScreen = "login_selection"
+                                    authRepository.logout()
                                     selectedProfile = ""
-                                }
+                                },
+                                nomeUsuario = nomeUsuario!!
                             )
                         }
 
