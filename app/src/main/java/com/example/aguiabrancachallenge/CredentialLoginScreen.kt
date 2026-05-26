@@ -1,5 +1,6 @@
 package com.example.aguiabrancachallenge
 
+import android.content.Context.MODE_PRIVATE
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.repository.AuthRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -299,9 +301,23 @@ fun CredentialLoginScreen(
                             onLoginClick()
                         },
                         onFailure = {
-                            errorMessage =
-                                it.message
-                                    ?: "Erro ao fazer login"
+                                error ->
+                            errorMessage = when (error) {
+
+                                is HttpException -> {
+                                    when (error.code()) {
+                                        401 -> "Senha incorreta ou não autorizado"
+                                        404 -> "Usuário não encontrado"
+                                        500 -> "Erro no servidor. Tente novamente"
+                                        502, 503 -> "Serviço indisponível no momento"
+                                        else -> "Erro inesperado (${error.code()})"
+                                    }
+                                }
+
+                                else -> {
+                                    "Erro de conexão. Verifique sua internet"
+                                }
+                            }
                         }
                     )
 
@@ -322,14 +338,11 @@ fun CredentialLoginScreen(
         ) {
 
             if (isLoading) {
-
                 CircularProgressIndicator(
                     color = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
-
             } else {
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -361,11 +374,12 @@ fun CredentialLoginScreen(
 @Composable
 fun CredentialPreview() {
     AguiaBrancaChallengeTheme {
+
         CredentialLoginScreen(
             profile = "Gestor",
             authRepository = TODO(),
-            onBackClick = TODO(),
-            onLoginClick = TODO()
+            onBackClick = {},
+            onLoginClick = {}
         )
     }
 }

@@ -421,15 +421,6 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(22.dp)
-                )
             }
         }
     }
