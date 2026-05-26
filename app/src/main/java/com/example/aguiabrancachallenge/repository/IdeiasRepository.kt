@@ -2,6 +2,7 @@ package com.example.aguiabrancachallenge.repository
 
 import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.data.MarcoProjeto
+import com.example.aguiabrancachallenge.data.models.AtualizarIdeiaRequest
 import com.example.aguiabrancachallenge.data.models.CriarIdeiaRequest
 import com.example.aguiabrancachallenge.network.RetrofitClient
 import kotlin.collections.map
@@ -95,6 +96,42 @@ class IdeiaRepository {
                 )
             }
         } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun atualizarIdeia(
+        id: String,
+        request: AtualizarIdeiaRequest
+    ): Result<Unit> {
+        return try {
+            val response = api.atualizarIdeia(id, request)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Erro ao atualizar ideia"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun adicionarMarco(id: String, titulo: String): Result<Unit> {
+        return try {
+            val response = api.criarMarco(id, mapOf("titulo" to titulo))
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Erro"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun atualizarMarco(id: String, marcoId: Int, obs: String): Result<Unit> {
+        return try {
+            val response = api.atualizarMarco(id, marcoId, mapOf("observacao" to obs))
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Erro"))
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }

@@ -9,6 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,14 +27,63 @@ import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.components.StrategicFocusCard
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.EstrategiaRepository
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
-fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+fun GestorHomeScreen(
+    onNavigateBottomBar: (String) -> Unit = {},
+    estrategiaRepository: EstrategiaRepository,
+    ideiaRepository: IdeiaRepository
+) {
     val listaIdeias = GlobalStateManager.listaDeIdeias
 
     val ideiasPendentes = listaIdeias.count { it.status == "Enviada" }
     val ideiasEmAnalise = listaIdeias.count { it.status == "Em Análise" }
+
+    var isLoadingIdeias by remember {
+        mutableStateOf(true)
+    }
+
+    val minhasIdeias = GlobalStateManager.listaDeIdeias
+
+    val isPrimeiroCarregamentoIdeias =
+        isLoadingIdeias && minhasIdeias.isEmpty()
+
+    LaunchedEffect(Unit) {
+        val result = ideiaRepository.listarIdeias()
+        result.onSuccess {
+            GlobalStateManager.listaDeIdeias = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoadingIdeias = false
+    }
+
+
+    val focosEstrategicos = GlobalStateManager.listaDeFocos;
+
+    var isLoadingFocos by remember {
+        mutableStateOf(true)
+    }
+
+    val isPrimeiroCarregamentoFocos =
+        isLoadingFocos && focosEstrategicos.isEmpty()
+
+    LaunchedEffect(Unit) {
+        val result = estrategiaRepository.listarFocosEstrategicos()
+        result.onSuccess {
+            GlobalStateManager.listaDeFocos = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoadingFocos = false
+    }
 
     Scaffold(
         bottomBar = {
@@ -55,13 +109,36 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
         ) {
             item {
-                Text(text = "Olá,", color = MaterialTheme.colorScheme.onSurface.copy(.75f), fontSize = 16.sp)
-                Text(text = GlobalStateManager.nomeGestor, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "Olá,",
+                    color = MaterialTheme.colorScheme.onSurface.copy(.75f),
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = GlobalStateManager.nomeUser,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(32.dp))
             }
 
             item {
-                StrategicFocusCard()
+                if (isPrimeiroCarregamentoFocos) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                } else {
+                    StrategicFocusCard()
+                }
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
@@ -71,14 +148,16 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
                         modifier = Modifier.weight(1f),
                         label = "Ideias Pendentes",
                         value = ideiasPendentes.toString(),
-                        color = MaterialTheme.colorScheme.onBackground.copy(.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(.7f),
+                        isLoading = isLoadingIdeias
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     StatusIndicatorCard(
                         modifier = Modifier.weight(1f),
                         label = "Em análise",
                         value = ideiasEmAnalise.toString(),
-                        color = MaterialTheme.colorScheme.onBackground.copy(.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(.7f),
+                        isLoading = isLoadingIdeias
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +181,13 @@ fun GestorHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
 }
 
 @Composable
-fun StatusIndicatorCard(modifier: Modifier, label: String, value: String, color: Color) {
+fun StatusIndicatorCard(
+    modifier: Modifier,
+    label: String,
+    value: String,
+    color: Color,
+    isLoading: Boolean
+) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -112,7 +197,21 @@ fun StatusIndicatorCard(modifier: Modifier, label: String, value: String, color:
     ) {
         Text(text = label, color = MaterialTheme.colorScheme.onSurface.copy(.5f), fontSize = 12.sp)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = value, color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        } else {
+            Text(text = value, color = color, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -143,18 +242,32 @@ fun CuradoriaCard(title: String, subtitle: String, onClick: () -> Unit) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(text = title, color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = MaterialTheme.colorScheme.onSurface.copy(.5f), fontSize = 13.sp)
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = subtitle,
+                color = MaterialTheme.colorScheme.onSurface.copy(.5f),
+                fontSize = 13.sp
+            )
         }
     }
 }
 
-@Preview(showBackground = true,
+@Preview(
+    showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
 @Composable
 fun GestorPreview() {
     AguiaBrancaChallengeTheme {
-        GestorHomeScreen()
+        GestorHomeScreen(
+            onNavigateBottomBar = {},
+            estrategiaRepository = EstrategiaRepository(),
+            ideiaRepository = IdeiaRepository()
+        )
     }
 }

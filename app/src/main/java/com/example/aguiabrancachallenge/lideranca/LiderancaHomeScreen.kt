@@ -74,7 +74,7 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
         ) {
             item {
                 Text(text = "Olá,", color = MaterialTheme.colorScheme.onSurface.copy(.75f), fontSize = 16.sp)
-                Text(text = GlobalStateManager.nomeLideranca, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Text(text = GlobalStateManager.nomeUser, color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
             }
 

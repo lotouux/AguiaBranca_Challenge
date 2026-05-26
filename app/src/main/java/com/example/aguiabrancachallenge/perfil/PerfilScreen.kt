@@ -39,7 +39,6 @@ fun PerfilScreen(
     profile: String,
     onNavigateBottomBar: (String) -> Unit = {},
     onNavigateSubScreen: (String) -> Unit = {},
-    nomeUsuario: String,
     onLogout: () -> Unit = {}
 ) {
 //    val nomeUsuario = when (profile) {
@@ -97,7 +96,7 @@ fun PerfilScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = getIniciais(nomeUsuario),
+                        text = getIniciais(GlobalStateManager.nomeUser),
                         color = Color.White,
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Bold
@@ -107,7 +106,7 @@ fun PerfilScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = nomeUsuario,
+                    text = GlobalStateManager.nomeUser,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -282,6 +281,6 @@ fun MenuButton(texto: String, onClick: () -> Unit) {
 @Composable
 fun PerfilScreenPreview() {
     AguiaBrancaChallengeTheme {
-        PerfilScreen(profile = "Operador", nomeUsuario = "Pedro Miranda")
+        PerfilScreen(profile = "Operador")
     }
 }

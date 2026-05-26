@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val darkMode = ThemeManager.isDarkMode.value
 
-            AguiaBrancaChallengeTheme (darkTheme = darkMode) {
+            AguiaBrancaChallengeTheme(darkTheme = darkMode) {
                 var appState by remember { mutableIntStateOf(0) }
                 var currentScreen by remember { mutableStateOf("login_selection") }
                 var selectedProfile by remember { mutableStateOf("") }
@@ -62,6 +62,10 @@ class MainActivity : ComponentActivity() {
 
                 val perfilLogged = authRepository.getPerfil()
                 val nomeUsuario = authRepository.getNome()
+
+                if (!nomeUsuario.isNullOrEmpty()){
+                    GlobalStateManager.nomeUser = nomeUsuario;
+                }
 
                 LaunchedEffect(Unit) {
                     if (authRepository.isLogged()) {
@@ -112,7 +116,11 @@ class MainActivity : ComponentActivity() {
                             }
 
                             when (selectedProfile) {
-                                "Gestor" -> GestorHomeScreen(onNavigateBottomBar = navigationHandler)
+                                "Gestor" -> GestorHomeScreen(
+                                    onNavigateBottomBar = navigationHandler,
+                                    ideiaRepository = ideiaRepository,
+                                    estrategiaRepository = estrategiaRepository
+                                )
                                 "Liderança" -> LiderancaHomeScreen(onNavigateBottomBar = navigationHandler)
                                 else -> OperadorHomeScreen(
                                     onNavigateBottomBar = navigationHandler,
@@ -131,7 +139,8 @@ class MainActivity : ComponentActivity() {
                                 onProjetoClick = { projectId ->
                                     selectedProjectId = projectId
                                     currentScreen = "detalhes_projeto"
-                                }
+                                },
+                                ideiaRepository = ideiaRepository
                             )
                         }
 
@@ -147,7 +156,8 @@ class MainActivity : ComponentActivity() {
                                     onBack = { currentScreen = "projetos" },
                                     onNavigateBottomBar = { route ->
                                         currentScreen = if (route == "inicio") "home" else route
-                                    }
+                                    },
+                                    ideiaRepository = ideiaRepository
                                 )
                             }
                         }
@@ -166,7 +176,8 @@ class MainActivity : ComponentActivity() {
                             GestorInboxScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
-                                }
+                                },
+                                ideiaRepository = ideiaRepository
                             )
                         }
 
@@ -200,8 +211,7 @@ class MainActivity : ComponentActivity() {
                                     currentScreen = "login_selection"
                                     authRepository.logout()
                                     selectedProfile = ""
-                                },
-                                nomeUsuario = nomeUsuario!!
+                                }
                             )
                         }
 

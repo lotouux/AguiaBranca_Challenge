@@ -1,9 +1,11 @@
 package com.example.aguiabrancachallenge.data
 
+import android.content.Context.MODE_PRIVATE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import com.example.aguiabrancachallenge.repository.AuthRepository
 
 // Esse bonitinho aqui ta servindo como simulação de API
 
@@ -74,11 +76,11 @@ val Ideia.progress: Float
 // Calcula o progresso lendo os marcos do projeto
 val Ideia.progressoReal: Float
     get() {
-        if (marcos.isNotEmpty()) {
-            val concluidos = marcos.count { it.isCompleto }
-            return concluidos.toFloat() / marcos.size.toFloat()
-        }
-        return this.progress
+        val total = marcos.size
+        if (total == 0) return 0f
+
+        val concluidos = marcos.count { it.isCompleto }
+        return concluidos.toFloat() / total.toFloat()
     }
 
 val Ideia.areaColor: Color
@@ -91,9 +93,11 @@ val Ideia.areaColor: Color
 
 // 3. O Banco de Dados Global em Memória (API Simulada)
 object GlobalStateManager {
-    var nomeOperador by mutableStateOf("Pedro Miranda")
-    var nomeGestor by mutableStateOf("Leonardo Martin")
-    var nomeLideranca by mutableStateOf("Beatriz Camargo")
+//    var nomeOperador by mutableStateOf("Pedro Miranda")
+//    var nomeGestor by mutableStateOf("Leonardo Martin")
+//    var nomeLideranca by mutableStateOf("Beatriz Camargo")
+
+    var nomeUser by mutableStateOf("")
 
     // Guarda o Foco do Mês (Se a Liderança mudar aqui, muda no app todo)
     var  listaDeFocos by mutableStateOf<List<StrategicFocus>>(

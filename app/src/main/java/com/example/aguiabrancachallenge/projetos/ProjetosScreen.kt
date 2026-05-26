@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +49,7 @@ import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.areaColor
 import com.example.aguiabrancachallenge.data.progressoReal
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.AguiaBrancaChallengeTheme
 import com.example.aguiabrancachallenge.ui.theme.ProgressIndicator
 
@@ -54,10 +57,32 @@ import com.example.aguiabrancachallenge.ui.theme.ProgressIndicator
 fun ProjetosScreen(
     profile: String,
     onNavigateBottomBar: (String) -> Unit = {},
+    ideiaRepository: IdeiaRepository,
     onProjetoClick: (String) -> Unit
 ) {
     val listaProjetos = GlobalStateManager.listaDeIdeias.filter {
         it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída"
+    }
+
+    var isLoadingIdeias by remember {
+        mutableStateOf(true)
+    }
+
+    val minhasIdeias = GlobalStateManager.listaDeIdeias
+
+    val isPrimeiroCarregamentoIdeias =
+        isLoadingIdeias && minhasIdeias.isEmpty()
+
+    LaunchedEffect(Unit) {
+        val result = ideiaRepository.listarIdeias()
+        result.onSuccess {
+            GlobalStateManager.listaDeIdeias = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoadingIdeias = false
     }
 
     var selectedProjectFilter by remember { mutableStateOf("Todos") }
@@ -74,16 +99,21 @@ fun ProjetosScreen(
 
     val navItems = when (profile) {
         "Liderança" -> listOf(
-            Triple("Início", com.example.aguiabrancachallenge.R.drawable.ic_home, "inicio"),
-            Triple("Projetos", com.example.aguiabrancachallenge.R.drawable.ic_target, "projetos"),
-            Triple("Resultados", com.example.aguiabrancachallenge.R.drawable.ic_lamp, "gestao_estrategica"),
-            Triple("Perfil", com.example.aguiabrancachallenge.R.drawable.ic_person, "perfil")
+            Triple("Início", R.drawable.ic_home, "inicio"),
+            Triple("Projetos", R.drawable.ic_target, "projetos"),
+            Triple(
+                "Resultados",
+                R.drawable.ic_lamp,
+                "gestao_estrategica"
+            ),
+            Triple("Perfil", R.drawable.ic_person, "perfil")
         )
+
         else -> listOf(
-            Triple("Início", com.example.aguiabrancachallenge.R.drawable.ic_home, "inicio"),
-            Triple("Inbox", com.example.aguiabrancachallenge.R.drawable.ic_inbox, "inbox"),
-            Triple("Projetos", com.example.aguiabrancachallenge.R.drawable.ic_target, "projetos"),
-            Triple("Perfil", com.example.aguiabrancachallenge.R.drawable.ic_person, "perfil")
+            Triple("Início", R.drawable.ic_home, "inicio"),
+            Triple("Inbox", R.drawable.ic_inbox, "inbox"),
+            Triple("Projetos", R.drawable.ic_target, "projetos"),
+            Triple("Perfil", R.drawable.ic_person, "perfil")
         )
     }
 
@@ -150,21 +180,41 @@ fun ProjetosScreen(
             }
 
             items(projetosFiltrados) { projeto ->
-                ProjetoListItem(
-                    titulo = projeto.titulo,
-                    descricao = projeto.descricao,
-                    progresso = projeto.progressoReal,
-                    corArea = projeto.areaColor,
-                    onClick = { onProjetoClick(projeto.id) }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                if (isPrimeiroCarregamentoIdeias) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                } else {
+                    ProjetoListItem(
+                        titulo = projeto.titulo,
+                        descricao = projeto.descricao,
+                        progresso = projeto.progressoReal,
+                        corArea = projeto.areaColor,
+                        onClick = { onProjetoClick(projeto.id) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, corArea: Color, onClick: () -> Unit) {
+fun ProjetoListItem(
+    titulo: String,
+    descricao: String,
+    progresso: Float,
+    corArea: Color,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -268,8 +318,8 @@ fun ProjetoListItem(titulo: String, descricao: String, progresso: Float, corArea
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewProjetosScreen(){
+private fun PreviewProjetosScreen() {
     AguiaBrancaChallengeTheme {
-        ProjetosScreen("Gestor", {}, {})
+        ProjetosScreen("Gestor", {}, IdeiaRepository(), {})
     }
 }

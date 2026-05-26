@@ -22,6 +22,17 @@ data class IdeiaResponseDTO(
     val responsavel: String
 )
 
+data class AtualizarIdeiaRequest(
+    val status: String? = null,
+    val prioridade: String? = null,
+    val isStrategicBonus: Boolean? = null,
+    val responsavel: String? = null,
+    val prazo: String? = null,
+    val investimento: Float? = null,
+    val retorno: Float? = null,
+    val roiEsperado: Float? = null
+)
+
 data class MarcoProjetoDTO(
     val id: Int,
     val titulo: String,

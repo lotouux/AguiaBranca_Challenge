@@ -93,7 +93,7 @@ fun OperadorEstrategiaScreen(
             item {
                 Text(text = "FOCO ATUAL", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(12.dp))
-                if (isLoading) {
+                if (isPrimeiroCarregamento) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
