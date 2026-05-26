@@ -24,19 +24,28 @@ import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.StrategicFocus
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.EstrategiaRepository
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+fun LiderancaGestaoEstrategicaScreen(
+    onNavigateBottomBar: (String) -> Unit = {},
+    ideiaRepository: IdeiaRepository,
+    estrategiaRepository: EstrategiaRepository
+    ) {
     var editingFocus by remember { mutableStateOf<StrategicFocus?>(null) }
     var isCreating by remember { mutableStateOf(false) }
-    var metas by remember { mutableStateOf(GlobalStateManager.listaDeFocos) }
 
-    fun atualizarListaGlobais() {
-        GlobalStateManager.listaDeFocos = metas
+    val viewModel = remember { LiderancaViewModel(ideiaRepository, estrategiaRepository) }
+
+    LaunchedEffect(Unit) {
+        viewModel.buscarFocos()
     }
+
+    val metas = viewModel.focos
 
     val navItemsLideranca = listOf(
         Triple("Início", R.drawable.ic_home, "inicio"),
@@ -68,20 +77,7 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
             EditarMetaForm(
                 initialFocus = editingFocus,
                 onSave = { focoAtualizado ->
-                    metas = if (isCreating) {
-                        if (focoAtualizado.ativo) {
-                            metas.map { it.copy(ativo = false) } + focoAtualizado
-                        } else {
-                            metas + focoAtualizado
-                        }
-                    } else {
-                        metas.map {
-                            if (it.id == focoAtualizado.id) focoAtualizado
-                            else if (focoAtualizado.ativo) it.copy(ativo = false)
-                            else it
-                        }
-                    }
-                    atualizarListaGlobais()
+                    viewModel.salvarFoco(focoAtualizado)
                     editingFocus = null
                     isCreating = false
                 },
@@ -119,16 +115,12 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
                         meta = meta,
                         onEdit = { editingFocus = meta },
                         onDelete = {
-                            metas = metas.filter { it.id != meta.id }
-                            atualizarListaGlobais()
+                            viewModel.deletarFoco(meta.id)
                         },
                         onToggleActive = { isActive ->
-                            metas = metas.map {
-                                if (it.id == meta.id) it.copy(ativo = isActive)
-                                else if (isActive) it.copy(ativo = false)
-                                else it
+                            if (isActive) {
+                                viewModel.setFocoAtivo(meta.id)
                             }
-                            atualizarListaGlobais()
                         }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -141,6 +133,8 @@ fun LiderancaGestaoEstrategicaScreen(onNavigateBottomBar: (String) -> Unit = {})
 @Composable
 fun MetaCard(meta: StrategicFocus, onEdit: () -> Unit, onDelete: () -> Unit, onToggleActive: (Boolean) -> Unit) {
     val borderColor = if (meta.ativo) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inverseSurface
+    val isActive = meta.ativo
+
     Column(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background).border(1.dp, borderColor, RoundedCornerShape(16.dp))
     ) {
@@ -157,7 +151,24 @@ fun MetaCard(meta: StrategicFocus, onEdit: () -> Unit, onDelete: () -> Unit, onT
                         }
                     }
                 }
-                Switch(checked = meta.ativo, onCheckedChange = onToggleActive, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedThumbColor = Color.Gray, uncheckedTrackColor = Color.DarkGray))
+                Switch(
+                    checked = isActive,
+                    onCheckedChange = { checked ->
+                        // só permite ativar, nunca desativar
+                        if (checked && !isActive) {
+                            onToggleActive(true)
+                        }
+                    },
+                    enabled = !isActive, // impede interação quando já está ativo
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                        uncheckedThumbColor = Color.Gray,
+                        uncheckedTrackColor = Color.DarkGray,
+                        disabledCheckedTrackColor = MaterialTheme.colorScheme.primary,
+                        disabledCheckedThumbColor = Color.White
+                    )
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = meta.titulo, color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -281,6 +292,6 @@ fun border(width: androidx.compose.ui.unit.Dp, color: Color, shape: androidx.com
 @Composable
 fun GestaoEstrategicaPreview() {
     AguiaBrancaChallengeTheme {
-        LiderancaGestaoEstrategicaScreen()
+        LiderancaGestaoEstrategicaScreen({},IdeiaRepository(), EstrategiaRepository())
     }
 }

@@ -9,7 +9,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,16 +28,51 @@ import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.components.StrategicFocusCard
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.Ideia
-import com.example.aguiabrancachallenge.data.StrategicFocus
 import com.example.aguiabrancachallenge.data.areaColor
 import com.example.aguiabrancachallenge.data.statusColor
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
+import com.example.aguiabrancachallenge.repository.EstrategiaRepository
+import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
-fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
+fun LiderancaHomeScreen(
+    onNavigateBottomBar: (String) -> Unit = {},
+    ideiaRepository: IdeiaRepository,
+    estrategiaRepository: EstrategiaRepository
+) {
 
-    val todasIdeias = GlobalStateManager.listaDeIdeias
+    val viewModel = remember { LiderancaViewModel(
+        ideiaRepository,
+        estrategiaRepository
+    ) }
+
+    LaunchedEffect(Unit) {
+        viewModel.buscarIdeias()
+    }
+
+    val todasIdeias = viewModel.ideias
+
+    val focosEstrategicos = GlobalStateManager.listaDeFocos;
+
+    var isLoadingFocos by remember {
+        mutableStateOf(true)
+    }
+
+    val isPrimeiroCarregamentoFocos =
+        isLoadingFocos && focosEstrategicos.isEmpty()
+
+    LaunchedEffect(Unit) {
+        val result = estrategiaRepository.listarFocosEstrategicos()
+        result.onSuccess {
+            GlobalStateManager.listaDeFocos = it
+        }
+        result.onFailure {
+            println(it.message)
+        }
+
+        isLoadingFocos = false
+    }
 
     // Cálculos Dinâmicos Financeiros
     val projetosComFinanceiro = todasIdeias.filter { it.investimento > 0f }
@@ -79,7 +119,21 @@ fun LiderancaHomeScreen(onNavigateBottomBar: (String) -> Unit = {}) {
             }
 
             item {
-                StrategicFocusCard()
+                if (isPrimeiroCarregamentoFocos) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                } else {
+                    StrategicFocusCard()
+                }
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
@@ -151,7 +205,9 @@ fun FinancialDashboardCard(roiTotal: Int, investidoTotal: Double, retornoTotal: 
                     .background(Color(0xFF4CAF50).copy(alpha = 0.2f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Box(modifier = Modifier.size(24.dp).background(Color(0xFF4CAF50), CircleShape))
+                Box(modifier = Modifier
+                    .size(24.dp)
+                    .background(Color(0xFF4CAF50), CircleShape))
             }
         }
 
@@ -191,7 +247,9 @@ fun MetricGridCard(modifier: Modifier, title: String, count: Int, color: Color) 
                 .background(color.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Box(modifier = Modifier.size(16.dp).background(color, RoundedCornerShape(4.dp)))
+            Box(modifier = Modifier
+                .size(16.dp)
+                .background(color, RoundedCornerShape(4.dp)))
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(text = count.toString(), color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
@@ -225,7 +283,9 @@ fun ImpactByDivisionCard(ideias: List<Ideia>) {
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier.size(10.dp).background(color, CircleShape))
+                Box(modifier = Modifier
+                    .size(10.dp)
+                    .background(color, CircleShape))
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(text = area, color = color, fontSize = 14.sp, modifier = Modifier.weight(1f))
 
@@ -245,24 +305,35 @@ fun ImpactByDivisionCard(ideias: List<Ideia>) {
 
 @Composable
 fun ProjectReturnsSection(projetos: List<Ideia>) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.inverseSurface,
+                RoundedCornerShape(16.dp)
+            )
             .padding(24.dp)
     ) {
-        Text("Retorno por Projeto", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
+        Text(
+            "Retorno por Projeto",
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         projetos.forEach { projeto ->
 
             val lucro = projeto.retorno - projeto.investimento
-            val roi =
-                if (projeto.investimento > 0)
-                    ((lucro / projeto.investimento) * 100).toInt()
-                else 0
+            val roi = if (projeto.investimento > 0)
+                ((lucro / projeto.investimento) * 100).toInt()
+            else 0
 
             Row(
                 modifier = Modifier
@@ -275,24 +346,20 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
                         RoundedCornerShape(16.dp)
                     )
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.15f))
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                    .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Column(modifier = Modifier.weight(1f)) {
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = projeto.titulo,
                             color = MaterialTheme.colorScheme.onBackground,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.weight(1f),
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
                         )
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -304,78 +371,53 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "Investimento: R$",
-                                color = Color.Gray,
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
-
-                            Spacer(modifier = Modifier.height(2.dp))
-
-                            Text(
-                                text = formatK(projeto.investimento.toDouble()),
-                                color = Color.Gray,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1
-                            )
-                        }
-
-                        Text(
-                            text = "|",
-                            color = Color.DarkGray,
-                            fontSize = 16.sp
+                        FinanceMiniCard(
+                            title = "Investimento",
+                            value = formatK(projeto.investimento.toDouble()),
+                            color = Color.Gray
                         )
 
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "Lucro: R$",
-                                color = Color(0xFF32D74B),
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
-
-                            Spacer(modifier = Modifier.height(2.dp))
-
-                            Text(
-                                text = formatK(lucro.toDouble()),
-                                color = Color(0xFF32D74B),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1
-                            )
-                        }
+                        FinanceMiniCard(
+                            title = "Lucro",
+                            value = formatK(lucro.toDouble()),
+                            color = if (lucro >= 0) Color(0xFF32D74B) else Color.Red
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Box(
-                    modifier = Modifier
-                        .background(
-                            Color(0xFF32D74B),
-                            RoundedCornerShape(50)
+                Column(horizontalAlignment = Alignment.End) {
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                if (roi >= 0) Color(0xFF32D74B) else Color.Red,
+                                RoundedCornerShape(50)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "ROI",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                        .padding(horizontal = 14.dp, vertical = 5.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     Text(
-                        text = "ROI $roi%",
-                        color = Color.White,
-                        fontSize = 10.sp,
+                        text = "$roi%",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -393,6 +435,26 @@ fun ProjectReturnsSection(projetos: List<Ideia>) {
     }
 }
 
+@Composable
+fun FinanceMiniCard(
+    title: String,
+    value: String,
+    color: Color
+) {
+    Column(modifier = Modifier.widthIn(min = 80.dp)) {
+        Text(title, color = Color.Gray, fontSize = 10.sp)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            value,
+            color = color,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
 // Função utilitária para formatar valores grandes em K
 fun formatK(value: Double): String {
     val emK = (value / 1000).toInt()
@@ -403,6 +465,10 @@ fun formatK(value: Double): String {
 @Composable
 fun LiderancaPreview() {
     AguiaBrancaChallengeTheme {
-        LiderancaHomeScreen()
+        LiderancaHomeScreen(
+            onNavigateBottomBar = { },
+            ideiaRepository = IdeiaRepository(),
+            estrategiaRepository = EstrategiaRepository()
+        )
     }
 }

@@ -17,23 +17,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-
-    // @POST("api/auth/sign-in")
-    // suspend fun signIn(@Body request: SignInRequest): Response<SignInResponse>
-
-    //@GET("api/analytics/dimensions")
-    // suspend fun getDimensions(@Query("period") period: String? = null): Response<DimensionsResponse>
-
-    // @DELETE("api/goals/{id}")
-    // suspend fun deleteGoal(@Path("id") id: Int): Response<Unit>
-
-    //@PUT("api/goals/{goalId}/tasks/{id}")
-    //suspend fun updateTask(
-        //@Path("goalId") goalId: Int,
-        //@Path("id") id: Int,
-        //@Body request: UpdateTaskRequest
-    //): Response<TaskResponse>
-
     @POST("api/auth/login")
     suspend fun signIn(@Body request: SignInRequest): Response<SignInResponse>
     
@@ -51,6 +34,25 @@ interface ApiService {
 
     @GET("api/estrategia/focos")
     suspend fun listarFocosEstrategicos(): Response<List<FocoEstrategiaDTO>>
+
+    @POST("api/estrategia/focos")
+    suspend fun criarFoco(
+        @Body body: FocoEstrategiaDTO
+    ): Response<Unit>
+
+    @PATCH("api/estrategia/focos/{id}")
+    suspend fun atualizarFoco(
+        @Path("id") id: String,
+        @Body body: FocoEstrategiaDTO
+    ): Response<Unit>
+
+    @DELETE("api/estrategia/focos/{id}")
+    suspend fun deletarFoco(
+        @Path("id") id: String
+    ): Response<Unit>
+
+    @PATCH("api/estrategia/focos/{id}/ativar")
+    suspend fun ativarFoco(@Path("id") id: String): Response<Unit>
 
     @POST("api/ideias/{id}/marcos")
     suspend fun criarMarco(

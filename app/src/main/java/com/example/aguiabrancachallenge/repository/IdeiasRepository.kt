@@ -2,6 +2,7 @@ package com.example.aguiabrancachallenge.repository
 
 import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.data.MarcoProjeto
+import com.example.aguiabrancachallenge.data.StrategicFocus
 import com.example.aguiabrancachallenge.data.models.AtualizarIdeiaRequest
 import com.example.aguiabrancachallenge.data.models.CriarIdeiaRequest
 import com.example.aguiabrancachallenge.network.RetrofitClient

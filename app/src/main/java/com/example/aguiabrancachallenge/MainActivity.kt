@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 val perfilLogged = authRepository.getPerfil()
                 val nomeUsuario = authRepository.getNome()
 
-                if (!nomeUsuario.isNullOrEmpty()){
+                if (!nomeUsuario.isNullOrEmpty()) {
                     GlobalStateManager.nomeUser = nomeUsuario;
                 }
 
@@ -121,7 +121,13 @@ class MainActivity : ComponentActivity() {
                                     ideiaRepository = ideiaRepository,
                                     estrategiaRepository = estrategiaRepository
                                 )
-                                "Liderança" -> LiderancaHomeScreen(onNavigateBottomBar = navigationHandler)
+
+                                "Liderança" -> LiderancaHomeScreen(
+                                    onNavigateBottomBar = navigationHandler,
+                                    ideiaRepository = ideiaRepository,
+                                    estrategiaRepository = estrategiaRepository
+                                )
+
                                 else -> OperadorHomeScreen(
                                     onNavigateBottomBar = navigationHandler,
                                     ideiaRepository = ideiaRepository,
@@ -194,7 +200,9 @@ class MainActivity : ComponentActivity() {
                             LiderancaGestaoEstrategicaScreen(
                                 onNavigateBottomBar = { route ->
                                     currentScreen = if (route == "inicio") "home" else route
-                                }
+                                },
+                                ideiaRepository = ideiaRepository,
+                                estrategiaRepository = estrategiaRepository
                             )
                         }
 
