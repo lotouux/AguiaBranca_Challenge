@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +14,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.example.aguiabrancachallenge.SplashScreen
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.preferences.ThemePreferences
 import com.example.aguiabrancachallenge.projetos.DetalhesProjetoScreen
-import kotlinx.coroutines.delay
 import com.example.aguiabrancachallenge.ui.theme.*
 import com.example.aguiabrancachallenge.operador.OperadorHomeScreen
 import com.example.aguiabrancachallenge.gestor.GestorHomeScreen
@@ -55,30 +58,17 @@ class MainActivity : ComponentActivity() {
             val darkMode = ThemeManager.isDarkMode.value
 
             AguiaBrancaChallengeTheme(darkTheme = darkMode) {
-                var appState by remember { mutableIntStateOf(0) }
-                var currentScreen by remember { mutableStateOf("login_selection") }
-                var selectedProfile by remember { mutableStateOf("") }
+                // A tela inicial agora é sempre a "splash"
+                var currentScreen by remember { mutableStateOf("splash") }
+
+                // Já pegamos o perfil salvo caso o usuário esteja logado
+                var selectedProfile by remember { mutableStateOf(authRepository.getPerfil() ?: "") }
                 var selectedProjectId by remember { mutableStateOf("") }
 
-                val perfilLogged = authRepository.getPerfil()
                 val nomeUsuario = authRepository.getNome()
 
                 if (!nomeUsuario.isNullOrEmpty()) {
-                    GlobalStateManager.nomeUser = nomeUsuario;
-                }
-
-                LaunchedEffect(Unit) {
-                    if (authRepository.isLogged()) {
-                        selectedProfile = perfilLogged ?: ""
-                        currentScreen = "home"
-                    }
-                }
-
-                LaunchedEffect(Unit) {
-                    delay(2500)
-                    appState = 1
-                    delay(800)
-                    appState = 2
+                    GlobalStateManager.nomeUser = nomeUsuario
                 }
 
                 Box(
@@ -87,17 +77,16 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .navigationBarsPadding()
                 ) {
+                    // Aqui ficam todas as outras telas (elas ficam renderizadas no fundo)
                     when (currentScreen) {
                         "login_selection" -> {
-                            if (appState >= 1) {
-                                LoginScreen(
-                                    isTransitioning = appState == 1,
-                                    onProfileConfirmed = { profile ->
-                                        selectedProfile = profile
-                                        currentScreen = "credentials"
-                                    }
-                                )
-                            }
+                            LoginScreen(
+                                isTransitioning = false, // Pode manter ou até remover se não precisar mais dessa variável
+                                onProfileConfirmed = { profile ->
+                                    selectedProfile = profile
+                                    currentScreen = "credentials"
+                                }
+                            )
                         }
 
                         "credentials" -> {
@@ -110,7 +99,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                         "home" -> {
-                            // Handler unificado de navegação inferior
                             val navigationHandler: (String) -> Unit = { route ->
                                 currentScreen = if (route == "inicio") "home" else route
                             }
@@ -236,8 +224,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    if (appState <= 1) {
-                        LoadingScreen(isTransitioning = appState == 1)
+                    // A Splash Screen fica POR CIMA de tudo, e some com um fade suave!
+                    AnimatedVisibility(
+                        visible = currentScreen == "splash",
+                        exit = fadeOut(animationSpec = tween(durationMillis = 800))
+                    ) {
+                        SplashScreen(
+                            onLoadingComplete = {
+                                // Decide para onde ir quando a barra carregar:
+                                // Vai direto para a Home se já estiver logado, se não, vai pro Login!
+                                currentScreen = if (authRepository.isLogged()) "home" else "login_selection"
+                            }
+                        )
                     }
                 }
             }
