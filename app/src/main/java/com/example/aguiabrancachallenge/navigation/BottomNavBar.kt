@@ -1,20 +1,27 @@
 package com.example.aguiabrancachallenge.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.aguiabrancachallenge.ui.theme.BottomNavUnselected
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavBar(
@@ -23,54 +30,82 @@ fun BottomNavBar(
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
+    // Cores Premium atualizadas
+    val bgIslandColor = Color(0xFF16181D)
+    val premiumIceBlue = Color(0xFFC2D3E0)
+    val unselectedColor = Color(0xFF555555)
+
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .navigationBarsPadding(),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        tonalElevation = 0.dp,
-        shadowElevation = 8.dp
+            .navigationBarsPadding()
+            .padding(horizontal = 32.dp, vertical = 16.dp),
+        contentAlignment = Alignment.Center
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+                .clip(RoundedCornerShape(32.dp))
+                .background(bgIslandColor)
+                .border(1.dp, Color(0xFF222222), RoundedCornerShape(32.dp))
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            items.forEach { (_, iconId, route) ->
-
+            items.forEach { (name, iconId, route) ->
                 val isSelected = currentRoute == route
+
+                val contentColor by animateColorAsState(
+                    targetValue = if (isSelected) premiumIceBlue else unselectedColor,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "contentColor"
+                )
+
+                val pillBgColor by animateColorAsState(
+                    targetValue = if (isSelected) premiumIceBlue.copy(alpha = 0.12f) else Color.Transparent,
+                    animationSpec = tween(durationMillis = 300),
+                    label = "pillBgColor"
+                )
 
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(pillBgColor)
                         .clickable(
-                            interactionSource = remember {
-                                MutableInteractionSource()
-                            },
+                            interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
-                            onNavigate(route)
-                        },
+                            if (!isSelected) onNavigate(route)
+                        }
+                        .padding(
+                            horizontal = if (isSelected) 14.dp else 10.dp,
+                            vertical = 10.dp
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = iconId),
+                            contentDescription = name,
+                            modifier = Modifier.size(20.dp),
+                            tint = contentColor
+                        )
 
-                    Icon(
-                        painter = painterResource(id = iconId),
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = if (isSelected) {
-                            MaterialTheme.colorScheme.tertiary
-                        } else {
-                            BottomNavUnselected
+                        AnimatedVisibility(visible = isSelected) {
+                            Row {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = name,
+                                    color = contentColor,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
-                    )
+                    }
                 }
             }
         }
