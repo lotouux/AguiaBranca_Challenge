@@ -7,12 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,19 +19,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
-import com.example.aguiabrancachallenge.components.StrategicFocusCard
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
-fun getAreaColor(area: String): Color {
-    return when (area) {
-        "Logística" -> Color(0xFFB388FF)
-        "Passageiros" -> Color(0xFF18FFFF)
-        "Comércio" -> Color(0xFFFF4081)
-        else -> Color.LightGray
-    }
+private val DarkBg     = Color(0xFF0A0C10)
+private val DarkCard   = Color(0xFF12141A)
+private val DarkBorder = Color(0xFF222222)
+private val DarkSub    = Color(0xFF555555)
+private val BrandBlueE = Color(0xFF0088FF)
+
+fun getAreaColor(area: String): Color = when (area) {
+    "Logística"   -> Color(0xFFB388FF)
+    "Passageiros" -> Color(0xFF18FFFF)
+    "Comércio"    -> Color(0xFFFF4081)
+    else          -> Color(0xFF8A8F98)
 }
 
 @Composable
@@ -44,227 +42,289 @@ fun OperadorEstrategiaScreen(
     onNavigateBottomBar: (String) -> Unit = {},
     estrategiaRepository: EstrategiaRepository
 ) {
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
-
-    val focosEstrategicos = GlobalStateManager.listaDeFocos;
-
-    val isPrimeiroCarregamento =
-        isLoading && focosEstrategicos.isEmpty()
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        val result = estrategiaRepository.listarFocosEstrategicos()
-        result.onSuccess {
+        estrategiaRepository.listarFocosEstrategicos().onSuccess {
             GlobalStateManager.listaDeFocos = it
         }
-        result.onFailure {
-            println(it.message)
-        }
-
         isLoading = false
     }
 
+    val focosEstrategicos = GlobalStateManager.listaDeFocos
+    val focoAtivo = GlobalStateManager.currentFocus
+    val isPrimeiroCarregamento = isLoading && focosEstrategicos.isEmpty()
+
     Scaffold(
         bottomBar = {
-            val navItemsOperador = listOf(
-                Triple("Início", R.drawable.ic_home, "inicio"),
-                Triple("Ideias", R.drawable.ic_lamp, "ideias"),
+            val navItems = listOf(
+                Triple("Início",     R.drawable.ic_home,   "inicio"),
+                Triple("Ideias",     R.drawable.ic_lamp,   "ideias"),
                 Triple("Estratégia", R.drawable.ic_target, "estrategia"),
-                Triple("Perfil", R.drawable.ic_person, "perfil")
+                Triple("Perfil",     R.drawable.ic_person, "perfil")
             )
-            BottomNavBar(currentRoute = "estrategia", items = navItemsOperador, onNavigate = onNavigateBottomBar)
+            BottomNavBar(currentRoute = "estrategia", items = navItems, onNavigate = onNavigateBottomBar)
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = DarkBg
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            contentPadding = PaddingValues(top = 40.dp, bottom = 24.dp)
+                .padding(horizontal = 20.dp),
+            contentPadding = PaddingValues(top = 32.dp, bottom = 32.dp)
         ) {
-            item {
-                Text(text = "Estratégia", color = MaterialTheme.colorScheme.onBackground, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                Text(text = "Saiba onde focar suas ideias", color = Color.Gray, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-
-            item {
-                Text(text = "FOCO ATUAL", color = Color.Gray, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(12.dp))
-                if (isPrimeiroCarregamento) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                    }
-                }else {
-                    StrategicFocusCard()
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-
+            // ── cabeçalho ──
             item {
                 Text(
-                    text = "PRÓXIMOS FOCOS",
-                    color = Color.Gray,
-                    fontSize = 12.sp,
+                    "ESTRATÉGIA · OPERADOR",
+                    color = Color(0xFF7A8A99),
+                    fontSize = 11.sp,
+                    letterSpacing = 2.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Estratégia",
+                    color = Color.White,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "Saiba onde focar suas ideias",
+                    color = Color(0xFF8A8F98),
+                    fontSize = 14.sp
+                )
+                Spacer(Modifier.height(28.dp))
+            }
+
+            // ── foco atual ──
+            item {
+                SectionHeader("FOCO ATUAL")
+                if (isPrimeiroCarregamento) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = BrandBlueE, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
+                    }
+                } else {
+                    DarkFocoAtualCard(
+                        titulo    = focoAtivo?.titulo   ?: "Nenhum foco ativo",
+                        descricao = focoAtivo?.descricao ?: "Aguarde a liderança definir o próximo foco.",
+                        mes       = focoAtivo?.mes       ?: "--"
+                    )
+                }
+                Spacer(Modifier.height(28.dp))
+            }
+
+            // ── próximos focos ──
+            item {
+                SectionHeader("PRÓXIMOS FOCOS")
             }
 
             if (isPrimeiroCarregamento) {
                 item {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        CircularProgressIndicator(color = BrandBlueE, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                     }
                 }
-            }else {
-                items(focosEstrategicos) { foco ->
-                    if (foco.ativo == false) {
-                        ProximoFocoCard(
-                            titulo = foco.titulo,
-                            mes = foco.mes,
-                            descricao = foco.descricao,
-                            areasPotenciais = foco.areasPotenciais
-                        )
-                        Spacer(modifier = Modifier.height(32.dp))
+            } else {
+                val proximosFocos = focosEstrategicos.filter { !it.ativo }
+                if (proximosFocos.isEmpty()) {
+                    item {
+                        Text("Nenhum foco futuro cadastrado.", color = DarkSub, fontSize = 13.sp)
+                        Spacer(Modifier.height(28.dp))
                     }
+                } else {
+                    items(proximosFocos) { foco ->
+                        DarkProximoFocoCard(
+                            titulo           = foco.titulo,
+                            mes              = foco.mes,
+                            descricao        = foco.descricao,
+                            areasPotenciais  = foco.areasPotenciais
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    item { Spacer(Modifier.height(16.dp)) }
                 }
             }
 
+            // ── dica ──
             item {
-                DicaEstrategiaCard()
+                DarkDicaCard()
             }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────
+// FOCO ATUAL CARD
+// ─────────────────────────────────────────────────────────────
 @Composable
-fun ProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenciais: List<String> = emptyList()) {
+fun DarkFocoAtualCard(titulo: String, descricao: String, mes: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(DarkCard)
+            .border(1.dp, BrandBlueE.copy(.4f), RoundedCornerShape(12.dp))
+            .padding(20.dp)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "META ESTRATÉGICA ATUAL",
+                    color = DarkSub,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .background(BrandBlueE.copy(.15f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(mes, color = BrandBlueE, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(titulo, color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text(descricao, color = Color(0xFF8A8F98), fontSize = 13.sp, lineHeight = 18.sp)
+            Spacer(Modifier.height(14.dp))
+            HorizontalDivider(color = Color(0xFF1C1F26))
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Ideias alinhadas a este foco recebem prioridade e +250 KM bônus.",
+                color = Color(0xFF4CAF50),
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// PRÓXIMO FOCO CARD
+// ─────────────────────────────────────────────────────────────
+@Composable
+fun DarkProximoFocoCard(
+    titulo: String,
+    mes: String,
+    descricao: String,
+    areasPotenciais: List<String> = emptyList()
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .background(DarkCard)
+            .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(8.dp)),
+                    .size(38.dp)
+                    .background(Color(0xFF16181D), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_lamp),
+                    painter = painterResource(R.drawable.ic_lamp),
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    tint = Color(0xFF8A8F98),
+                    modifier = Modifier.size(18.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
+            Spacer(Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = titulo,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 16.sp,
+                        titulo,
+                        color = Color.White,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis)
-                    Spacer(modifier = Modifier.width(8.dp))
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .border(1.dp, Color.DarkGray, RoundedCornerShape(50))
+                            .border(1.dp, Color(0xFF333333), RoundedCornerShape(50))
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text(text = mes, color = MaterialTheme.colorScheme.onBackground.copy(.75f), fontSize = 9.sp, maxLines = 1)
+                        Text(mes, color = DarkSub, fontSize = 10.sp)
                     }
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = descricao, color = Color.Gray, fontSize = 12.sp, lineHeight = 16.sp)
+                Spacer(Modifier.height(3.dp))
+                Text(descricao, color = Color(0xFF555555), fontSize = 11.sp, lineHeight = 15.sp)
             }
         }
 
         if (areasPotenciais.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(12.dp))
-            Row {
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 areasPotenciais.forEach { area ->
-                    val corArea = getAreaColor(area)
+                    val cor = getAreaColor(area)
                     Box(
                         modifier = Modifier
-                            .background(corArea.copy(alpha = 0.2f), RoundedCornerShape(50))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(cor.copy(.15f), RoundedCornerShape(50))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text(text = area, color = corArea, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(area, color = cor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
             }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────
+// DICA CARD
+// ─────────────────────────────────────────────────────────────
 @Composable
-fun DicaEstrategiaCard() {
+fun DarkDicaCard() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.tertiary.copy(.65f))
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                RoundedCornerShape(16.dp)
-            )
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF0D1A10))
+            .border(1.dp, Color(0xFF4CAF50).copy(.3f), RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        verticalAlignment = Alignment.Top
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .background(Color(0xFF1A3D63), RoundedCornerShape(8.dp)),
+                .size(38.dp)
+                .background(Color(0xFF4CAF50).copy(.15f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_lamp),
+                painter = painterResource(R.drawable.ic_lamp),
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(20.dp)
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(18.dp)
             )
         }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
+        Spacer(Modifier.width(14.dp))
         Column {
-            Text(text = "Dica", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
+            Text("Dica estratégica", color = Color(0xFF4CAF50), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = "Ideias alinhadas ao foco do mês têm 3x mais chances de serem aprovadas e implementadas rapidamente.",
-                color = MaterialTheme.colorScheme.background,
+                "Ideias alinhadas ao foco do mês têm 3x mais chances de serem aprovadas e implementadas rapidamente.",
+                color = Color(0xFF8A8F98),
                 fontSize = 12.sp,
-                lineHeight = 16.sp
+                lineHeight = 17.sp
             )
         }
     }
@@ -274,9 +334,6 @@ fun DicaEstrategiaCard() {
 @Composable
 fun OperadorEstrategiaPreview() {
     AguiaBrancaChallengeTheme {
-        OperadorEstrategiaScreen(
-            onNavigateBottomBar = { },
-            estrategiaRepository = EstrategiaRepository()
-        )
+        OperadorEstrategiaScreen(onNavigateBottomBar = {}, estrategiaRepository = EstrategiaRepository())
     }
 }

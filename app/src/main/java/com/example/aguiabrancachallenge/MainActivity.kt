@@ -49,6 +49,9 @@ class MainActivity : ComponentActivity() {
         val ideiaRepository = IdeiaRepository()
         val estrategiaRepository = EstrategiaRepository()
 
+        // Restaura o JWT na memória caso o usuário já esteja logado
+        authRepository.restoreSession()
+
         val themePreferences = ThemePreferences(this)
 
         ThemeManager.isDarkMode.value =

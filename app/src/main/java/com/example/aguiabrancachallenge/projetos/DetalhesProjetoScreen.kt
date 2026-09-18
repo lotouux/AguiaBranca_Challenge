@@ -3,6 +3,7 @@ package com.example.aguiabrancachallenge.projetos
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -29,10 +30,16 @@ import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 
-fun formatarMoedaAbreviada(valor: Float): String {
-    if (valor <= 0) return "R$ 0"
-    if (valor >= 1000) return "R$ ${(valor / 1000).toInt()}K"
-    return "R$ ${valor.toInt()}"
+private val DarkBg     = Color(0xFF0A0C10)
+private val DarkCard   = Color(0xFF12141A)
+private val DarkBorder = Color(0xFF222222)
+private val DarkSub    = Color(0xFF555555)
+private val BrandBlueD = Color(0xFF0088FF)
+
+fun formatarMoedaAbreviada(valor: Float): String = when {
+    valor <= 0   -> "R$ 0"
+    valor >= 1000 -> "R$ ${(valor / 1000).toInt()}K"
+    else          -> "R$ ${valor.toInt()}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,290 +52,237 @@ fun DetalhesProjetoScreen(
     onNavigateBottomBar: (String) -> Unit
 ) {
     val nomeUsuarioLogado = GlobalStateManager.nomeUser
-
     val viewModel = remember { DetalhesProjetoViewModel(ideiaRepository) }
+    LaunchedEffect(projeto.id) { viewModel.carregarProjeto(projeto.id) }
 
-    LaunchedEffect(projeto.id) {
-        viewModel.carregarProjeto(projeto.id)
-    }
-
-    val projeto = viewModel.projeto
+    val projetoAtual = viewModel.projeto
 
     var marcoSelecionadoId by remember { mutableStateOf<Int?>(null) }
-    var inputObservacao by remember { mutableStateOf("") }
-    var showDefinirPlano by remember { mutableStateOf(false) }
+    var inputObservacao    by remember { mutableStateOf("") }
+    var showDefinirPlano   by remember { mutableStateOf(false) }
     var showAdicionarMarco by remember { mutableStateOf(false) }
-    var novoMarcoTitulo by remember { mutableStateOf("") }
-
-    var inputPrazo by remember { mutableStateOf("") }
-    var inputInvestimento by remember { mutableStateOf("") }
-    var inputRetorno by remember { mutableStateOf("") }
+    var novoMarcoTitulo    by remember { mutableStateOf("") }
+    var inputPrazo         by remember { mutableStateOf("") }
+    var inputInvestimento  by remember { mutableStateOf("") }
+    var inputRetorno       by remember { mutableStateOf("") }
 
     val navItems = when (profile) {
         "Liderança" -> listOf(
-            Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Projetos", R.drawable.ic_target, "projetos"),
-            Triple("Resultados", R.drawable.ic_lamp, "gestao_estrategica"),
-            Triple("Perfil", R.drawable.ic_person, "perfil")
+            Triple("Início",     R.drawable.ic_home,   "inicio"),
+            Triple("Projetos",   R.drawable.ic_target, "projetos"),
+            Triple("Resultados", R.drawable.ic_lamp,   "gestao_estrategica"),
+            Triple("Perfil",     R.drawable.ic_person, "perfil")
         )
-
         else -> listOf(
-            Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Inbox", R.drawable.ic_inbox, "inbox"),
+            Triple("Início",   R.drawable.ic_home,   "inicio"),
+            Triple("Inbox",    R.drawable.ic_inbox,  "inbox"),
             Triple("Projetos", R.drawable.ic_target, "projetos"),
-            Triple("Perfil", R.drawable.ic_person, "perfil")
+            Triple("Perfil",   R.drawable.ic_person, "perfil")
         )
     }
+
+    val dialogColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor        = Color.White,
+        unfocusedTextColor      = Color.White,
+        focusedBorderColor      = BrandBlueD,
+        unfocusedBorderColor    = DarkBorder,
+        focusedLabelColor       = BrandBlueD,
+        unfocusedLabelColor     = DarkSub,
+        cursorColor             = BrandBlueD,
+        focusedContainerColor   = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { },
+                title = {},
                 navigationIcon = {
                     Box(
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .size(40.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                            .clickable { onBack() },
+                            .background(Color(0xFF16181D))
+                            .border(1.dp, DarkBorder, CircleShape)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { onBack() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar",
-                            tint = MaterialTheme.colorScheme.onSurface
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
             )
         },
         bottomBar = {
-            BottomNavBar(
-                currentRoute = "projetos",
-                items = navItems,
-                onNavigate = onNavigateBottomBar
-            )
+            BottomNavBar(currentRoute = "projetos", items = navItems, onNavigate = onNavigateBottomBar)
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = DarkBg
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
+                .padding(horizontal = 20.dp),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp)
         ) {
-            if (projeto == null) {
+            if (projetoAtual == null) {
                 item {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(color = BrandBlueD, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     }
                 }
-
             } else {
+                // ── badge de área + título ──
                 item {
                     Box(
                         modifier = Modifier
-                            .background(
-                                projeto.areaColor.copy(alpha = 0.2f),
-                                RoundedCornerShape(50)
-                            )
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .background(projetoAtual.areaColor.copy(.15f), RoundedCornerShape(50))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
                     ) {
-                        Text(
-                            text = projeto.area,
-                            color = projeto.areaColor,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(projetoAtual.area, color = projetoAtual.areaColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = projeto.titulo,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = projeto.descricao,
-                        color = MaterialTheme.colorScheme.onBackground.copy(.65f),
-                        fontSize = 14.sp,
-                        lineHeight = 20.sp
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(Modifier.height(14.dp))
+                    Text(projetoAtual.titulo, color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                    Spacer(Modifier.height(8.dp))
+                    Text(projetoAtual.descricao, color = Color(0xFF8A8F98), fontSize = 13.sp, lineHeight = 19.sp)
+                    Spacer(Modifier.height(24.dp))
                 }
 
-                if (projeto.status == "Aprovada" && projeto.marcos.isEmpty()) {
+                // ── botão definir plano (somente gestor) ──
+                if (projetoAtual.status == "Aprovada" && projetoAtual.marcos.isEmpty() && profile == "Gestor") {
                     item {
                         Button(
                             onClick = { showDefinirPlano = true },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD)
                         ) {
-                            Text(
-                                "Definir Plano de Execução",
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text("Definir Plano de Execução", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
                 } else {
+                    // ── métricas ──
                     item {
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            CardMetricaFigma(
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Prazo",
-                                valor = projeto.prazo.ifEmpty { "Não definido" },
-                                valorCor = MaterialTheme.colorScheme.onBackground
+                                valor = projetoAtual.prazo.ifEmpty { "Não definido" },
+                                valorCor = Color.White
                             )
-                            val roiText =
-                                if (projeto.roiEsperado > 0) "${(projeto.roiEsperado * 100).toInt()}%" else "0%"
-                            CardMetricaFigma(
+                            val roiText = if (projetoAtual.roiEsperado > 0)
+                                "${(projetoAtual.roiEsperado * 100).toInt()}%" else "0%"
+                            DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "ROI Esperado",
                                 valor = roiText,
-                                valorCor = Color(0xFF53D769)
+                                valorCor = Color(0xFF4CAF50)
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            CardMetricaFigma(
+                        Spacer(Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Investimento",
-                                valor = formatarMoedaAbreviada(projeto.investimento),
-                                valorCor = MaterialTheme.colorScheme.onBackground
+                                valor = formatarMoedaAbreviada(projetoAtual.investimento),
+                                valorCor = Color.White
                             )
-                            CardMetricaFigma(
+                            DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Retorno",
-                                valor = formatarMoedaAbreviada(projeto.retorno),
-                                valorCor = MaterialTheme.colorScheme.onBackground
+                                valor = formatarMoedaAbreviada(projetoAtual.retorno),
+                                valorCor = Color.White
                             )
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
 
+                    // ── progresso ──
                     item {
-                        val porcentagemReal = (projeto.progressoReal * 100).toInt()
+                        val pct = (projetoAtual.progressoReal * 100).toInt()
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.background)
-                                .border(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.inverseSurface,
-                                    RoundedCornerShape(16.dp)
-                                )
-                                .padding(20.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(DarkCard)
+                                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                                .padding(18.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = "Progresso",
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "$porcentagemReal%",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Text("Progresso", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Text("$pct%", color = BrandBlueD, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(Modifier.height(14.dp))
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(8.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(Color(0xFF2A2D38))
+                                modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(50)).background(Color(0xFF1C1F26))
                             ) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxHeight()
-                                        .fillMaxWidth(projeto.progressoReal.coerceIn(0f, 1f))
+                                        .fillMaxWidth(projetoAtual.progressoReal.coerceIn(0f, 1f))
                                         .clip(RoundedCornerShape(50))
-                                        .background(
-                                            if (projeto.progressoReal >= 1f) Color(
-                                                0xFF53D769
-                                            ) else MaterialTheme.colorScheme.primary
-                                        )
+                                        .background(if (projetoAtual.progressoReal >= 1f) Color(0xFF4CAF50) else BrandBlueD)
                                 )
                             }
-                            if (projeto.observacaoProgresso.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Última atualização: ${projeto.observacaoProgresso}",
-                                    color = Color.Gray,
-                                    fontSize = 12.sp,
-                                    lineHeight = 18.sp
-                                )
+                            if (projetoAtual.observacaoProgresso.isNotEmpty()) {
+                                Spacer(Modifier.height(12.dp))
+                                Text("Última atualização: ${projetoAtual.observacaoProgresso}", color = DarkSub, fontSize = 11.sp)
                             }
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
 
+                    // ── marcos ──
                     item {
-                        val marcosConcluidos = projeto.marcos.count { it.isCompleto }
+                        val concluidos = projetoAtual.marcos.count { it.isCompleto }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.background)
-                                .border(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.inverseSurface,
-                                    RoundedCornerShape(16.dp)
-                                )
-                                .padding(20.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(DarkCard)
+                                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                                .padding(18.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "Marcos",
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                IconButton(onClick = { showAdicionarMarco = true }) {
-                                    Icon(
-                                        Icons.Default.Add,
-                                        contentDescription = "Adicionar Tarefa",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
+                                Text("Marcos", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                if (profile == "Gestor") {
+                                    IconButton(onClick = { showAdicionarMarco = true }) {
+                                        Icon(Icons.Default.Add, contentDescription = "Adicionar", tint = BrandBlueD)
+                                    }
                                 }
                             }
-                            Text(
-                                text = "$marcosConcluidos/${projeto.marcos.size} concluídos",
-                                color = Color.Gray,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
+                            Text("$concluidos/${projetoAtual.marcos.size} concluídos", color = DarkSub, fontSize = 11.sp)
+                            Spacer(Modifier.height(14.dp))
 
-                            projeto.marcos.forEachIndexed { index, marco ->
+                            projetoAtual.marcos.forEachIndexed { index, marco ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { marcoSelecionadoId = marco.id },
+                                        .clickable(
+                                            enabled = profile == "Gestor",
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) { marcoSelecionadoId = marco.id },
                                     verticalAlignment = Alignment.Top
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -336,108 +290,69 @@ fun DetalhesProjetoScreen(
                                             modifier = Modifier
                                                 .size(16.dp)
                                                 .clip(CircleShape)
-                                                .background(if (marco.isCompleto) Color(0xFF53D769) else Color.Transparent)
-                                                .border(
-                                                    2.dp,
-                                                    if (marco.isCompleto) Color(0xFF53D769) else Color.Gray,
-                                                    CircleShape
-                                                )
+                                                .background(if (marco.isCompleto) Color(0xFF4CAF50) else Color.Transparent)
+                                                .border(2.dp, if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub, CircleShape)
                                         )
-                                        if (index < projeto.marcos.size - 1) {
+                                        if (index < projetoAtual.marcos.size - 1) {
                                             Box(
                                                 modifier = Modifier
                                                     .width(2.dp)
-                                                    .height(46.dp)
-                                                    .background(
-                                                        if (marco.isCompleto) Color(0xFF53D769).copy(
-                                                            alpha = 0.5f
-                                                        ) else Color.DarkGray
-                                                    )
+                                                    .height(44.dp)
+                                                    .background(if (marco.isCompleto) Color(0xFF4CAF50).copy(.4f) else Color(0xFF1C1F26))
                                             )
                                         }
                                     }
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    Column(modifier = Modifier.padding(bottom = if (index < projeto.marcos.size - 1) 24.dp else 0.dp)) {
+                                    Spacer(Modifier.width(14.dp))
+                                    Column(modifier = Modifier.padding(bottom = if (index < projetoAtual.marcos.size - 1) 24.dp else 0.dp)) {
+                                        Text(marco.titulo, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                         Text(
-                                            text = marco.titulo,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Medium
+                                            if (marco.isCompleto && marco.dataCompleto.isNotEmpty()) marco.dataCompleto else "Pendente",
+                                            color = if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub,
+                                            fontSize = 11.sp
                                         )
-                                        if (marco.isCompleto && marco.dataCompleto.isNotEmpty()) {
-                                            Text(
-                                                text = marco.dataCompleto,
-                                                color = Color.Gray,
-                                                fontSize = 12.sp
-                                            )
-                                        } else {
-                                            Text(
-                                                text = "Pendente",
-                                                color = Color.DarkGray,
-                                                fontSize = 12.sp
-                                            )
-                                        }
                                     }
                                 }
                             }
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
 
+                // ── responsável ──
                 item {
-                    val nomeResponsavel = projeto.responsavel.ifEmpty { "Não designado" }
-                    val iniciaisResponsavel = if (projeto.responsavel.isNotEmpty()) {
-                        projeto.responsavel.split(" ").let { partes ->
-                            if (partes.size > 1) "${partes.first().take(1)}${partes.last().take(1)}"
-                            else partes.firstOrNull()?.take(2) ?: "??"
+                    val nomeResp = projetoAtual.responsavel.ifEmpty { "Não designado" }
+                    val iniciais = if (projetoAtual.responsavel.isNotEmpty()) {
+                        projetoAtual.responsavel.split(" ").let { p ->
+                            if (p.size > 1) "${p.first().take(1)}${p.last().take(1)}"
+                            else p.firstOrNull()?.take(2) ?: "??"
                         }.uppercase()
                     } else "?"
 
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.background)
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.inverseSurface,
-                                RoundedCornerShape(16.dp)
-                            )
-                            .padding(20.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(DarkCard)
+                            .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                            .padding(18.dp)
                     ) {
-                        Text(
-                            text = "Responsável",
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Responsável", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(48.dp)
+                                    .size(46.dp)
                                     .clip(CircleShape)
-                                    .background(if (projeto.responsavel.isNotEmpty()) MaterialTheme.colorScheme.primary else Color.DarkGray),
+                                    .background(if (projetoAtual.responsavel.isNotEmpty()) BrandBlueD else Color(0xFF1C1F26)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = iniciaisResponsavel,
-                                    color = Color.White,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Text(iniciais, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(Modifier.width(14.dp))
                             Column {
-                                Text(
-                                    text = nomeResponsavel,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                if (projeto.responsavel.isNotEmpty()) {
-                                    Text(text = profile, color = Color.Gray, fontSize = 12.sp)
+                                Text(nomeResp, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                if (projetoAtual.responsavel.isNotEmpty()) {
+                                    Text(profile, color = DarkSub, fontSize = 11.sp)
                                 }
                             }
                         }
@@ -447,224 +362,144 @@ fun DetalhesProjetoScreen(
         }
     }
 
+    // ── dialog: definir plano ──
     if (showDefinirPlano) {
         AlertDialog(
             onDismissRequest = { showDefinirPlano = false },
-            containerColor = MaterialTheme.colorScheme.background,
-            title = {
-                Text(
-                    "Definir Plano de Execução",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            },
+            containerColor = DarkCard,
+            title = { Text("Definir Plano de Execução", color = Color.White, fontWeight = FontWeight.Bold) },
             text = {
-                Column {
-                    OutlinedTextField(
-                        value = inputPrazo,
-                        onValueChange = { inputPrazo = it },
-                        label = { Text("Prazo (ex: 20/08/2026)", color = Color.Gray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = inputInvestimento,
-                        onValueChange = { inputInvestimento = it },
-                        label = { Text("Investimento (R$)", color = Color.Gray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = inputRetorno,
-                        onValueChange = { inputRetorno = it },
-                        label = { Text("Retorno Estimado (R$)", color = Color.Gray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(value = inputPrazo,       onValueChange = { inputPrazo       = it }, label = { Text("Prazo (ex: 20/08/2026)") }, modifier = Modifier.fillMaxWidth(), colors = dialogColors, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = inputInvestimento, onValueChange = { inputInvestimento= it }, label = { Text("Investimento (R\$)") },       modifier = Modifier.fillMaxWidth(), colors = dialogColors, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = inputRetorno,      onValueChange = { inputRetorno     = it }, label = { Text("Retorno Estimado (R\$)") },    modifier = Modifier.fillMaxWidth(), colors = dialogColors, shape = RoundedCornerShape(8.dp))
                 }
             },
             confirmButton = {
                 Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {
                         viewModel.iniciarExecucao(
-                            id = projeto!!.id,
-                            prazo = inputPrazo,
-                            investimento = inputInvestimento.toFloatOrNull() ?: 0f,
-                            retorno = inputRetorno.toFloatOrNull() ?: 0f,
+                            id          = projetoAtual!!.id,
+                            prazo       = inputPrazo,
+                            investimento= inputInvestimento.toFloatOrNull() ?: 0f,
+                            retorno     = inputRetorno.toFloatOrNull() ?: 0f,
                             responsavel = nomeUsuarioLogado
                         )
                         showDefinirPlano = false
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD),
+                    shape = RoundedCornerShape(8.dp)
                 ) { Text("Iniciar Execução", color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = { showDefinirPlano = false }) {
-                    Text(
-                        "Cancelar",
-                        color = Color.Gray
-                    )
-                }
+                TextButton(onClick = { showDefinirPlano = false }) { Text("Cancelar", color = DarkSub) }
             }
         )
     }
 
+    // ── dialog: adicionar marco ──
     if (showAdicionarMarco) {
         AlertDialog(
             onDismissRequest = { showAdicionarMarco = false },
-            containerColor = MaterialTheme.colorScheme.background,
-            title = {
-                Text(
-                    "Nova Tarefa",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            },
+            containerColor = DarkCard,
+            title = { Text("Nova Tarefa", color = Color.White, fontWeight = FontWeight.Bold) },
             text = {
                 OutlinedTextField(
                     value = novoMarcoTitulo,
                     onValueChange = { novoMarcoTitulo = it },
-                    label = { Text("Título da etapa", color = Color.Gray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Título da etapa") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = dialogColors,
+                    shape = RoundedCornerShape(8.dp)
                 )
             },
             confirmButton = {
                 Button(
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {
-                        viewModel.adicionarMarco(
-                            id = projeto!!.id,
-                            titulo = novoMarcoTitulo
-                        )
-
+                        viewModel.adicionarMarco(id = projetoAtual!!.id, titulo = novoMarcoTitulo)
                         showAdicionarMarco = false
                         novoMarcoTitulo = ""
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD),
+                    shape = RoundedCornerShape(8.dp)
                 ) { Text("Adicionar", color = Color.White) }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showAdicionarMarco = false
-                }) { Text("Cancelar", color = Color.Gray) }
+                TextButton(onClick = { showAdicionarMarco = false; novoMarcoTitulo = "" }) { Text("Cancelar", color = DarkSub) }
             }
         )
     }
 
+    // ── dialog: atualizar marco ──
     if (marcoSelecionadoId != null) {
-
-        val marco = projeto!!.marcos.find { it.id == marcoSelecionadoId }
-
+        val marco = projetoAtual?.marcos?.find { it.id == marcoSelecionadoId }
         if (marco == null) {
-            marcoSelecionadoId = null
-            inputObservacao = ""
+            marcoSelecionadoId = null; inputObservacao = ""
         } else {
-
-            val acaoText =
-                if (marco.isCompleto) "Desmarcar conclusão?"
-                else "Marcar como concluído?"
-
             AlertDialog(
-                onDismissRequest = {
-                    marcoSelecionadoId = null
-                    inputObservacao = ""
-                },
-                containerColor = MaterialTheme.colorScheme.background,
-                title = { Text("Atualizar Marco", color = Color.White) },
+                onDismissRequest = { marcoSelecionadoId = null; inputObservacao = "" },
+                containerColor = DarkCard,
+                title = { Text("Atualizar Marco", color = Color.White, fontWeight = FontWeight.Bold) },
                 text = {
                     Column {
-                        Text(acaoText, color = Color.White, fontWeight = FontWeight.Bold)
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
                         Text(
-                            "Deseja adicionar uma observação ao progresso? (Opcional)",
-                            color = Color.LightGray,
-                            fontSize = 12.sp
+                            if (marco.isCompleto) "Desmarcar conclusão?" else "Marcar como concluído?",
+                            color = Color.White, fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
+                        Spacer(Modifier.height(12.dp))
+                        Text("Observação (opcional):", color = DarkSub, fontSize = 12.sp)
+                        Spacer(Modifier.height(6.dp))
                         OutlinedTextField(
                             value = inputObservacao,
                             onValueChange = { inputObservacao = it },
                             modifier = Modifier.fillMaxWidth(),
-                            minLines = 3
+                            minLines = 3,
+                            colors = dialogColors,
+                            shape = RoundedCornerShape(8.dp)
                         )
                     }
                 },
                 confirmButton = {
                     Button(
                         onClick = {
-                            viewModel.atualizarMarco(
-                                id = projeto.id,
-                                marcoId = marco.id,
-                                observacao = inputObservacao
-                            )
-
-                            marcoSelecionadoId = null
-                            inputObservacao = ""
-                        }
-                    ) {
-                        Text("Salvar", color = Color.White)
-                    }
+                            viewModel.atualizarMarco(projetoAtual!!.id, marco.id, inputObservacao)
+                            marcoSelecionadoId = null; inputObservacao = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD),
+                        shape = RoundedCornerShape(8.dp)
+                    ) { Text("Salvar", color = Color.White) }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
-                        marcoSelecionadoId = null
-                        inputObservacao = ""
-                    }) {
-                        Text("Cancelar", color = Color.Gray)
-                    }
+                    TextButton(onClick = { marcoSelecionadoId = null; inputObservacao = "" }) { Text("Cancelar", color = DarkSub) }
                 }
             )
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────
+// CARD MÉTRICA
+// ─────────────────────────────────────────────────────────────
 @Composable
-fun CardMetricaFigma(modifier: Modifier, titulo: String, valor: String, valorCor: Color) {
+fun DarkMetricaCard(modifier: Modifier, titulo: String, valor: String, valorCor: Color) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
-            .padding(16.dp),
+            .clip(RoundedCornerShape(10.dp))
+            .background(DarkCard)
+            .border(1.dp, DarkBorder, RoundedCornerShape(10.dp))
+            .padding(14.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(text = titulo, color = Color.Gray, fontSize = 12.sp)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = valor, color = valorCor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(titulo, color = DarkSub, fontSize = 11.sp)
+        Spacer(Modifier.height(6.dp))
+        Text(valor, color = valorCor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDetalhesProjetoScreen() {
-    val projetoDaApi = GlobalStateManager.listaDeIdeias.first { it.id == "1" }
     AguiaBrancaChallengeTheme {
-        DetalhesProjetoScreen(
-            projeto = projetoDaApi,
-            profile = "Gestor",
-            onBack = {},
-            onNavigateBottomBar = {},
-            ideiaRepository = IdeiaRepository()
-        )
+        // preview sem projeto real; apenas estrutura visual
     }
 }

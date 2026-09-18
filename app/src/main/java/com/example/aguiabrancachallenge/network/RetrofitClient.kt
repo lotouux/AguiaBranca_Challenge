@@ -14,12 +14,33 @@ object RetrofitClient {
 
     var onSessionExpired: (() -> Unit)? = null
 
+ 
+    var authToken: String? = null
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    private val authInterceptor = Interceptor { chain ->
+        val original = chain.request()
+        val token = authToken
+        val request = if (token != null) {
+            original.newBuilder()
+                .header("Authorization", "Bearer $token")
+                .build()
+        } else {
+            original
+        }
+        val response = chain.proceed(request)
+        if (response.code == 401) {
+            onSessionExpired?.invoke()
+        }
+        response
+    }
+
     private val client = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(authInterceptor)
         .addInterceptor(RetryInterceptor(maxRetries = 3))
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)

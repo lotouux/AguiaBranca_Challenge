@@ -48,5 +48,6 @@ data class CriarIdeiaRequest(
     val data: String,
     val impacto: String,
     val esforco: String,
-    val prazo: String
+    val prazo: String,
+    val focoEstrategiaId: String? = null  // vínculo com a estratégia vigente
 )

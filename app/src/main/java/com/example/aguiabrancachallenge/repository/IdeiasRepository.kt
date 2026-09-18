@@ -72,7 +72,8 @@ class IdeiaRepository {
         data: String,
         impacto: String,
         esforco: String,
-        prazo: String
+        prazo: String,
+        focoEstrategiaId: String? = null
     ): Result<Unit> {
 
         return try {
@@ -85,7 +86,8 @@ class IdeiaRepository {
                     data = data,
                     impacto = impacto,
                     esforco = esforco,
-                    prazo = prazo
+                    prazo = prazo,
+                    focoEstrategiaId = focoEstrategiaId
                 )
             )
             if(response.isSuccessful){
