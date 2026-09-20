@@ -34,7 +34,6 @@ private val DarkBg     = Color(0xFF0A0C10)
 private val DarkCard   = Color(0xFF12141A)
 private val DarkBorder = Color(0xFF222222)
 private val DarkSub    = Color(0xFF555555)
-private val BrandBlue  = Color(0xFF0088FF)
 
 // ─────────────────────────────────────────────────────────────
 // TELA PRINCIPAL

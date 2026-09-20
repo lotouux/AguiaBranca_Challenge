@@ -1,6 +1,8 @@
 package com.example.aguiabrancachallenge.lideranca
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,25 +11,27 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,21 +41,30 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.Ideia
-import com.example.aguiabrancachallenge.data.StrategicFocus
 import com.example.aguiabrancachallenge.data.areaColor
 import com.example.aguiabrancachallenge.data.statusColor
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
-import com.example.aguiabrancachallenge.operador.BrandBlue
-import com.example.aguiabrancachallenge.operador.EagleHeadIcon
-import com.example.aguiabrancachallenge.operador.PremiumIceBlue
-import com.example.aguiabrancachallenge.operador.SectionHeader
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
-import com.example.aguiabrancachallenge.gestor.ChatBubble
-import com.example.aguiabrancachallenge.gestor.ChatMessage
 import com.example.aguiabrancachallenge.network.GeminiClient
 import com.example.aguiabrancachallenge.ui.theme.*
+
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+
+val BrandBlue = Color(0xFF0088FF)
+val PremiumIceBlue = Color(0xFFC2D3E0)
+
+// ─────────────────────────────────────────────────────────────
+// BANCO DE DADOS MOCKADO PARA A AGENDA
+// ─────────────────────────────────────────────────────────────
+object AgendaGlobal {
+    val eventos = mutableStateMapOf<String, String>()
+}
 
 // ─────────────────────────────────────────────────────────────
 // TELA PRINCIPAL
@@ -73,24 +86,18 @@ fun LiderancaHomeScreen(
     val focos = viewModel.focos
     val focoAtivo = focos.firstOrNull { it.ativo } ?: focos.firstOrNull()
 
-    // ── chat IA ──
-    var showAiChat by remember { mutableStateOf(false) }
-
-    // ── filtro por estratégia ──
-    var focoFiltro by remember { mutableStateOf<StrategicFocus?>(null) }
-
-    val ideiasVisiveis = remember(todasIdeias, focoFiltro) {
-        if (focoFiltro == null) todasIdeias else todasIdeias.filter { it.isStrategicBonus }
+    var showEventsManager by remember { mutableStateOf(false) }
+    val dataHoje by remember {
+        mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date()))
     }
 
-    // ── métricas financeiras ──
+    val ideiasVisiveis = todasIdeias
     val comFinanceiro = ideiasVisiveis.filter { it.investimento > 0f }
     val investidoTotal = comFinanceiro.sumOf { it.investimento.toDouble() }
     val retornoTotal   = comFinanceiro.sumOf { it.retorno.toDouble() }
     val lucroTotal     = retornoTotal - investidoTotal
     val roiTotal       = if (investidoTotal > 0) ((lucroTotal / investidoTotal) * 100).toInt() else 0
 
-    // ── contagens por status ──
     val countTotal      = ideiasVisiveis.size
     val countAprovadas  = ideiasVisiveis.count { it.status == "Aprovada" }
     val countExecucao   = ideiasVisiveis.count { it.status == "Em Execução" }
@@ -98,21 +105,8 @@ fun LiderancaHomeScreen(
     val countEmAnalise  = ideiasVisiveis.count { it.status == "Em Análise" }
     val countArquivadas = ideiasVisiveis.count { it.status == "Arquivada" }
 
-    // ── se chat aberto, mostra painel ──
-    if (showAiChat) {
-        LiderancaAiChatPanel(
-            roiTotal       = roiTotal,
-            investidoTotal = investidoTotal,
-            retornoTotal   = retornoTotal,
-            lucroTotal     = lucroTotal,
-            countTotal     = countTotal,
-            countAprovadas = countAprovadas,
-            countExecucao  = countExecucao,
-            countConcluidas= countConcluidas,
-            projetos       = comFinanceiro,
-            focoAtivo      = focoAtivo?.titulo ?: "Nenhum foco ativo",
-            onDismiss      = { showAiChat = false }
-        )
+    if (showEventsManager) {
+        LiderancaEventsScreen(onDismiss = { showEventsManager = false })
         return
     }
 
@@ -138,7 +132,6 @@ fun LiderancaHomeScreen(
                 .padding(horizontal = 20.dp),
             contentPadding = PaddingValues(top = 32.dp, bottom = 32.dp)
         ) {
-            // ── cabeçalho ──
             item {
                 Text(
                     text = "HOME · LIDERANÇA",
@@ -164,28 +157,82 @@ fun LiderancaHomeScreen(
                 Spacer(Modifier.height(40.dp))
             }
 
-            // ── card IA ──
             item {
-                LiderancaAiCard(onAnalisarClick = { showAiChat = true })
+                AiFinancialSummaryCard(roiTotal = roiTotal, investidoTotal = investidoTotal, lucroTotal = lucroTotal)
                 Spacer(Modifier.height(32.dp))
             }
 
-            // ── filtro por estratégia ──
-            if (focos.isNotEmpty()) {
-                item {
-                    SectionHeader("FILTRAR POR ESTRATÉGIA")
-                    EstrategiaFilterRow(
-                        focos = focos,
-                        focoSelecionado = focoFiltro,
-                        onSelect = { focoFiltro = if (focoFiltro?.id == it.id) null else it }
-                    )
-                    Spacer(Modifier.height(32.dp))
+            item {
+                SectionHeader("AGENDA DA EMPRESA", onVerTodos = { showEventsManager = true })
+                EventCalendarStrip(dataHoje = dataHoje)
+
+                val proximoEvento = remember(AgendaGlobal.eventos.size) {
+                    val format = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+                    val hojeCal = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                    }.time
+
+                    AgendaGlobal.eventos.entries
+                        .mapNotNull { entry ->
+                            try {
+                                val date = format.parse(entry.key)
+                                if (date != null && !date.before(hojeCal)) Pair(date, entry) else null
+                            } catch (e: Exception) { null }
+                        }
+                        .minByOrNull { it.first }?.second
                 }
+
+                Spacer(Modifier.height(16.dp))
+
+                if (proximoEvento != null) {
+                    val (dataEvt, descEvt) = proximoEvento
+                    val diaFormatado = dataEvt.take(5)
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BrandBlue.copy(alpha = 0.15f))
+                            .border(1.dp, BrandBlue.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = BrandBlue, modifier = Modifier.size(28.dp))
+                            Spacer(Modifier.width(16.dp))
+                            Column {
+                                Text("Próximo Evento ($diaFormatado)", color = BrandBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.height(4.dp))
+                                Text(descEvt, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF12141A))
+                            .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Não há próximos eventos agendados.", color = Color(0xFF555555), fontSize = 13.sp)
+                    }
+                }
+                Spacer(Modifier.height(32.dp))
             }
 
-            // ── ROI / financeiro ──
             item {
-                SectionHeader("FINANCEIRO")
+                SectionHeader("VISÃO ESTRATÉGICA")
+                LiderancaFocusCard(
+                    focoTitulo = focoAtivo?.titulo ?: "Nenhum foco definido",
+                    mes = focoAtivo?.mes ?: "--"
+                )
+                Spacer(Modifier.height(32.dp))
+            }
+
+            item {
+                SectionHeader("FINANCEIRO GERAL")
                 LiderancaFinancialCard(
                     roiTotal = roiTotal,
                     investidoTotal = investidoTotal,
@@ -195,34 +242,31 @@ fun LiderancaHomeScreen(
                 Spacer(Modifier.height(32.dp))
             }
 
-            // ── grid de contadores ──
             item {
                 SectionHeader("IDEIAS POR STATUS")
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        DarkMetricCard(Modifier.weight(1f), "Total",       countTotal,      Color(0xFF8D6E63))
-                        DarkMetricCard(Modifier.weight(1f), "Aprovadas",   countAprovadas,  Color(0xFF4CAF50))
+                        DarkMetricCard(Modifier.weight(1f), "Total",       countTotal,      Color(0xFF8D6E63), Icons.Default.List)
+                        DarkMetricCard(Modifier.weight(1f), "Aprovadas",   countAprovadas,  Color(0xFF4CAF50), Icons.Default.Check)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        DarkMetricCard(Modifier.weight(1f), "Em Execução", countExecucao,   Color(0xFF1E88E5))
-                        DarkMetricCard(Modifier.weight(1f), "Concluídas",  countConcluidas, Color(0xFFFDD835))
+                        DarkMetricCard(Modifier.weight(1f), "Em Execução", countExecucao,   Color(0xFF1E88E5), Icons.Default.PlayArrow)
+                        DarkMetricCard(Modifier.weight(1f), "Concluídas",  countConcluidas, Color(0xFFFDD835), Icons.Default.Star)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        DarkMetricCard(Modifier.weight(1f), "Em Análise",  countEmAnalise,  Color(0xFF00ACC1))
-                        DarkMetricCard(Modifier.weight(1f), "Arquivadas",  countArquivadas, Color.DarkGray)
+                        DarkMetricCard(Modifier.weight(1f), "Em Análise",  countEmAnalise,  Color(0xFF00ACC1), Icons.Default.Search)
+                        DarkMetricCard(Modifier.weight(1f), "Arquivadas",  countArquivadas, Color.DarkGray,    Icons.Default.Close)
                     }
                 }
                 Spacer(Modifier.height(32.dp))
             }
 
-            // ── impacto por divisão ──
             item {
                 SectionHeader("IMPACTO POR DIVISÃO")
                 DarkImpactByDivisionCard(ideiasVisiveis)
                 Spacer(Modifier.height(32.dp))
             }
 
-            // ── retorno por projeto ──
             item {
                 SectionHeader("RETORNO POR PROJETO")
                 DarkProjectReturnsSection(comFinanceiro)
@@ -232,8 +276,352 @@ fun LiderancaHomeScreen(
 }
 
 // ─────────────────────────────────────────────────────────────
-// TOP BAR
+// TELA SECUNDÁRIA: GERENCIADOR DE EVENTOS DA LIDERANÇA
 // ─────────────────────────────────────────────────────────────
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LiderancaEventsScreen(onDismiss: () -> Unit) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showEventDialog by remember { mutableStateOf(false) }
+    var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
+    var eventDescription by remember { mutableStateOf("") }
+
+    val datePickerState = rememberDatePickerState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF0A0C10))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+            }
+            Spacer(Modifier.width(16.dp))
+            Text("Gerenciar Agenda", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }
+
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF12141A))
+                        .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
+                        .padding(20.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Eventos Cadastrados", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(BrandBlue)
+                                    .clickable { showDatePicker = true }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Text("+ Novo Evento", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        Text("As datas agendadas aqui aparecerão com destaque no aplicativo de todos os operadores.", color = Color(0xFF8A8F98), fontSize = 13.sp, lineHeight = 18.sp)
+                        Spacer(Modifier.height(24.dp))
+
+                        if (AgendaGlobal.eventos.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp), contentAlignment = Alignment.Center) {
+                                Text("Nenhum evento futuro.", color = Color(0xFF555555), fontSize = 14.sp)
+                            }
+                        } else {
+                            val sortedEvents = AgendaGlobal.eventos.entries.sortedBy { entry ->
+                                try {
+                                    SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).parse(entry.key)?.time ?: 0L
+                                } catch (e: Exception) { 0L }
+                            }
+
+                            sortedEvents.forEach { (dateStr, desc) ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFF16181D))
+                                        .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(8.dp))
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(modifier = Modifier.size(10.dp).background(BrandBlue, CircleShape))
+                                    Spacer(Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(dateStr, color = Color(0xFF8A8F98), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Spacer(Modifier.height(4.dp))
+                                        Text(desc, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                    IconButton(onClick = { AgendaGlobal.eventos.remove(dateStr) }, modifier = Modifier.size(24.dp)) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Remover", tint = Color(0xFFD32F2F))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedDateMillis = datePickerState.selectedDateMillis
+                    showDatePicker = false
+                    if (selectedDateMillis != null) {
+                        showEventDialog = true
+                    }
+                }) { Text("Continuar", color = BrandBlue, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar", color = Color.Gray) }
+            },
+            colors = DatePickerDefaults.colors(containerColor = Color(0xFF0A0C10))
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    titleContentColor = Color.White,
+                    headlineContentColor = Color.White,
+                    weekdayContentColor = Color.Gray,
+                    dayContentColor = Color.White,
+                    selectedDayContainerColor = BrandBlue,
+                    selectedDayContentColor = Color.White,
+                    todayDateBorderColor = BrandBlue,
+                    todayContentColor = BrandBlue
+                )
+            )
+        }
+    }
+
+    if (showEventDialog) {
+        AlertDialog(
+            onDismissRequest = { showEventDialog = false },
+            containerColor = Color(0xFF12141A),
+            titleContentColor = Color.White,
+            textContentColor = Color(0xFFAAAAAA),
+            title = { Text("Detalhes do Evento", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    val dateStr = selectedDateMillis?.let { SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date(it)) } ?: ""
+                    Text("Data: $dateStr", color = BrandBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = eventDescription,
+                        onValueChange = { eventDescription = it },
+                        placeholder = { Text("Ex: Reunião de Resultados", color = Color(0xFF555555), fontSize = 14.sp) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = BrandBlue,
+                            unfocusedBorderColor = Color(0xFF2A2D35),
+                            cursorColor = BrandBlue
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        selectedDateMillis?.let { millis ->
+                            val format = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+                            val dateStr = format.format(Date(millis))
+                            AgendaGlobal.eventos[dateStr] = eventDescription
+                        }
+                        showEventDialog = false
+                        eventDescription = ""
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandBlue),
+                    shape = RoundedCornerShape(8.dp)
+                ) { Text("Salvar Evento", color = Color.White) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEventDialog = false }) { Text("Cancelar", color = Color.Gray) }
+            }
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPONENTES REUTILIZÁVEIS DA TELA LIDERANÇA
+// ─────────────────────────────────────────────────────────────
+@Composable
+fun AiFinancialSummaryCard(roiTotal: Int, investidoTotal: Double, lucroTotal: Double) {
+    var aiTip by remember(roiTotal, investidoTotal, lucroTotal) { mutableStateOf<String?>(null) }
+    var isLoading by remember(roiTotal, investidoTotal, lucroTotal) { mutableStateOf(false) }
+
+    LaunchedEffect(roiTotal, investidoTotal, lucroTotal) {
+        isLoading = true
+        val inv = (investidoTotal / 1000).toInt()
+        val luc = (lucroTotal / 1000).toInt()
+        val prompt = "Aja como um analista financeiro IA. A empresa tem $roiTotal% de ROI, R$ ${inv}K investidos e R$ ${luc}K de lucro atual. Escreva um resumo em 2 linhas parabenizando ou alertando a liderança de forma direta."
+
+        GeminiClient.chat(prompt, "")
+            .onSuccess { aiTip = it }
+            .onFailure { aiTip = "O portfólio apresenta ROI de $roiTotal% gerando um lucro de R$ ${luc}K. Os resultados estão dentro do esperado." }
+
+        isLoading = false
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Brush.linearGradient(listOf(Color(0xFF14161C), Color(0xFF0D0E12))))
+            .border(1.dp, Brush.linearGradient(listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))), RoundedCornerShape(12.dp))
+            .padding(20.dp)
+    ) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFF1C1F26))
+                        .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(6.dp))
+                        .padding(6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    EagleHeadIcon(modifier = Modifier.fillMaxSize())
+                }
+                Spacer(Modifier.width(12.dp))
+                Text("Resumo Águia IA", color = PremiumIceBlue, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            if (isLoading) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(color = PremiumIceBlue, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(12.dp))
+                    Text("Analisando finanças do portfólio...", color = Color(0xFF8A8F98), fontSize = 13.sp)
+                }
+            } else {
+                Text(
+                    text = aiTip ?: "",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LiderancaFocusCard(focoTitulo: String, mes: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF12141A))
+            .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
+            .padding(20.dp)
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "META ESTRATÉGICA ATUAL",
+                    color = Color(0xFF555555),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Box(
+                    modifier = Modifier
+                        .background(BrandBlue.copy(.15f), RoundedCornerShape(20.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(mes, color = BrandBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text(focoTitulo, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text("Acompanhe as ideias e projetos alinhados à visão estratégica deste mês.", color = Color(0xFFAAAAAA), fontSize = 12.sp, lineHeight = 16.sp)
+        }
+    }
+}
+
+@Composable
+fun EventCalendarStrip(dataHoje: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        val days = remember {
+            val fullFormat = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR"))
+            val dayFormat = SimpleDateFormat("dd", Locale("pt", "BR"))
+            val weekFormat = SimpleDateFormat("EEE", Locale("pt", "BR"))
+
+            (0..6).map { i ->
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DAY_OF_MONTH, i - 1)
+                val fullDateStr = fullFormat.format(cal.time)
+                val dayStr = dayFormat.format(cal.time)
+                val weekStr = weekFormat.format(cal.time).uppercase(Locale("pt", "BR")).replace(".", "")
+                Triple(fullDateStr, dayStr, weekStr)
+            }
+        }
+
+        days.forEach { (fullDateStr, dayStr, weekStr) ->
+            val isSelected = fullDateStr == dataHoje
+            val hasEvent = AgendaGlobal.eventos.containsKey(fullDateStr)
+
+            Box(
+                modifier = Modifier
+                    .width(56.dp)
+                    .height(72.dp)
+                    .background(if (isSelected) Color(0xFF16181D) else Color.Transparent, RoundedCornerShape(12.dp))
+                    .border(1.dp, if (isSelected) Color(0xFF222222) else Color.Transparent, RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(weekStr, color = if (isSelected) Color.White else Color(0xFF555555), fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(dayStr, color = if (isSelected) Color.White else Color(0xFF888888), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    if (hasEvent) {
+                        Box(modifier = Modifier.size(4.dp).background(BrandBlue, CircleShape))
+                    } else {
+                        Box(modifier = Modifier.size(4.dp).background(Color.Transparent, CircleShape))
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun LiderancaTopBar(onSettingsClick: () -> Unit) {
     Column {
@@ -266,104 +654,6 @@ fun LiderancaTopBar(onSettingsClick: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// CARD IA LIDERANÇA
-// ─────────────────────────────────────────────────────────────
-@Composable
-fun LiderancaAiCard(onAnalisarClick: () -> Unit = {}) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(Brush.linearGradient(listOf(Color(0xFF14161C), Color(0xFF0D0E12))))
-            .border(1.dp, Brush.linearGradient(listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))), RoundedCornerShape(8.dp))
-            .padding(20.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color(0xFF1C1F26))
-                    .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(6.dp))
-                    .padding(12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                EagleHeadIcon(modifier = Modifier.fillMaxSize())
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Águia IA", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.3).sp)
-                Spacer(Modifier.height(2.dp))
-                Text("Insights de resultados", color = Color(0xFF8A8F98), fontSize = 13.sp)
-            }
-            Spacer(Modifier.width(12.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(PremiumIceBlue)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { onAnalisarClick() }
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Text("Análise", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────
-// FILTRO DE ESTRATÉGIA
-// ─────────────────────────────────────────────────────────────
-@Composable
-fun EstrategiaFilterRow(
-    focos: List<StrategicFocus>,
-    focoSelecionado: StrategicFocus?,
-    onSelect: (StrategicFocus) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        focos.forEach { foco ->
-            val isSelected = focoSelecionado?.id == foco.id
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(if (isSelected) BrandBlue else Color(0xFF16181D))
-                    .border(1.dp, if (isSelected) BrandBlue else Color(0xFF2A2D35), RoundedCornerShape(20.dp))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { onSelect(foco) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = foco.titulo,
-                        color = if (isSelected) Color.White else Color(0xFF8A8F98),
-                        fontSize = 12.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    if (foco.ativo) {
-                        Spacer(Modifier.height(2.dp))
-                        Text("Ativo", color = Color(0xFF4CAF50), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────
-// CARD FINANCEIRO (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun LiderancaFinancialCard(roiTotal: Int, investidoTotal: Double, retornoTotal: Double, lucroTotal: Double) {
     Box(
@@ -384,7 +674,7 @@ fun LiderancaFinancialCard(roiTotal: Int, investidoTotal: Double, retornoTotal: 
                     modifier = Modifier.size(48.dp).background(Color(0xFF4CAF50).copy(.15f), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(modifier = Modifier.size(20.dp).background(Color(0xFF4CAF50), CircleShape))
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(28.dp))
                 }
             }
             Spacer(Modifier.height(20.dp))
@@ -408,11 +698,8 @@ private fun DarkFinanceCol(label: String, value: String, valueColor: Color) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// MÉTRICA CARD (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
-fun DarkMetricCard(modifier: Modifier, title: String, count: Int, color: Color) {
+fun DarkMetricCard(modifier: Modifier, title: String, count: Int, color: Color, icon: ImageVector) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -421,10 +708,10 @@ fun DarkMetricCard(modifier: Modifier, title: String, count: Int, color: Color) 
             .padding(16.dp)
     ) {
         Box(
-            modifier = Modifier.size(28.dp).background(color.copy(.2f), RoundedCornerShape(6.dp)),
+            modifier = Modifier.size(32.dp).background(color.copy(.15f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Box(modifier = Modifier.size(12.dp).background(color, RoundedCornerShape(3.dp)))
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.height(16.dp))
         Text(count.toString(), color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
@@ -433,9 +720,6 @@ fun DarkMetricCard(modifier: Modifier, title: String, count: Int, color: Color) 
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// IMPACTO POR DIVISÃO (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkImpactByDivisionCard(ideias: List<Ideia>) {
     val divisoes = ideias.groupBy { it.area }
@@ -473,9 +757,6 @@ fun DarkImpactByDivisionCard(ideias: List<Ideia>) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// RETORNO POR PROJETO (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkProjectReturnsSection(projetos: List<Ideia>) {
     Box(
@@ -488,11 +769,7 @@ fun DarkProjectReturnsSection(projetos: List<Ideia>) {
     ) {
         Column {
             if (projetos.isEmpty()) {
-                Text(
-                    "Nenhum projeto com dados financeiros.",
-                    color = Color(0xFF555555),
-                    fontSize = 13.sp
-                )
+                Text("Nenhum projeto com dados financeiros.", color = Color(0xFF555555), fontSize = 13.sp)
             }
             projetos.forEach { projeto ->
                 val lucro = projeto.retorno - projeto.investimento
@@ -509,15 +786,7 @@ fun DarkProjectReturnsSection(projetos: List<Ideia>) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                projeto.titulo,
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
-                            )
+                            Text(projeto.titulo, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                             Spacer(Modifier.width(8.dp))
                             Box(modifier = Modifier.size(7.dp).background(projeto.statusColor, CircleShape))
                         }
@@ -529,11 +798,7 @@ fun DarkProjectReturnsSection(projetos: List<Ideia>) {
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(horizontalAlignment = Alignment.End) {
-                        Box(
-                            modifier = Modifier
-                                .background(if (roi >= 0) Color(0xFF4CAF50) else Color.Red, RoundedCornerShape(50))
-                                .padding(horizontal = 10.dp, vertical = 5.dp)
-                        ) {
+                        Box(modifier = Modifier.background(if (roi >= 0) Color(0xFF4CAF50) else Color.Red, RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 5.dp)) {
                             Text("ROI", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                         }
                         Spacer(Modifier.height(4.dp))
@@ -559,236 +824,81 @@ fun formatKLider(value: Double): String {
     return "R$ ${emK}K"
 }
 
-// ─────────────────────────────────────────────────────────────
-// PAINEL DE CHAT IA — LIDERANÇA
-// ─────────────────────────────────────────────────────────────
 @Composable
-fun LiderancaAiChatPanel(
-    roiTotal: Int,
-    investidoTotal: Double,
-    retornoTotal: Double,
-    lucroTotal: Double,
-    countTotal: Int,
-    countAprovadas: Int,
-    countExecucao: Int,
-    countConcluidas: Int,
-    projetos: List<Ideia>,
-    focoAtivo: String,
-    onDismiss: () -> Unit
-) {
-    val scope     = rememberCoroutineScope()
-    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
-    var input     by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-
-    // contexto do dashboard enviado para a IA
-    val contextoDashboard = """
-        Dados atuais do dashboard da Águia Branca:
-        - ROI Total: $roiTotal%
-        - Investimento total: R$ ${(investidoTotal / 1000).toInt()}K
-        - Retorno total: R$ ${(retornoTotal / 1000).toInt()}K
-        - Lucro total: R$ ${(lucroTotal / 1000).toInt()}K
-        - Total de ideias: $countTotal
-        - Ideias aprovadas: $countAprovadas
-        - Projetos em execução: $countExecucao
-        - Projetos concluídos: $countConcluidas
-        - Foco estratégico ativo: $focoAtivo
-        - Projetos com dados financeiros: ${projetos.size}
-        ${projetos.joinToString("\n") { p ->
-            val lucro = p.retorno - p.investimento
-            val roi   = if (p.investimento > 0) ((lucro / p.investimento) * 100).toInt() else 0
-            "  • ${p.titulo}: inv. R$${p.investimento.toInt()}, retorno R$${p.retorno.toInt()}, ROI $roi%"
-        }}
-    """.trimIndent()
-
-    val messages = remember {
-        mutableStateListOf(
-            ChatMessage(
-                "Olá! Analisei o dashboard da Águia Branca. " +
-                "O ROI atual é de **$roiTotal%** com R$ ${(lucroTotal / 1000).toInt()}K de lucro gerado. " +
-                "Temos $countExecucao projetos em execução e $countConcluidas concluídos. " +
-                "O que quer analisar?",
-                isUser = false
-            )
-        )
-    }
-
-    fun sendMessage() {
-        val text = input.trim()
-        if (text.isBlank() || isLoading) return
-        messages.add(ChatMessage(text, isUser = true))
-        input = ""
-        isLoading = true
-        scope.launch {
-            GeminiClient.chat(text, contextoDashboard)
-                .onSuccess { messages.add(ChatMessage(it, isUser = false)) }
-                .onFailure { messages.add(ChatMessage("Erro ao conectar com a IA: ${it.message}", isUser = false)) }
-            isLoading = false
-            if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0C10))
+fun SectionHeader(title: String, onVerTodos: (() -> Unit)? = null) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // ── header ──
-        Column {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF0A0C10))
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF1C1F26))
-                        .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(6.dp))
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    EagleHeadIcon(modifier = Modifier.fillMaxSize())
-                }
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Águia IA", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text("Insights do dashboard", color = Color(0xFF8A8F98), fontSize = 11.sp)
-                }
-                TextButton(onClick = onDismiss) {
-                    Text("Fechar", color = Color(0xFF8A8F98), fontSize = 13.sp)
-                }
-            }
-            HorizontalDivider(color = Color(0xFF1A1C20))
-        }
-
-        // ── sugestões rápidas ──
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            listOf(
-                "Como melhorar o ROI?",
-                "Quais projetos têm melhor retorno?",
-                "Sugestões para a liderança",
-                "Análise de riscos"
-            ).forEach { sugestao ->
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color(0xFF16181D))
-                        .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(20.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { input = sugestao; sendMessage() }
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
-                ) {
-                    Text(sugestao, color = Color(0xFF8A8F98), fontSize = 12.sp)
-                }
-            }
-        }
-
-        HorizontalDivider(color = Color(0xFF1A1C20))
-
-        // ── mensagens ──
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(messages) { msg ->
-                ChatBubble(msg)
-            }
-            if (isLoading) {
-                item {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1C1F26))
-                                .padding(5.dp),
-                            contentAlignment = Alignment.Center
-                        ) { EagleHeadIcon(modifier = Modifier.fillMaxSize()) }
-                        Spacer(Modifier.width(8.dp))
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = PremiumIceBlue,
-                            strokeWidth = 2.dp
-                        )
-                    }
-                }
-            }
-        }
-
-        // ── input ──
-        HorizontalDivider(color = Color(0xFF1A1C20))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF0A0C10))
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = input,
-                onValueChange = { input = it },
-                modifier = Modifier.weight(1f),
-                placeholder = {
-                    Text("Pergunte sobre os resultados...", color = Color(0xFF555555), fontSize = 14.sp)
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor     = Color.White,
-                    unfocusedTextColor   = Color.White,
-                    focusedBorderColor   = Color(0xFF0088FF),
-                    unfocusedBorderColor = Color(0xFF2A2D35),
-                    cursorColor          = Color(0xFF0088FF)
-                ),
-                shape = RoundedCornerShape(12.dp),
-                maxLines = 3,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { sendMessage() })
-            )
-            Spacer(Modifier.width(10.dp))
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        if (input.isNotBlank() && !isLoading) Color(0xFF0088FF)
-                        else Color(0xFF1A1C20)
-                    )
-                    .clickable(
-                        enabled = input.isNotBlank() && !isLoading,
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { sendMessage() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Enviar",
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
+        Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+        if (onVerTodos != null) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onVerTodos() }) {
+                Text("Abrir", color = Color(0xFFAAAAAA), fontSize = 12.sp)
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFFAAAAAA), modifier = Modifier.size(16.dp))
             }
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PREVIEW
-// ─────────────────────────────────────────────────────────────
+@Composable
+fun EagleHeadIcon(modifier: Modifier = Modifier, color: Color = PremiumIceBlue) {
+    var isBlinking by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(3000)
+            isBlinking = true
+            delay(150)
+            isBlinking = false
+            delay(300)
+            if (Math.random() > 0.6) {
+                isBlinking = true
+                delay(150)
+                isBlinking = false
+            }
+        }
+    }
+
+    val eyeOpenness by animateFloatAsState(targetValue = if (isBlinking) 0f else 1f, animationSpec = tween(durationMillis = 80, easing = LinearEasing), label = "eyeBlink")
+
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+
+        val headPath = Path().apply {
+            moveTo(w * 0.20f, h * 0.90f)
+            lineTo(w * 0.30f, h * 0.25f)
+            lineTo(w * 0.65f, h * 0.15f)
+            lineTo(w * 0.85f, h * 0.25f)
+            quadraticBezierTo(w * 1.05f, h * 0.45f, w * 0.90f, h * 0.75f)
+            lineTo(w * 0.75f, h * 0.55f)
+            lineTo(w * 0.65f, h * 0.65f)
+            lineTo(w * 0.45f, h * 0.90f)
+            close()
+        }
+
+        drawPath(path = headPath, color = color, style = Stroke(width = w * 0.05f, cap = StrokeCap.Square, join = StrokeJoin.Miter))
+        drawLine(color = color, start = Offset(w * 0.90f, h * 0.75f), end = Offset(w * 0.60f, h * 0.60f), strokeWidth = w * 0.03f, cap = StrokeCap.Round)
+
+        val browPath = Path().apply {
+            moveTo(w * 0.50f, h * 0.30f)
+            lineTo(w * 0.75f, h * 0.38f)
+            lineTo(w * 0.85f, h * 0.34f)
+        }
+        drawPath(path = browPath, color = color, style = Stroke(width = w * 0.04f, cap = StrokeCap.Round, join = StrokeJoin.Miter))
+
+        val eyeCenter = Offset(w * 0.65f, h * 0.45f)
+        val eyeRadius = w * 0.04f
+
+        if (eyeOpenness > 0.1f) {
+            drawOval(color = color, topLeft = Offset(eyeCenter.x - eyeRadius, eyeCenter.y - (eyeRadius * eyeOpenness)), size = androidx.compose.ui.geometry.Size(eyeRadius * 2, eyeRadius * 2 * eyeOpenness))
+        } else {
+            drawLine(color = color, start = Offset(eyeCenter.x - eyeRadius, eyeCenter.y), end = Offset(eyeCenter.x + eyeRadius, eyeCenter.y), strokeWidth = w * 0.02f, cap = StrokeCap.Round)
+        }
+    }
+}
+
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun LiderancaPreview() {
