@@ -7,24 +7,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.aguiabrancachallenge.ThemeManager
-import com.example.aguiabrancachallenge.data.preferences.ThemePreferences
 import com.example.aguiabrancachallenge.ui.theme.*
 
 @Composable
 fun PrivacidadeScreen(onBackClick: () -> Unit) {
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color(0xFF0A0C10),
         topBar = { TopBarVoltar("Privacidade", onBackClick) }
     ) { paddingValues ->
         Column(
@@ -35,14 +33,14 @@ fun PrivacidadeScreen(onBackClick: () -> Unit) {
         ) {
             Text(
                 text = "Termos e Políticas de Privacidade",
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Suas ideias são protegidas e tratadas com confidencialidade. Dados de navegação são utilizados apenas para fins de melhoria da experiência do usuário no sistema interno da empresa.\n\nPara maiores detalhes sobre o uso dos seus dados, entre em contato com o setor de DPO (Data Protection Officer).",
-                color = Color.Gray,
+                color = Color(0xFF8A8F98),
                 fontSize = 14.sp,
                 lineHeight = 22.sp
             )
@@ -51,63 +49,29 @@ fun PrivacidadeScreen(onBackClick: () -> Unit) {
 }
 
 @Composable
-fun ConfiguracoesScreen(onBackClick: () -> Unit) {
-    val context = LocalContext.current
-
-    val themePreferences = remember {
-        ThemePreferences(context)
-    }
-
-    var notificacoes by remember { mutableStateOf(true) }
-    var modoEscuro by remember { mutableStateOf(ThemeManager.isDarkMode.value) }
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = { TopBarVoltar("Configurações", onBackClick) }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp)
-        ) {
-            ConfigToggleItem("Notificações de Ideias", notificacoes) { notificacoes = it }
-            Spacer(modifier = Modifier.height(16.dp))
-            ConfigToggleItem("Modo Escuro", modoEscuro) {
-                modoEscuro = it
-
-                ThemeManager.isDarkMode.value = it
-
-                themePreferences.saveDarkMode(it)
-            }
-        }
-    }
-}
-
-@Composable
 fun AjudaSuporteScreen(onBackClick: () -> Unit) {
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color(0xFF0A0C10),
         topBar = { TopBarVoltar("Ajuda e Suporte", onBackClick) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp)
+                .padding(20.dp)
         ) {
             Text(
                 text = "Como podemos te ajudar hoje?",
-                color = MaterialTheme.colorScheme.onBackground,
+                color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(24.dp))
 
             SuporteCard("Dúvidas Frequentes (FAQ)")
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             SuporteCard("Falar com Suporte de TI")
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             SuporteCard("Reportar um Bug")
         }
     }
@@ -117,53 +81,29 @@ fun AjudaSuporteScreen(onBackClick: () -> Unit) {
 @Composable
 fun TopBarVoltar(titulo: String, onBackClick: () -> Unit) {
     TopAppBar(
-        title = { Text(titulo, color = MaterialTheme.colorScheme.onBackground.copy(.75f), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+        title = { Text(titulo, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold) },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White)
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0A0C10))
     )
 }
 
 @Composable
-fun ConfigToggleItem(texto: String, isChecked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun SuporteCard(texto: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF12141A))
+            .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
+            .clickable { /* Ação do suporte */ }
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp)
-        Switch(
-            checked = isChecked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                uncheckedThumbColor = Color.Gray,
-                uncheckedTrackColor = Color(0xFF1E2D40)
-            )
-        )
-    }
-}
-
-@Composable
-fun SuporteCard(texto: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.inverseSurface, RoundedCornerShape(12.dp))
-            .clickable { }
-            .padding(16.dp)
-    ) {
-        Text(text = texto, color = MaterialTheme.colorScheme.onBackground.copy(.65f), fontSize = 14.sp)
+        Text(text = texto, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF555555))
     }
 }

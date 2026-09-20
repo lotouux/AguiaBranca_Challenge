@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.example.aguiabrancachallenge.SplashScreen
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.preferences.ThemePreferences
 import com.example.aguiabrancachallenge.projetos.DetalhesProjetoScreen
@@ -29,7 +28,6 @@ import com.example.aguiabrancachallenge.operador.OperadorEstrategiaScreen
 import com.example.aguiabrancachallenge.gestor.GestorInboxScreen
 import com.example.aguiabrancachallenge.perfil.PerfilScreen
 import com.example.aguiabrancachallenge.perfil.PrivacidadeScreen
-import com.example.aguiabrancachallenge.perfil.ConfiguracoesScreen
 import com.example.aguiabrancachallenge.perfil.AjudaSuporteScreen
 import com.example.aguiabrancachallenge.repository.AuthRepository
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
@@ -216,10 +214,6 @@ class MainActivity : ComponentActivity() {
 
                         "privacidade" -> {
                             PrivacidadeScreen(onBackClick = { currentScreen = "perfil" })
-                        }
-
-                        "configuracoes" -> {
-                            ConfiguracoesScreen(onBackClick = { currentScreen = "perfil" })
                         }
 
                         "suporte" -> {

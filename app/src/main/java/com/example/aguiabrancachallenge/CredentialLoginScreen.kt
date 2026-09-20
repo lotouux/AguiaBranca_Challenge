@@ -197,16 +197,14 @@ fun CredentialLoginScreen(
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // MUDANÇA: Texto informativo substituindo o link de esqueci a senha
         Text(
-            text = "Esqueci minha senha",
-            color = Color(0xFFAAAAAA),
+            text = "Esqueceu a senha? Solicite a recuperação da chave de rede diretamente com o Suporte de TI.",
+            color = Color(0xFF555555),
             fontSize = 12.sp,
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { /* Ação futura */ }
+            lineHeight = 16.sp
         )
 
         errorMessage?.let {
@@ -308,16 +306,6 @@ fun CredentialLoginScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Problemas com o acesso? Contate o suporte de TI.",
-            color = Color(0xFF555555),
-            fontSize = 11.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
     }
 }
 
