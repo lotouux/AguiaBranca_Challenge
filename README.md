@@ -161,25 +161,6 @@ The system aims to **connect all levels of the company** through a mobile platfo
 
 ---
 
-### 10. Águia IA — AI Chat (Gestor)
-
-- Opens from the Inbox when evaluating a specific idea
-- Context automatically loaded: title, description, area, impact, effort, current status
-- Full conversational chat interface with message history
-- Powered by **Google Gemini (gemini-2.0-flash)**
-- System prompt pre-configured as a corporate innovation assistant in Portuguese
-
----
-
-### 11. Águia IA — AI Chat (Liderança)
-
-- Opens from the Home dashboard via the "Análise" button
-- Context automatically loaded: ROI, investment, return, profit, project list with individual data, active strategic focus
-- **Quick suggestion chips:** "Como melhorar o ROI?", "Quais projetos têm melhor retorno?", "Sugestões para a liderança", "Análise de riscos"
-- Full conversational interface with the same Gemini integration
-
----
-
 ### 12. Profile Screen
 
 - Displays user name and profile type
@@ -218,100 +199,9 @@ https://aguiabranca-api.onrender.com/
 
 ---
 
-## AI Setup (Google Gemini)
 
-To enable the AI chat features:
 
-1. Go to [Google AI Studio](https://aistudio.google.com) and generate a free API key
-2. Open `app/src/main/java/.../network/GeminiService.kt`
-3. Replace the placeholder:
 
-```kotlin
-const val API_KEY = "AIzaSyDemo_substitua_pela_chave_real"
-```
 
-with your real key.
 
----
 
-## How to Run
-
-### Requirements
-- Android Studio Hedgehog or newer
-- JDK 11+
-- Android device or emulator (API 24+, Android 7.0+)
-
-### Steps
-
-```bash
-# Clone the repository
-git clone <repository-url>
-
-# Open the project in Android Studio
-# Wait for Gradle sync to complete
-# Click Run or press Shift + F10
-```
-
-### Test Credentials
-
-Use credentials registered in the backend with one of the following profiles:
-- `operador`
-- `gestor`
-- `lideranca`
-
----
-
-## Project Structure
-
-```
-app/src/main/java/.../
-├── data/
-│   ├── models/           # API request/response DTOs
-│   ├── preferences/      # Theme and session persistence
-│   └── StrategicData.kt  # Domain models (Ideia, StrategicFocus...)
-├── gestor/               # Gestor screens and ViewModel
-├── lideranca/            # Liderança screens and ViewModel
-├── operador/             # Operador screens
-├── projetos/             # Projects screens and ViewModel
-├── perfil/               # Profile screen and sub-screens
-├── network/              # ApiService, RetrofitClient, GeminiService
-├── repository/           # Data layer (Auth, Ideias, Estratégia)
-├── navigation/           # BottomNavBar
-├── components/           # Reusable components
-└── MainActivity.kt       # Entry point and navigation controller
-```
-
----
-
-## Next Steps
-
-- **AI Key Configuration**
-  - Replace Gemini placeholder key with a real Google AI Studio key
-  - Enable full AI chat for both Gestor and Liderança
-
-- **Backend Finalization**
-  - Complete all Sprint 2 backend endpoints
-  - Update base URL in `RetrofitClient.kt` to the final backend address
-  - Validate role-based access control responses from the API
-
-- **Historical Strategy Registry**
-  - Add date, category and campaign fields to strategic focuses
-  - Build a history screen showing past strategies with timeline view
-
-- **Notifications**
-  - Push notifications when an idea status changes
-  - In-app alerts for new ideas pending review (Gestor)
-
-- **Polish & Testing**
-  - End-to-end testing with real backend data
-  - Accessibility review
-  - Performance optimization for large idea lists
-
----
-
-## Developed by
-
-Project developed by FIAP students for the **Águia Branca Challenge — 2025**
-
-[![FIAP](https://img.shields.io/badge/FIAP-ED1C24?style=for-the-badge&logo=academia&logoColor=white)](https://www.fiap.com.br/)
-[![Águia Branca](https://img.shields.io/badge/Águia_Branca-003B71?style=for-the-badge&logoColor=white)](#)
