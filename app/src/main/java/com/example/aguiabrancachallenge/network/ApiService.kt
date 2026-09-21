@@ -1,5 +1,6 @@
 package com.example.aguiabrancachallenge.network
 
+import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.data.models.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -53,6 +54,9 @@ interface ApiService {
         @Path("id") id: String,
         @Body body: AtualizarIdeiaRequest
     ): Response<Unit>
+
+    @GET("api/ideias/minhas")
+    suspend fun listarMinhasIdeias(): Response<List<Ideia>>
 
     // ── FOCO ESTRATÉGICO ──────────────────────────────────────
 

@@ -50,9 +50,26 @@ fun OperadorIdeiasScreen(
     ideiaRepository: IdeiaRepository,
     autor: String
 ) {
-    val minhasIdeias = GlobalStateManager.listaDeIdeias
+    var carregando by remember { mutableStateOf(true) }
+
     var showAddDialog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    var minhasIdeias by remember { mutableStateOf<List<Ideia>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        ideiaRepository.listarMinhasIdeias()
+            .onSuccess {
+                minhasIdeias = it
+                GlobalStateManager.listaDeIdeias = it
+            }
+            .onFailure {
+                minhasIdeias = emptyList()
+                GlobalStateManager.listaDeIdeias = emptyList()
+            }
+
+        carregando = false
+    }
 
     Scaffold(
         bottomBar = {
@@ -73,77 +90,71 @@ fun OperadorIdeiasScreen(
                 .padding(horizontal = 20.dp),
             contentPadding = PaddingValues(top = 32.dp, bottom = 32.dp)
         ) {
-            // ── cabeçalho ──
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            "MINHAS IDEIAS",
-                            color = Color(0xFF7A8A99),
-                            fontSize = 11.sp,
-                            letterSpacing = 2.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            "Minhas Ideias",
-                            color = Color.White,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                        Text(
-                            "${minhasIdeias.size} ideias registradas",
-                            color = Color(0xFF8A8F98),
-                            fontSize = 14.sp
-                        )
-                    }
-                    // botão + flutuante
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(BrandBlueI)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { showAddDialog = true },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "Nova Ideia", tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
-                Spacer(Modifier.height(32.dp))
-            }
 
-            // ── lista ──
-            if (minhasIdeias.isEmpty()) {
+            // seu cabeçalho continua igual
+
+            if (carregando) {
                 item {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "Nenhuma ideia registrada ainda.\nToque em + para criar a sua primeira ideia!",
-                            color = DarkSub,
-                            fontSize = 14.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            lineHeight = 20.sp
-                        )
+                        CircularProgressIndicator(color = BrandBlueI)
                     }
                 }
             } else {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                "MINHAS IDEIAS",
+                                color = Color(0xFF7A8A99),
+                                fontSize = 11.sp,
+                                letterSpacing = 2.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                "Minhas Ideias",
+                                color = Color.White,
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                            Text(
+                                "${minhasIdeias.size} ideias registradas",
+                                color = Color(0xFF8A8F98),
+                                fontSize = 14.sp
+                            )
+                        }
+                        // botão + flutuante
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(BrandBlueI)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { showAddDialog = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Nova Ideia", tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                    }
+                    Spacer(Modifier.height(32.dp))
+                }
                 items(minhasIdeias) { ideia ->
                     DarkIdeiaProgressCard(ideia)
                     Spacer(Modifier.height(12.dp))
-                }
-            }
+                }}
         }
 
-        // ── modal nova ideia ──
         if (showAddDialog) {
             AddIdeiaDialog(
                 onDismiss = { showAddDialog = false },
@@ -151,9 +162,15 @@ fun OperadorIdeiasScreen(
                 autor = autor,
                 onIdeiaCriada = {
                     scope.launch {
-                        ideiaRepository.listarIdeias().onSuccess {
-                            GlobalStateManager.listaDeIdeias = it
-                        }
+                        ideiaRepository.listarMinhasIdeias()
+                            .onSuccess {
+                                minhasIdeias = it
+                                GlobalStateManager.listaDeIdeias = it
+                            }
+                            .onFailure {
+                                minhasIdeias = emptyList()
+                                GlobalStateManager.listaDeIdeias = emptyList()
+                            }
                     }
                 }
             )
@@ -164,6 +181,18 @@ fun OperadorIdeiasScreen(
 // ─────────────────────────────────────────────────────────────
 // CARD DE IDEIA (dark)
 // ─────────────────────────────────────────────────────────────
+fun formatarStatus(status: String): String {
+    return when (status.uppercase()) {
+        "ENVIADA" -> "Enviada"
+        "EM_ANALISE" -> "Em Análise"
+        "APROVADA" -> "Aprovada"
+        "EM_EXECUCAO" -> "Em Execução"
+        "CONCLUIDA" -> "Concluída"
+        "REJEITADA" -> "Rejeitada"
+        "ARQUIVADA" -> "Arquivada"
+        else -> status.replace("_", " ")
+    }
+}
 @Composable
 fun DarkIdeiaProgressCard(ideia: Ideia) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -192,7 +221,11 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
                 Spacer(Modifier.width(8.dp))
                 Text(ideia.area, color = Color(0xFF8A8F98), fontSize = 11.sp)
             }
-            Text(ideia.data, color = DarkSub, fontSize = 11.sp)
+            Text(
+                ideia.data ?: "",
+                color = DarkSub,
+                fontSize = 11.sp
+            )
         }
 
         Spacer(Modifier.height(10.dp))
@@ -205,10 +238,18 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
                 .background(ideia.statusColor.copy(.15f), RoundedCornerShape(50))
                 .padding(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            Text(ideia.status, color = ideia.statusColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text(
+                formatarStatus(ideia.status),
+                color = ideia.statusColor,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        if (ideia.status.equals("Arquivada", ignoreCase = true) && ideia.feedbackGestor.isNotBlank()) {
+        if (
+            ideia.status.equals("Arquivada", ignoreCase = true) &&
+            ideia.feedbackGestor.isNotBlank()
+        ) {
             Spacer(Modifier.height(10.dp))
             Box(
                 modifier = Modifier
@@ -229,7 +270,12 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
                     Column {
                         Text("Motivo do Arquivamento:", color = Color(0xFFEF9A9A), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(2.dp))
-                        Text(ideia.feedbackGestor, color = Color(0xFFE0E0E0), fontSize = 12.sp, lineHeight = 16.sp)
+                        Text(
+                            ideia.feedbackGestor ?: "",
+                            color = Color(0xFFE0E0E0),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
                     }
                 }
             }
@@ -243,7 +289,8 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
             Text(ideia.descricao, color = Color(0xFF8A8F98), fontSize = 13.sp, lineHeight = 19.sp)
             Spacer(Modifier.height(14.dp))
 
-            val totalKm = ideia.baseKM + if (ideia.isStrategicBonus) 250 else 0
+            val totalKm = (ideia.baseKM ?: 0) +
+                    if (ideia.isStrategicBonus) 250 else 0
             Text("+$totalKm KM de Inovação", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             if (ideia.isStrategicBonus) {
                 Text("Bônus estratégico aplicado!", color = Color(0xFF4CAF50), fontSize = 11.sp)
@@ -275,13 +322,14 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
 @Composable
 fun DarkIdeaStepper(currentStatus: String, activeColor: Color) {
     val stages = listOf("Enviada", "Análise", "Aprovada", "Execução", "Lucro")
-    val currentIndex = when (currentStatus) {
-        "Enviada"      -> 0
-        "Em Análise"   -> 1
-        "Aprovada"     -> 2
-        "Em Execução"  -> 3
-        "Concluída"    -> 4
-        else           -> 0
+
+    val currentIndex = when (currentStatus.uppercase()) {
+        "ENVIADA" -> 0
+        "EM_ANALISE" -> 1
+        "APROVADA" -> 2
+        "EM_EXECUCAO" -> 3
+        "CONCLUIDA" -> 4
+        else -> 0
     }
 
     Row(
@@ -294,32 +342,57 @@ fun DarkIdeaStepper(currentStatus: String, activeColor: Color) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(2.dp)
-                            .background(if (index <= currentIndex && index != 0) activeColor else Color(0xFF1C1F26))
+                            .background(
+                                if (index <= currentIndex && index != 0)
+                                    activeColor
+                                else
+                                    Color(0xFF1C1F26)
+                            )
                     )
+
                     Box(
                         modifier = Modifier
                             .size(if (index == currentIndex) 11.dp else 7.dp)
                             .clip(CircleShape)
-                            .background(if (index <= currentIndex) activeColor else Color(0xFF1C1F26))
+                            .background(
+                                if (index <= currentIndex)
+                                    activeColor
+                                else
+                                    Color(0xFF1C1F26)
+                            )
                     )
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(2.dp)
-                            .background(if (index < currentIndex) activeColor else Color(0xFF1C1F26))
+                            .background(
+                                if (index < currentIndex)
+                                    activeColor
+                                else
+                                    Color(0xFF1C1F26)
+                            )
                     )
                 }
+
                 Spacer(Modifier.height(6.dp))
+
                 Text(
                     label,
                     color = if (index <= currentIndex) Color.White else DarkSub,
                     fontSize = 9.sp,
-                    fontWeight = if (index == currentIndex) FontWeight.Bold else FontWeight.Normal
+                    fontWeight = if (index == currentIndex)
+                        FontWeight.Bold
+                    else
+                        FontWeight.Normal
                 )
             }
         }

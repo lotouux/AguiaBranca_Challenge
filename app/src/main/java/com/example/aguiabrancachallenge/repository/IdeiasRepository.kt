@@ -74,6 +74,20 @@ class IdeiaRepository {
         }
     }
 
+    suspend fun listarMinhasIdeias(): Result<List<Ideia>> {
+        return try {
+            val response = api.listarMinhasIdeias()
+
+            if (response.isSuccessful) {
+                Result.success(response.body() ?: emptyList())
+            } else {
+                Result.failure(Exception("Erro ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /**
      * Submete uma nova ideia.
      * @param focoEstrategiaId: ID do foco ativo no momento da criação (para bônus futuro).

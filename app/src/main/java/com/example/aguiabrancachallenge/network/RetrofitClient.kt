@@ -39,17 +39,26 @@ object RetrofitClient {
     private val authInterceptor = Interceptor { chain ->
         val original = chain.request()
         val token = authToken
-        val request = if (token != null) {
+
+        android.util.Log.d(
+            "AUTH",
+            "Token presente: ${token != null}, tamanho: ${token?.length}"
+        )
+
+        val request = if (!token.isNullOrBlank()) {
             original.newBuilder()
                 .header("Authorization", "Bearer $token")
                 .build()
         } else {
             original
         }
+
         val response = chain.proceed(request)
+
         if (response.code == 401) {
             onSessionExpired?.invoke()
         }
+
         response
     }
 
@@ -76,23 +85,20 @@ object RetrofitClient {
  * Mecanismo de re-tentativa para lidar com instabilidades de rede (Timeout/Loss).
  */
 class RetryInterceptor(private val maxRetries: Int = 3) : Interceptor {
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        var response: Response? = null
-        var exception: IOException? = null
+
+        var lastException: IOException? = null
 
         repeat(maxRetries) {
             try {
-                response?.close()
-
-                response = chain.proceed(request)
-
-                if (response.isSuccessful) return response
+                return chain.proceed(request)
             } catch (e: IOException) {
-                exception = e
+                lastException = e
             }
         }
-        if (response == null && exception != null) throw exception
-        return response!!
+
+        throw lastException ?: IOException("Falha na requisição")
     }
 }
