@@ -156,10 +156,7 @@ fun OperadorHomeScreen(
 
     Scaffold(
         topBar = {
-            TopBar(
-                onNotificationClick = { /* Abrir Notificações */ },
-                onSettingsClick = { onNavigateBottomBar("perfil") }
-            )
+            TopBar()
         },
         bottomBar = {
             val navItemsOperador = listOf(
@@ -756,7 +753,7 @@ fun EagleAiHeroCard(onNovaIdeiaClick: () -> Unit = {}) {
 }
 
 @Composable
-fun TopBar(onNotificationClick: () -> Unit, onSettingsClick: () -> Unit) {
+fun TopBar() {
     Column {
         Row(
             modifier = Modifier
@@ -768,21 +765,6 @@ fun TopBar(onNotificationClick: () -> Unit, onSettingsClick: () -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(painter = painterResource(id = R.drawable.aguia_branca_logo), contentDescription = "Logo", modifier = Modifier.width(100.dp), colorFilter = ColorFilter.tint(Color.White))
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onNotificationClick() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Notifications, contentDescription = "Notificações", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Box(modifier = Modifier.align(Alignment.TopEnd).padding(top = 10.dp, end = 10.dp).size(8.dp).background(BrandBlue, CircleShape).border(1.5.dp, Color(0xFF16181D), CircleShape))
-                }
-
-                Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onSettingsClick() },
-                    contentAlignment = Alignment.Center
-                ) { Icon(Icons.Default.Settings, contentDescription = "Configurações", tint = Color.White, modifier = Modifier.size(20.dp)) }
             }
         }
         HorizontalDivider(color = Color(0xFF1A1C20), thickness = 1.dp)

@@ -1,11 +1,17 @@
 package com.example.aguiabrancachallenge.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.data.MarcoProjeto
 import com.example.aguiabrancachallenge.data.StrategicFocus
 import com.example.aguiabrancachallenge.data.models.AtualizarIdeiaRequest
+import com.example.aguiabrancachallenge.data.models.AtualizarMarcoRequest
 import com.example.aguiabrancachallenge.data.models.CriarIdeiaRequest
+import com.example.aguiabrancachallenge.data.models.NovoMarcoRequest
 import com.example.aguiabrancachallenge.network.RetrofitClient
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.collections.map
 
 /**
@@ -72,6 +78,7 @@ class IdeiaRepository {
      * Submete uma nova ideia.
      * @param focoEstrategiaId: ID do foco ativo no momento da criação (para bônus futuro).
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun criarIdeia(
         titulo: String,
         descricao: String,
@@ -90,10 +97,10 @@ class IdeiaRepository {
                     descricao = descricao,
                     area = area,
                     autor = autor,
-                    data = data,
+                    data = converterDataParaApi(data),
                     impacto = impacto,
                     esforco = esforco,
-                    prazo = prazo,
+                    prazo = converterDataParaApi(prazo),
                     focoEstrategiaId = focoEstrategiaId
                 )
             )
@@ -125,7 +132,7 @@ class IdeiaRepository {
      */
     suspend fun adicionarMarco(id: String, titulo: String): Result<Unit> {
         return try {
-            val response = api.criarMarco(id, mapOf("titulo" to titulo))
+            val response = api.criarMarco(id, NovoMarcoRequest(titulo = titulo))
             if (response.isSuccessful) Result.success(Unit)
             else Result.failure(Exception("Erro ao criar marco"))
         } catch (e: Exception) {
@@ -138,11 +145,24 @@ class IdeiaRepository {
      */
     suspend fun atualizarMarco(id: String, marcoId: Int, obs: String): Result<Unit> {
         return try {
-            val response = api.atualizarMarco(id, marcoId, mapOf("observacao" to obs))
+            val response = api.atualizarMarco(id, marcoId, AtualizarMarcoRequest(marcoId = marcoId, observacao = obs))
             if (response.isSuccessful) Result.success(Unit)
             else Result.failure(Exception("Erro ao atualizar marco"))
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun converterDataParaApi(data: String): String {
+    return try {
+        LocalDate
+            .parse(data, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
+    } catch (e: Exception) {
+        LocalDate
+            .parse(data, DateTimeFormatter.ISO_LOCAL_DATE)
+            .format(DateTimeFormatter.ISO_LOCAL_DATE)
     }
 }

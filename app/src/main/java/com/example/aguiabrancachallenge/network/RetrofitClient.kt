@@ -83,13 +83,16 @@ class RetryInterceptor(private val maxRetries: Int = 3) : Interceptor {
 
         repeat(maxRetries) {
             try {
+                response?.close()
+
                 response = chain.proceed(request)
+
                 if (response.isSuccessful) return response
             } catch (e: IOException) {
                 exception = e
             }
         }
-        if (response == null && exception != null) throw exception!!
+        if (response == null && exception != null) throw exception
         return response!!
     }
 }

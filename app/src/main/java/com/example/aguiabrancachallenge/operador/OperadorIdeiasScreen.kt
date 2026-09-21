@@ -351,8 +351,15 @@ fun AddIdeiaDialog(
     val niveis = listOf("Baixo", "Médio", "Alto")
 
     val hoje = remember {
-        java.text.SimpleDateFormat("dd MMM", java.util.Locale("pt", "BR"))
-            .format(java.util.Date()).replace(".", "").lowercase()
+        java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale("pt", "BR"))
+            .format(java.util.Date())
+            .replace(".", "")
+            .lowercase()
+    }
+
+    val hojeFormatoApi = remember {
+        java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale("pt", "BR"))
+            .format(java.util.Date())
     }
 
     val prazoRegex = Regex("""^([0-2][0-9]|3[0-1])/(0[1-9]|1[0-2])/\d{4}$""")
@@ -469,7 +476,7 @@ fun AddIdeiaDialog(
                             descricao = descricao,
                             area = areaSelecionada,
                             autor = autor,
-                            data = hoje,
+                            data = hojeFormatoApi,
                             impacto = impacto,
                             esforco = esforco,
                             prazo = prazo,
