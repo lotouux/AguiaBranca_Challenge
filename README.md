@@ -4,7 +4,7 @@
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
 [![Retrofit](https://img.shields.io/badge/Retrofit-48B983?style=for-the-badge&logo=square&logoColor=white)](https://square.github.io/retrofit/)
-[![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white)](https://console.groq.com/)
 [![Status](https://img.shields.io/badge/status-Development-yellow?style=for-the-badge)](#)
 
 ---
@@ -25,8 +25,8 @@ The system aims to **connect all levels of the company** through a mobile platfo
 - **Curation & approval workflow** for managers to evaluate and prioritize ideas.
 - **Project tracking** with milestones, financial data, and progress indicators.
 - **Strategic management** for leadership to define monthly focus and monitor results.
-- **AI-powered assistant** (Águia IA) integrated with Google Gemini for smarter decisions.
-
+- **AI-powered assistant** (Águia IA) integrated with Groq for smarter decisions.
+- 
 ---
 
 ## Technologies Used
@@ -35,7 +35,7 @@ The system aims to **connect all levels of the company** through a mobile platfo
 - **UI Framework:** Jetpack Compose + Material 3
 - **Networking:** Retrofit 3 + OkHttp + Gson
 - **Security:** JWT via AuthInterceptor (OkHttp)
-- **AI Integration:** Google Gemini API (gemini-2.0-flash)
+- **AI Integration:** Groq 
 - **Local Storage:** SharedPreferences (user session + theme)
 - **Architecture:** Repository pattern with ViewModels
 
