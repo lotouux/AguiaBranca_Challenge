@@ -190,7 +190,11 @@ fun DetalhesProjetoScreen(
                 }
 
                 // ── botão definir plano (somente gestor) ──
-                if (projetoAtual.status == "Aprovada" && marcos.isEmpty() && profile == "Gestor") {
+                if (
+                    projetoAtual.status.equals("APROVADA", ignoreCase = true) &&
+                    marcos.isEmpty() &&
+                    profile.equals("Gestor", ignoreCase = true)
+                ) {
                     item {
                         Button(
                             onClick = { showDefinirPlano = true },
@@ -198,174 +202,267 @@ fun DetalhesProjetoScreen(
                                 .fillMaxWidth()
                                 .height(52.dp),
                             shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = BrandBlueD
+                            )
                         ) {
-                            Text("Definir Plano de Execução", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Definir Plano de Execução",
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
+
                         Spacer(Modifier.height(24.dp))
                     }
-                } else {
-                    // ── métricas ──
-                    item {
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            DarkMetricaCard(
-                                modifier = Modifier.weight(1f),
-                                titulo = "Prazo",
-                                valor = prazoFormatado,
-                                valorCor = Color.White
-                            )
+                }
 
-                            DarkMetricaCard(
-                                modifier = Modifier.weight(1f),
-                                titulo = "ROI Esperado",
-                                valor = roiText,
-                                valorCor = Color(0xFF4CAF50)
-                            )
-                        }
-                        Spacer(Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            DarkMetricaCard(
-                                modifier = Modifier.weight(1f),
-                                titulo = "Investimento",
-                                valor = formatarMoedaAbreviada(projetoAtual.investimento ?: 0f),
-                                valorCor = Color.White
-                            )
-                            DarkMetricaCard(
-                                modifier = Modifier.weight(1f),
-                                titulo = "Retorno",
-                                valor = formatarMoedaAbreviada(projetoAtual.retorno ?: 0f),
-                                valorCor = Color.White
-                            )
-                        }
-                        Spacer(Modifier.height(24.dp))
+                /* ─────────────────────────────────────────
+                   MÉTRICAS
+                   ───────────────────────────────────────── */
+                item {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        DarkMetricaCard(
+                            modifier = Modifier.weight(1f),
+                            titulo = "Prazo",
+                            valor = prazoFormatado,
+                            valorCor = Color.White
+                        )
+
+                        DarkMetricaCard(
+                            modifier = Modifier.weight(1f),
+                            titulo = "ROI Esperado",
+                            valor = roiText,
+                            valorCor = Color(0xFF4CAF50)
+                        )
                     }
 
-                    // ── progresso ──
-                    item {
-                        val pct = (projetoAtual.progressoReal * 100).toInt()
-                        Column(
+                    Spacer(Modifier.height(10.dp))
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        DarkMetricaCard(
+                            modifier = Modifier.weight(1f),
+                            titulo = "Investimento",
+                            valor = formatarMoedaAbreviada(projetoAtual.investimento ?: 0f),
+                            valorCor = Color.White
+                        )
+
+                        DarkMetricaCard(
+                            modifier = Modifier.weight(1f),
+                            titulo = "Retorno",
+                            valor = formatarMoedaAbreviada(projetoAtual.retorno ?: 0f),
+                            valorCor = Color.White
+                        )
+                    }
+
+                    Spacer(Modifier.height(24.dp))
+                }
+
+                /* ─────────────────────────────────────────
+                   PROGRESSO
+                   ───────────────────────────────────────── */
+                item {
+                    val pct = (projetoAtual.progressoReal * 100).toInt()
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(DarkCard)
+                            .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                            .padding(18.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "Progresso",
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                "$pct%",
+                                color = BrandBlueD,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(Modifier.height(14.dp))
+
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(DarkCard)
-                                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
-                                .padding(18.dp)
+                                .height(7.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(Color(0xFF1C1F26))
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Progresso", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                                Text("$pct%", color = BrandBlueD, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(Modifier.height(14.dp))
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(7.dp)
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(
+                                        projetoAtual.progressoReal.coerceIn(0f, 1f)
+                                    )
                                     .clip(RoundedCornerShape(50))
-                                    .background(Color(0xFF1C1F26))
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .fillMaxWidth(projetoAtual.progressoReal.coerceIn(0f, 1f))
-                                        .clip(RoundedCornerShape(50))
-                                        .background(
-                                            if (projetoAtual.progressoReal >= 1f) Color(
-                                                0xFF4CAF50
-                                            ) else BrandBlueD
-                                        )
-                                )
-                            }
-                            if (!projetoAtual.observacaoProgresso.isNullOrEmpty()) {
-                                Spacer(Modifier.height(12.dp))
-                                Text(
-                                    "Última atualização: ${projetoAtual.observacaoProgresso}",
-                                    color = DarkSub,
-                                    fontSize = 11.sp
-                                )
-                            }
+                                    .background(
+                                        if (projetoAtual.progressoReal >= 1f)
+                                            Color(0xFF4CAF50)
+                                        else
+                                            BrandBlueD
+                                    )
+                            )
                         }
-                        Spacer(Modifier.height(24.dp))
+
+                        if (!projetoAtual.observacaoProgresso.isNullOrEmpty()) {
+                            Spacer(Modifier.height(12.dp))
+
+                            Text(
+                                "Última atualização: ${projetoAtual.observacaoProgresso}",
+                                color = DarkSub,
+                                fontSize = 11.sp
+                            )
+                        }
                     }
 
-                    // ── marcos ──
-                    item {
-                        val concluidos = marcos.count { it.isCompleto }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(DarkCard)
-                                .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
-                                .padding(18.dp)
+                    Spacer(Modifier.height(24.dp))
+                }
+
+                /* ─────────────────────────────────────────
+                   MARCOS
+                   ───────────────────────────────────────── */
+                item {
+                    val concluidos = marcos.count { it.isCompleto }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(DarkCard)
+                            .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+                            .padding(18.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("Marcos", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                                if (profile == "Gestor") {
-                                    IconButton(onClick = { showAdicionarMarco = true }) {
-                                        Icon(Icons.Default.Add, contentDescription = "Adicionar", tint = BrandBlueD)
-                                    }
+                            Text(
+                                "Marcos",
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            if (profile.trim().equals("Gestor", ignoreCase = true)) {
+                                IconButton(
+                                    onClick = { showAdicionarMarco = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Adicionar marco",
+                                        tint = BrandBlueD
+                                    )
                                 }
                             }
-                            Text("$concluidos/${marcos.size} concluídos", color = DarkSub, fontSize = 11.sp)
-                            Spacer(Modifier.height(14.dp))
+                        }
 
-                            marcos.forEachIndexed { index, marco ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable(
-                                            enabled = profile == "Gestor",
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null
-                                        ) { marcoSelecionadoId = marco.id },
-                                    verticalAlignment = Alignment.Top
+                        Text(
+                            "$concluidos/${marcos.size} concluídos",
+                            color = DarkSub,
+                            fontSize = 11.sp
+                        )
+
+                        Spacer(Modifier.height(14.dp))
+
+                        marcos.forEachIndexed { index, marco ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        enabled = profile.trim()
+                                            .equals("Gestor", ignoreCase = true),
+                                        interactionSource = remember {
+                                            MutableInteractionSource()
+                                        },
+                                        indication = null
+                                    ) {
+                                        marcoSelecionadoId = marco.id
+                                    },
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                if (marco.isCompleto)
+                                                    Color(0xFF4CAF50)
+                                                else
+                                                    Color.Transparent
+                                            )
+                                            .border(
+                                                2.dp,
+                                                if (marco.isCompleto)
+                                                    Color(0xFF4CAF50)
+                                                else
+                                                    DarkSub,
+                                                CircleShape
+                                            )
+                                    )
+
+                                    if (index < marcos.size - 1) {
                                         Box(
                                             modifier = Modifier
-                                                .size(16.dp)
-                                                .clip(CircleShape)
-                                                .background(if (marco.isCompleto) Color(0xFF4CAF50) else Color.Transparent)
-                                                .border(
-                                                    2.dp,
-                                                    if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub,
-                                                    CircleShape
+                                                .width(2.dp)
+                                                .height(44.dp)
+                                                .background(
+                                                    if (marco.isCompleto)
+                                                        Color(0xFF4CAF50).copy(.4f)
+                                                    else
+                                                        Color(0xFF1C1F26)
                                                 )
-                                        )
-                                        if (index < marcos.size - 1) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(2.dp)
-                                                    .height(44.dp)
-                                                    .background(
-                                                        if (marco.isCompleto) Color(
-                                                            0xFF4CAF50
-                                                        ).copy(.4f) else Color(0xFF1C1F26)
-                                                    )
-                                            )
-                                        }
-                                    }
-                                    Spacer(Modifier.width(14.dp))
-                                    Column(modifier = Modifier.padding(bottom = if (index < projetoAtual.marcos!!.size - 1) 24.dp else 0.dp)) {
-                                        Text(marco.titulo, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                                        Text(
-                                            if (marco.isCompleto && marco.dataCompleto.isNotEmpty()) marco.dataCompleto else "Pendente",
-                                            color = if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub,
-                                            fontSize = 11.sp
                                         )
                                     }
                                 }
+
+                                Spacer(Modifier.width(14.dp))
+
+                                Column(
+                                    modifier = Modifier.padding(
+                                        bottom = if (index < marcos.size - 1) 24.dp else 0.dp
+                                    )
+                                ) {
+                                    Text(
+                                        marco.titulo,
+                                        color = Color.White,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+
+                                    Text(
+                                        if (marco.isCompleto && marco.dataCompleto.isNotEmpty())
+                                            marco.dataCompleto
+                                        else
+                                            "Pendente",
+                                        color = if (marco.isCompleto)
+                                            Color(0xFF4CAF50)
+                                        else
+                                            DarkSub,
+                                        fontSize = 11.sp
+                                    )
+                                }
                             }
                         }
-                        Spacer(Modifier.height(24.dp))
                     }
+
+                    Spacer(Modifier.height(24.dp))
                 }
 
                 // ── responsável ──
