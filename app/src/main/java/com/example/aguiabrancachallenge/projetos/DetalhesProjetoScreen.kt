@@ -1,5 +1,7 @@
 package com.example.aguiabrancachallenge.projetos
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +31,8 @@ import com.example.aguiabrancachallenge.data.progressoReal
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 private val DarkBg     = Color(0xFF0A0C10)
 private val DarkCard   = Color(0xFF12141A)
@@ -42,6 +46,7 @@ fun formatarMoedaAbreviada(valor: Float): String = when {
     else          -> "R$ ${valor.toInt()}"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalhesProjetoScreen(
@@ -56,6 +61,8 @@ fun DetalhesProjetoScreen(
     LaunchedEffect(projeto.id) { viewModel.carregarProjeto(projeto.id) }
 
     val projetoAtual = viewModel.projeto
+
+    println("ProjetoAtual: " + projetoAtual)
 
     var marcoSelecionadoId by remember { mutableStateOf<Int?>(null) }
     var inputObservacao    by remember { mutableStateOf("") }
@@ -93,6 +100,8 @@ fun DetalhesProjetoScreen(
         unfocusedContainerColor = Color.Transparent
     )
 
+    val marcos = projetoAtual?.marcos.orEmpty()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -127,6 +136,24 @@ fun DetalhesProjetoScreen(
         },
         containerColor = DarkBg
     ) { paddingValues ->
+        val roi = projetoAtual?.roiEsperado?.toDouble() ?: 0.0
+
+        val roiText = if (roi > 0.0) {
+            "${(roi * 100).toInt()}%"
+        } else {
+            "0%"
+        }
+
+        val prazoFormatado = projetoAtual?.prazo?.let { prazo ->
+            try {
+                LocalDate.parse(prazo).format(
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                )
+            } catch (e: Exception) {
+                prazo
+            }
+        } ?: "Não definido"
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -137,7 +164,9 @@ fun DetalhesProjetoScreen(
             if (projetoAtual == null) {
                 item {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 48.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = BrandBlueD, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -161,11 +190,13 @@ fun DetalhesProjetoScreen(
                 }
 
                 // ── botão definir plano (somente gestor) ──
-                if (projetoAtual.status == "Aprovada" && projetoAtual.marcos!!.isEmpty() && profile == "Gestor") {
+                if (projetoAtual.status == "Aprovada" && marcos.isEmpty() && profile == "Gestor") {
                     item {
                         Button(
                             onClick = { showDefinirPlano = true },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = BrandBlueD)
                         ) {
@@ -180,11 +211,10 @@ fun DetalhesProjetoScreen(
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Prazo",
-                                valor = projetoAtual.prazo!!.ifEmpty { "Não definido" },
+                                valor = prazoFormatado,
                                 valorCor = Color.White
                             )
-                            val roiText = if (projetoAtual.roiEsperado!! > 0)
-                                "${(projetoAtual.roiEsperado * 100).toInt()}%" else "0%"
+
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "ROI Esperado",
@@ -197,13 +227,13 @@ fun DetalhesProjetoScreen(
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Investimento",
-                                valor = formatarMoedaAbreviada(projetoAtual.investimento!!),
+                                valor = formatarMoedaAbreviada(projetoAtual.investimento ?: 0f),
                                 valorCor = Color.White
                             )
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Retorno",
-                                valor = formatarMoedaAbreviada(projetoAtual.retorno!!),
+                                valor = formatarMoedaAbreviada(projetoAtual.retorno ?: 0f),
                                 valorCor = Color.White
                             )
                         }
@@ -230,19 +260,31 @@ fun DetalhesProjetoScreen(
                             }
                             Spacer(Modifier.height(14.dp))
                             Box(
-                                modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(50)).background(Color(0xFF1C1F26))
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(7.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(Color(0xFF1C1F26))
                             ) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxHeight()
                                         .fillMaxWidth(projetoAtual.progressoReal.coerceIn(0f, 1f))
                                         .clip(RoundedCornerShape(50))
-                                        .background(if (projetoAtual.progressoReal >= 1f) Color(0xFF4CAF50) else BrandBlueD)
+                                        .background(
+                                            if (projetoAtual.progressoReal >= 1f) Color(
+                                                0xFF4CAF50
+                                            ) else BrandBlueD
+                                        )
                                 )
                             }
-                            if (projetoAtual.observacaoProgresso!!                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .isNotEmpty()) {
+                            if (!projetoAtual.observacaoProgresso.isNullOrEmpty()) {
                                 Spacer(Modifier.height(12.dp))
-                                Text("Última atualização: ${projetoAtual.observacaoProgresso}", color = DarkSub, fontSize = 11.sp)
+                                Text(
+                                    "Última atualização: ${projetoAtual.observacaoProgresso}",
+                                    color = DarkSub,
+                                    fontSize = 11.sp
+                                )
                             }
                         }
                         Spacer(Modifier.height(24.dp))
@@ -250,7 +292,7 @@ fun DetalhesProjetoScreen(
 
                     // ── marcos ──
                     item {
-                        val concluidos = projetoAtual.marcos!!.count { it.isCompleto }
+                        val concluidos = marcos.count { it.isCompleto }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -271,10 +313,10 @@ fun DetalhesProjetoScreen(
                                     }
                                 }
                             }
-                            Text("$concluidos/${projetoAtual.marcos!!.size} concluídos", color = DarkSub, fontSize = 11.sp)
+                            Text("$concluidos/${marcos.size} concluídos", color = DarkSub, fontSize = 11.sp)
                             Spacer(Modifier.height(14.dp))
 
-                            projetoAtual.marcos!!.forEachIndexed { index, marco ->
+                            marcos.forEachIndexed { index, marco ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -291,19 +333,27 @@ fun DetalhesProjetoScreen(
                                                 .size(16.dp)
                                                 .clip(CircleShape)
                                                 .background(if (marco.isCompleto) Color(0xFF4CAF50) else Color.Transparent)
-                                                .border(2.dp, if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub, CircleShape)
+                                                .border(
+                                                    2.dp,
+                                                    if (marco.isCompleto) Color(0xFF4CAF50) else DarkSub,
+                                                    CircleShape
+                                                )
                                         )
-                                        if (index < projetoAtual.marcos.size - 1) {
+                                        if (index < marcos.size - 1) {
                                             Box(
                                                 modifier = Modifier
                                                     .width(2.dp)
                                                     .height(44.dp)
-                                                    .background(if (marco.isCompleto) Color(0xFF4CAF50).copy(.4f) else Color(0xFF1C1F26))
+                                                    .background(
+                                                        if (marco.isCompleto) Color(
+                                                            0xFF4CAF50
+                                                        ).copy(.4f) else Color(0xFF1C1F26)
+                                                    )
                                             )
                                         }
                                     }
                                     Spacer(Modifier.width(14.dp))
-                                    Column(modifier = Modifier.padding(bottom = if (index < projetoAtual.marcos.size - 1) 24.dp else 0.dp)) {
+                                    Column(modifier = Modifier.padding(bottom = if (index < projetoAtual.marcos!!.size - 1) 24.dp else 0.dp)) {
                                         Text(marco.titulo, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                         Text(
                                             if (marco.isCompleto && marco.dataCompleto.isNotEmpty()) marco.dataCompleto else "Pendente",
@@ -320,13 +370,21 @@ fun DetalhesProjetoScreen(
 
                 // ── responsável ──
                 item {
-                    val nomeResp = projetoAtual.responsavel!!.ifEmpty { "Não designado" }
-                    val iniciais = if (projetoAtual.responsavel.isNotEmpty()) {
-                        projetoAtual.responsavel.split(" ").let { p ->
-                            if (p.size > 1) "${p.first().take(1)}${p.last().take(1)}"
-                            else p.firstOrNull()?.take(2) ?: "??"
+                    val responsavel = projetoAtual.responsavel.orEmpty()
+
+                    val nomeResp = responsavel.ifEmpty { "Não designado" }
+
+                    val iniciais = if (responsavel.isNotEmpty()) {
+                        responsavel.split(" ").let { p ->
+                            if (p.size > 1) {
+                                "${p.first().take(1)}${p.last().take(1)}"
+                            } else {
+                                p.firstOrNull()?.take(2) ?: "??"
+                            }
                         }.uppercase()
-                    } else "?"
+                    } else {
+                        "?"
+                    }
 
                     Column(
                         modifier = Modifier
@@ -343,7 +401,11 @@ fun DetalhesProjetoScreen(
                                 modifier = Modifier
                                     .size(46.dp)
                                     .clip(CircleShape)
-                                    .background(if (projetoAtual.responsavel.isNotEmpty()) BrandBlueD else Color(0xFF1C1F26)),
+                                    .background(
+                                        if (projetoAtual.responsavel?.isNotEmpty() == true) BrandBlueD else Color(
+                                            0xFF1C1F26
+                                        )
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(iniciais, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -351,7 +413,7 @@ fun DetalhesProjetoScreen(
                             Spacer(Modifier.width(14.dp))
                             Column {
                                 Text(nomeResp, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                                if (projetoAtual.responsavel.isNotEmpty()) {
+                                if (projetoAtual.responsavel?.isNotEmpty() == true) {
                                     Text(profile, color = DarkSub, fontSize = 11.sp)
                                 }
                             }

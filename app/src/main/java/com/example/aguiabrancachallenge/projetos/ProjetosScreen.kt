@@ -52,7 +52,7 @@ fun ProjetosScreen(
     }
 
     val listaProjetos = GlobalStateManager.listaDeIdeias.filter {
-        it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída"
+        it.status == "APROVADA" || it.status == "EM_EXECUCAO" || it.status == "CONCLUIDA"
     }
 
     var selectedFilter by remember { mutableStateOf("Todos") }
