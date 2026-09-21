@@ -55,7 +55,7 @@ import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.components.ChatBubble
 import com.example.aguiabrancachallenge.components.ChatMessage
 import com.example.aguiabrancachallenge.lideranca.LiderancaViewModel
-import com.example.aguiabrancachallenge.network.GeminiClient
+import com.example.aguiabrancachallenge.network.GroqClient // <-- CORRIGIDO AQUI
 import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -106,7 +106,7 @@ fun OperadorHomeScreen(
     val totalIdeias = minhasIdeias.size
     val temAprovadaOuExecucao = minhasIdeias.any { it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída" }
     val temEstrategica = minhasIdeias.any { it.isStrategicBonus }
-    val temRetornoFinanceiro = minhasIdeias.any { it.retorno!! > 0 }
+    val temRetornoFinanceiro = minhasIdeias.any { (it.retorno ?: 0f) > 0f }
 
     if (showAiChat) {
         OperadorAiChatPanel(
@@ -162,7 +162,10 @@ fun OperadorHomeScreen(
 
     Scaffold(
         topBar = {
-            TopBar()
+            TopBar(
+                onNotificationClick = { /* Abrir Notificações */ },
+                onSettingsClick = { onNavigateBottomBar("perfil") }
+            )
         },
         bottomBar = {
             val navItemsOperador = listOf(
@@ -453,30 +456,53 @@ fun OperadorAiChatPanel(
         Faça perguntas curtas, seja motivadora, e ajude-o a estruturar um problema ou uma ideia para que ele possa cadastrar no aplicativo depois.
     """.trimIndent()
 
+    // 1. Criamos a lista que vai para a API do Groq
+    val historicoAPI = remember {
+        mutableStateListOf(
+            com.example.aguiabrancachallenge.data.models.GroqMessage(
+                role = "assistant",
+                content = "Olá! Sou a Águia IA. Que tal criarmos uma ideia inovadora hoje? O foco da empresa agora é **$focoAtivo**. Tem algum problema no seu dia a dia que gostaria de resolver?"
+            )
+        )
+    }
+
+    // 2. Criamos a lista que vai para a tela (UI) desenhar os balões
     val messages = remember {
         mutableStateListOf(
-            ChatMessage(
-                "Olá! Sou a Águia IA. Que tal criarmos uma ideia inovadora hoje? O foco da empresa agora é **$focoAtivo**. Tem algum problema no seu dia a dia que gostaria de resolver?",
-                isUser = false
-            )
+            ChatMessage(historicoAPI[0].content, isUser = false)
         )
     }
 
     fun sendMessage() {
         val text = input.trim()
         if (text.isBlank() || isLoading) return
+
+        // Adiciona na tela e no histórico do Groq
         messages.add(ChatMessage(text, isUser = true))
+        historicoAPI.add(com.example.aguiabrancachallenge.data.models.GroqMessage(role = "user", content = text))
+
         input = ""
         isLoading = true
+
         scope.launch {
-            GeminiClient.chat(text, contextoPrompt)
-                .onSuccess { messages.add(ChatMessage(it, isUser = false)) }
-                .onFailure { messages.add(ChatMessage("Erro ao conectar com a IA: ${it.message}", isUser = false)) }
+            if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
+
+            // 3. Chamamos a nova função que aceita histórico!
+            GroqClient.chatComHistorico(contextoPrompt, historicoAPI.toList())
+                .onSuccess { respostaIa ->
+                    messages.add(ChatMessage(respostaIa, isUser = false))
+                    historicoAPI.add(com.example.aguiabrancachallenge.data.models.GroqMessage(role = "assistant", content = respostaIa))
+                }
+                .onFailure { erro ->
+                    messages.add(ChatMessage("Erro ao conectar com a IA: ${erro.message}", isUser = false))
+                }
+
             isLoading = false
             if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
         }
     }
 
+    // O layout da tela continua igual ao que você já tinha:
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -570,8 +596,8 @@ fun OperadorAiChatPanel(
                 ),
                 shape = RoundedCornerShape(12.dp),
                 maxLines = 3,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { sendMessage() })
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Send),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { sendMessage() })
             )
             Spacer(Modifier.width(10.dp))
             Box(
@@ -759,7 +785,7 @@ fun EagleAiHeroCard(onNovaIdeiaClick: () -> Unit = {}) {
 }
 
 @Composable
-fun TopBar() {
+fun TopBar(onNotificationClick: () -> Unit, onSettingsClick: () -> Unit) {
     Column {
         Row(
             modifier = Modifier
@@ -771,6 +797,21 @@ fun TopBar() {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(painter = painterResource(id = R.drawable.aguia_branca_logo), contentDescription = "Logo", modifier = Modifier.width(100.dp), colorFilter = ColorFilter.tint(Color.White))
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(
+                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onNotificationClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Notifications, contentDescription = "Notificações", tint = Color.White, modifier = Modifier.size(20.dp))
+                    Box(modifier = Modifier.align(Alignment.TopEnd).padding(top = 10.dp, end = 10.dp).size(8.dp).background(BrandBlue, CircleShape).border(1.5.dp, Color(0xFF16181D), CircleShape))
+                }
+
+                Box(
+                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onSettingsClick() },
+                    contentAlignment = Alignment.Center
+                ) { Icon(Icons.Default.Settings, contentDescription = "Configurações", tint = Color.White, modifier = Modifier.size(20.dp)) }
             }
         }
         HorizontalDivider(color = Color(0xFF1A1C20), thickness = 1.dp)

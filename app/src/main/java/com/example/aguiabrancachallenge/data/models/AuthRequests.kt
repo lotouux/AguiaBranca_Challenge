@@ -1,9 +1,9 @@
 package com.example.aguiabrancachallenge.data.models
 
 data class Usuario(
-    val matricula: String,
-    val senha: String,
-    val perfil: String
+    val matricula: String? = null,
+    val senha: String? = null,
+    val perfil: String? = null
 )
 
 data class SignInRequest(
@@ -12,7 +12,7 @@ data class SignInRequest(
 )
 
 data class SignInResponse(
-    val token: String,
-    val nome: String,
-    val perfil: String
+    val token: String? = null,
+    val nome: String? = null,
+    val perfil: String? = null
 )

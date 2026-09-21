@@ -48,10 +48,11 @@ fun PerfilScreen(
 ) {
     val navItems = when (profile) {
         "Gestor" -> listOf(
-            Triple("Início", R.drawable.ic_home, "inicio"),
-            Triple("Inbox", R.drawable.ic_inbox, "inbox"),
+            Triple("Início",   R.drawable.ic_home,   "inicio"),
+            Triple("Inbox",    R.drawable.ic_inbox,  "inbox"),
+            Triple("Equipe",   R.drawable.ic_person, "equipe"),
             Triple("Projetos", R.drawable.ic_target, "projetos"),
-            Triple("Perfil", R.drawable.ic_person, "perfil")
+            Triple("Perfil",   R.drawable.ic_person, "perfil")
         )
         "Liderança" -> listOf(
             Triple("Início", R.drawable.ic_home, "inicio"),

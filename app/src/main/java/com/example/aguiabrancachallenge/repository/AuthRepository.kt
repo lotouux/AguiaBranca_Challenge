@@ -6,13 +6,8 @@ import com.example.aguiabrancachallenge.network.RetrofitClient
 
 /**
  * REPOSITÓRIO DE AUTENTICAÇÃO
- * 
+ *
  * Gerencia o login e a persistência da sessão do usuário.
- * 
- * INTEGRAÇÃO BACKEND:
- * Endpoint: POST /api/auth/login
- * Corpo: { "matricula": "...", "senha": "..." }
- * Resposta esperada: { "token": "JWT", "perfil": "Gestor|Lideranca|Operador", "nome": "..." }
  */
 class AuthRepository(
     private val sharedPreferences: SharedPreferences
@@ -20,9 +15,6 @@ class AuthRepository(
 
     private val api = RetrofitClient.apiService
 
-    /**
-     * Realiza a autenticação e valida se o perfil retornado condiz com o selecionado na UI.
-     */
     suspend fun signIn(
         matricula: String,
         password: String,
@@ -39,31 +31,38 @@ class AuthRepository(
 
             if (response.isSuccessful && response.body() != null) {
                 val body = response.body()!!
-                
-                // Normalização para comparação (Backend pode retornar 'lideranca' sem acento)
-                var comparativoPerfil = perfil.lowercase()
-                
-                val perfilBackend = body.perfil.lowercase()
 
-                if (perfilBackend == comparativoPerfil) {
-                    val token = body.token
-                    
-                    // Injeta o token no Singleton de Rede para requisições subsequentes
+                // Variável declarada apenas uma vez
+                val perfilBackend = body.perfil?.lowercase() ?: ""
+                val token = body.token
+                val nome = body.nome ?: "Usuário"
+
+                val comparativoPerfil = perfil.lowercase()
+
+                if (perfilBackend == comparativoPerfil && token != null) {
+                    // Salva o token no interceptor para todas as requisições futuras
                     RetrofitClient.authToken = token
-                    
+
                     saveSession(
                         matricula = matricula,
                         password = password,
-                        perfil = perfil, // Salva o nome amigável da UI
-                        nome = body.nome,
+                        perfil = perfil,
+                        nome = nome,
                         token = token
                     )
                     Result.success(Unit)
+                } else if (token == null) {
+                    Result.failure(Exception("Token não recebido do servidor."))
                 } else {
                     Result.failure(Exception("Este usuário não possui permissão de $perfil."))
                 }
             } else {
-                Result.failure(Exception("Credenciais inválidas ou erro no servidor (${response.code()})"))
+                val errorMsg = when (response.code()) {
+                    401 -> "401"
+                    404 -> "404"
+                    else -> "Erro ${response.code()}"
+                }
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -98,10 +97,6 @@ class AuthRepository(
     fun getPerfil(): String? = sharedPreferences.getString(KEY_PERFIL, null)
     fun getToken(): String? = sharedPreferences.getString(KEY_TOKEN, null)
 
-    /**
-     * Restaura o token na memória ao abrir o app (sessão persistida).
-     * Chamado na MainActivity.
-     */
     fun restoreSession() {
         val token = getToken()
         if (token != null) {

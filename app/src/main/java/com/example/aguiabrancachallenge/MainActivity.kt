@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -48,7 +47,6 @@ class MainActivity : ComponentActivity() {
         val ideiaRepository = IdeiaRepository()
         val estrategiaRepository = EstrategiaRepository()
 
-        // Restaura o JWT na memória caso o usuário já esteja logado
         authRepository.restoreSession()
 
         val themePreferences = ThemePreferences(this)
@@ -60,16 +58,13 @@ class MainActivity : ComponentActivity() {
             val darkMode = ThemeManager.isDarkMode.value
 
             AguiaBrancaChallengeTheme(darkTheme = darkMode) {
-                // A tela inicial agora é sempre a "splash"
                 var currentScreen by remember { mutableStateOf("splash") }
-
-                // Já pegamos o perfil salvo caso o usuário esteja logado
                 var selectedProfile by remember { mutableStateOf(authRepository.getPerfil() ?: "") }
                 var selectedProjectId by remember { mutableStateOf("") }
 
-                val nomeUsuario = authRepository.getNome()
+                val nomeUsuario = authRepository.getNome() ?: "Operador"
 
-                if (!nomeUsuario.isNullOrEmpty()) {
+                if (nomeUsuario.isNotEmpty()) {
                     GlobalStateManager.nomeUser = nomeUsuario
                 }
 
@@ -79,11 +74,10 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                         .navigationBarsPadding()
                 ) {
-                    // Aqui ficam todas as outras telas (elas ficam renderizadas no fundo)
                     when (currentScreen) {
                         "login_selection" -> {
                             LoginScreen(
-                                isTransitioning = false, 
+                                isTransitioning = false,
                                 onProfileConfirmed = { profile ->
                                     selectedProfile = profile
                                     currentScreen = "credentials"
@@ -164,7 +158,7 @@ class MainActivity : ComponentActivity() {
                                     currentScreen = if (route == "inicio") "home" else route
                                 },
                                 ideiaRepository = ideiaRepository,
-                                autor = nomeUsuario!!
+                                autor = nomeUsuario
                             )
                         }
 
@@ -231,8 +225,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // A Splash Screen fica POR CIMA de tudo, e some com um fade suave!
-                    AnimatedVisibility(
+                    androidx.compose.animation.AnimatedVisibility(
                         visible = currentScreen == "splash",
                         exit = fadeOut(animationSpec = tween(durationMillis = 800))
                     ) {

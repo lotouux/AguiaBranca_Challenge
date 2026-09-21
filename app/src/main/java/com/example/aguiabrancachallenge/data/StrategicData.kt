@@ -111,9 +111,10 @@ val Ideia.progress: Float
 
 val Ideia.progressoReal: Float
     get() {
-        val total = marcos!!.size
+        val listaMarcos = marcos ?: emptyList()
+        val total = listaMarcos.size
         if (total == 0) return 0f
-        val concluidos = marcos!!.count { it.isCompleto }
+        val concluidos = listaMarcos.count { it.isCompleto }
         return concluidos.toFloat() / total.toFloat()
     }
 

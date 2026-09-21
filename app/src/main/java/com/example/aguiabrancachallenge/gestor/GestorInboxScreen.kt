@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.sp
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.Ideia
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
-import com.example.aguiabrancachallenge.network.GeminiClient
+import com.example.aguiabrancachallenge.network.GroqClient
 import com.example.aguiabrancachallenge.operador.EagleHeadIcon
 import com.example.aguiabrancachallenge.operador.PremiumIceBlue
 import com.example.aguiabrancachallenge.operador.formatarStatus
@@ -381,7 +381,7 @@ fun GestorInboxScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(ideiaSelecionada?.titulo ?: "", color = Color.White, fontWeight = FontWeight.Bold)
-                    
+
                     if (acaoDialog == "APROVAR") {
                         Spacer(Modifier.height(16.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -478,22 +478,22 @@ fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
     var input by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
-    val contextoIdeia = """
+    val systemPrompt = """
+        Você é um assistente sênior de inovação avaliando a viabilidade técnica e financeira da seguinte ideia de um colaborador:
         Ideia: ${ideia.titulo}
         Descrição: ${ideia.descricao}
         Área: ${ideia.area}
         Impacto: ${ideia.impacto}
         Esforço: ${ideia.esforco}
-        Status atual: ${ideia.status}
-        Autor: ${ideia.autor}
+        Responda o gestor que está no chat com você de forma profissional, direta e em Português do Brasil.
     """.trimIndent()
 
     val messages = remember {
         mutableStateListOf(
             ChatMessage(
-                "Olá! Estou analisando a ideia **\"${ideia.titulo}\"**. " +
-                "Área: ${ideia.area} | Impacto: ${ideia.impacto} | Esforço: ${ideia.esforco}. " +
-                "O que quer saber sobre ela?",
+                "Olá, gestor! Estou avaliando a ideia **\"${ideia.titulo}\"**. " +
+                        "Área: ${ideia.area} | Impacto: ${ideia.impacto} | Esforço: ${ideia.esforco}. " +
+                        "Como posso te ajudar a avaliá-la?",
                 isUser = false
             )
         )
@@ -506,7 +506,8 @@ fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
         input = ""
         isLoading = true
         scope.launch {
-            GeminiClient.chat(text, contextoIdeia)
+            // <-- CORRIGIDO PARA USAR O GROQ CLIENT AQUI -->
+            GroqClient.chat(systemPrompt, text)
                 .onSuccess { messages.add(ChatMessage(it, isUser = false)) }
                 .onFailure { messages.add(ChatMessage("Erro ao conectar com a IA: ${it.message}", isUser = false)) }
             isLoading = false
