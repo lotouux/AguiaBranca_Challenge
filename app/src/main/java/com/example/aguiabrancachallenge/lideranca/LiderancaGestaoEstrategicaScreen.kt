@@ -267,7 +267,19 @@ fun DarkEditarMetaForm(
     var titulo              by remember { mutableStateOf(initialFocus?.titulo ?: "") }
     var descricao           by remember { mutableStateOf(initialFocus?.descricao ?: "") }
     var mesSelecionado      by remember { mutableStateOf(initialFocus?.mes ?: "Jan") }
+    var areasSelecionadas   by remember {
+        mutableStateOf(initialFocus?.areasPotenciais ?: emptyList())
+    }
     var ativarImediatamente by remember { mutableStateOf(initialFocus?.ativo ?: false) }
+
+    val areasDisponiveis = listOf(
+        "Logística",
+        "Tecnologia",
+        "Operações",
+        "Financeiro",
+        "Comercial",
+        "Recursos Humanos"
+    )
 
     val meses = listOf("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez")
 
@@ -326,6 +338,91 @@ fun DarkEditarMetaForm(
                 shape = RoundedCornerShape(10.dp),
                 placeholder = { Text("Descreva o objetivo estratégico", color = DarkSub) }
             )
+            Spacer(Modifier.height(28.dp))
+
+            // áreas potenciais
+            Text(
+                "Áreas Selecionadas",
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                "Selecione uma ou mais áreas relacionadas a esta meta",
+                color = DarkSub,
+                fontSize = 12.sp
+            )
+
+            Spacer(Modifier.height(14.dp))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                areasDisponiveis.forEach { area ->
+                    val selecionada = area in areasSelecionadas
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(
+                                if (selecionada) BrandBlue.copy(alpha = 0.12f)
+                                else DarkCard
+                            )
+                            .border(
+                                1.dp,
+                                if (selecionada) BrandBlue else DarkBorder,
+                                RoundedCornerShape(10.dp)
+                            )
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                areasSelecionadas =
+                                    if (selecionada) {
+                                        areasSelecionadas - area
+                                    } else {
+                                        areasSelecionadas + area
+                                    }
+                            }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selecionada,
+                            onCheckedChange = {
+                                areasSelecionadas =
+                                    if (it) {
+                                        areasSelecionadas + area
+                                    } else {
+                                        areasSelecionadas - area
+                                    }
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = BrandBlue,
+                                uncheckedColor = DarkSub,
+                                checkmarkColor = Color.White
+                            )
+                        )
+
+                        Spacer(Modifier.width(8.dp))
+
+                        Text(
+                            area,
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = if (selecionada)
+                                FontWeight.Bold
+                            else
+                                FontWeight.Normal
+                        )
+                    }
+                }
+            }
+
             Spacer(Modifier.height(28.dp))
 
             // seletor de mês
@@ -409,18 +506,21 @@ fun DarkEditarMetaForm(
                     onClick = {
                         onSave(
                             StrategicFocus(
-                                id       = initialFocus?.id ?: UUID.randomUUID().toString(),
-                                mes      = mesSelecionado,
-                                titulo   = titulo,
-                                descricao = descricao,
-                                ativo    = ativarImediatamente
+                                id              = initialFocus?.id ?: UUID.randomUUID().toString(),
+                                mes             = mesSelecionado,
+                                titulo          = titulo,
+                                descricao       = descricao,
+                                areasPotenciais = areasSelecionadas,
+                                ativo           = ativarImediatamente
                             )
                         )
                     },
                     modifier = Modifier.weight(1f).height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BrandBlue),
                     shape = RoundedCornerShape(10.dp),
-                    enabled = titulo.isNotBlank() && descricao.isNotBlank()
+                    enabled = titulo.isNotBlank() &&
+                            descricao.isNotBlank() &&
+                            areasSelecionadas.isNotEmpty()
                 ) { Text("Salvar", color = Color.White, fontWeight = FontWeight.Bold) }
             }
         }
