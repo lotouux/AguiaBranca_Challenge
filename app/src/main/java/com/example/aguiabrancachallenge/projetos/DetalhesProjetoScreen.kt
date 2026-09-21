@@ -62,8 +62,6 @@ fun DetalhesProjetoScreen(
 
     val projetoAtual = viewModel.projeto
 
-    println("ProjetoAtual: " + projetoAtual)
-
     var marcoSelecionadoId by remember { mutableStateOf<Int?>(null) }
     var inputObservacao    by remember { mutableStateOf("") }
     var showDefinirPlano   by remember { mutableStateOf(false) }
@@ -261,10 +259,14 @@ fun DetalhesProjetoScreen(
                 }
 
                 /* ─────────────────────────────────────────
-                   PROGRESSO
+                   PROGRESSO E GRÁFICO DE COLUNAS DOS MARCOS
                    ───────────────────────────────────────── */
                 item {
                     val pct = (projetoAtual.progressoReal * 100).toInt()
+                    val totalMarcos = marcos.size
+                    val concluidosMarcos = marcos.count { it.isCompleto }
+                    val pendentesMarcos = totalMarcos - concluidosMarcos
+                    val maxCount = maxOf(concluidosMarcos, pendentesMarcos, totalMarcos).toFloat().coerceAtLeast(1f)
 
                     Column(
                         modifier = Modifier
@@ -318,8 +320,46 @@ fun DetalhesProjetoScreen(
                             )
                         }
 
+                        // ── GRÁFICO DE COLUNAS VERTICAIS PARA OS MARCOS ──
+                        Spacer(Modifier.height(24.dp))
+                        Text(
+                            "DISTRIBUIÇÃO DE ETAPAS (GRÁFICO)",
+                            color = Color(0xFF7A8A99),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            VerticalChartBar(
+                                label = "Concluídos",
+                                count = concluidosMarcos,
+                                fraction = concluidosMarcos / maxCount,
+                                color = Color(0xFF43A047)
+                            )
+                            VerticalChartBar(
+                                label = "Pendentes",
+                                count = pendentesMarcos,
+                                fraction = pendentesMarcos / maxCount,
+                                color = Color(0xFF2A2D35)
+                            )
+                            VerticalChartBar(
+                                label = "Total",
+                                count = totalMarcos,
+                                fraction = totalMarcos / maxCount,
+                                color = BrandBlueD
+                            )
+                        }
+
                         if (!projetoAtual.observacaoProgresso.isNullOrEmpty()) {
-                            Spacer(Modifier.height(12.dp))
+                            Spacer(Modifier.height(18.dp))
 
                             Text(
                                 "Última atualização: ${projetoAtual.observacaoProgresso}",
@@ -638,7 +678,7 @@ fun DetalhesProjetoScreen(
 }
 
 // ─────────────────────────────────────────────────────────────
-// CARD MÉTRICA
+// COMPONENTES AUXILIARES
 // ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkMetricaCard(modifier: Modifier, titulo: String, valor: String, valorCor: Color) {
@@ -653,6 +693,37 @@ fun DarkMetricaCard(modifier: Modifier, titulo: String, valor: String, valorCor:
         Text(titulo, color = DarkSub, fontSize = 11.sp)
         Spacer(Modifier.height(6.dp))
         Text(valor, color = valorCor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun VerticalChartBar(label: String, count: Int, fraction: Float, color: Color) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom,
+        modifier = Modifier.width(64.dp).fillMaxHeight()
+    ) {
+        Text(
+            text = count.toString(),
+            color = Color.White,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .width(28.dp)
+                .height((75.dp * fraction.coerceIn(0.18f, 1f)))
+                .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
+                .background(color)
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = label,
+            color = DarkSub,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

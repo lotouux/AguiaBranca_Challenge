@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -27,7 +26,6 @@ import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.network.GroqClient
-import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
