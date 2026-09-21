@@ -8,14 +8,13 @@ import com.example.aguiabrancachallenge.network.RetrofitClient
  * REPOSITÓRIO DE ESTRATÉGIA
  * 
  * Camada de abstração que conecta o app ao Backend para gestão de metas anuais/mensais.
- * Todos os métodos retornam um objeto 'Result' para tratamento de erro padronizado na UI.
  */
 class EstrategiaRepository {
     private val api = RetrofitClient.apiService
 
     /**
      * Busca todos os focos estratégicos do banco.
-     * Mapeia o DTO do backend para o modelo interno 'StrategicFocus'.
+     * Mapeia o DTO do backend para o modelo interno 'StrategicFocus' com segurança de nulos.
      */
     suspend fun listarFocosEstrategicos(): Result<List<StrategicFocus>> {
         return try {
@@ -24,18 +23,18 @@ class EstrategiaRepository {
             if (response.isSuccessful) {
                 val focosEstrategicos = response.body()?.map {
                     StrategicFocus(
-                        id = it.id,
-                        mes = it.mes,
-                        titulo = it.titulo,
-                        descricao = it.descricao,
-                        areasPotenciais = it.areasPotenciais,
-                        ativo = it.ativo
+                        id = it.id ?: "",
+                        mes = it.mes ?: "",
+                        titulo = it.titulo ?: "Sem título",
+                        descricao = it.descricao ?: "Sem descrição",
+                        areasPotenciais = it.areasPotenciais ?: emptyList(),
+                        ativo = it.ativo ?: false
                     )
                 } ?: emptyList()
 
                 Result.success(focosEstrategicos)
             } else {
-                Result.failure(Exception("Erro ao buscar focos: ${response.code()}"))
+                Result.failure(Exception("Erro ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -59,14 +58,14 @@ class EstrategiaRepository {
             )
 
             if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Erro ao criar foco: ${response.code()}"))
+            else Result.failure(Exception("Erro ${response.code()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
     /**
-     * Atualiza um foco existente (título, descrição, etc).
+     * Atualiza um foco existente.
      */
     suspend fun atualizarFoco(foco: StrategicFocus): Result<Unit> {
         return try {
@@ -83,34 +82,27 @@ class EstrategiaRepository {
             )
 
             if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Erro ao atualizar foco: ${response.code()}"))
+            else Result.failure(Exception("Erro ${response.code()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    /**
-     * Remove um foco estrategico por ID.
-     */
     suspend fun deletarFoco(id: String): Result<Unit> {
         return try {
             val response = api.deletarFoco(id)
             if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Erro ao deletar foco: ${response.code()}"))
+            else Result.failure(Exception("Erro ${response.code()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    /**
-     * Define um foco como ATIVO no Backend. 
-     * Nota: O backend deve garantir que apenas um foco esteja ativo por vez.
-     */
     suspend fun ativarFoco(id: String): Result<Unit> {
         return try {
             val response = api.ativarFoco(id)
             if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Erro ao ativar foco: ${response.code()}"))
+            else Result.failure(Exception("Erro ${response.code()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -17,6 +18,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Usando a classe importada diretamente
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        }
+        val groqApiKey = properties.getProperty("GROQ_API_KEY") ?: ""
+
+        buildConfigField("String", "GROQ_API_KEY", "\"$groqApiKey\"")
     }
 
     buildTypes {
@@ -34,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -56,10 +68,12 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Source: https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    // Source: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
+
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
 }

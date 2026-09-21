@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.aguiabrancachallenge.operador.BrandBlue // Certifique-se de que BrandBlue está acessível aqui
+import com.example.aguiabrancachallenge.operador.BrandBlue
 
 data class ChatMessage(val text: String, val isUser: Boolean)
 

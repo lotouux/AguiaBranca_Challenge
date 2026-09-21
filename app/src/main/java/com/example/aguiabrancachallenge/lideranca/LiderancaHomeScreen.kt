@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -38,6 +37,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aguiabrancachallenge.R
 import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.Ideia
@@ -46,10 +48,11 @@ import com.example.aguiabrancachallenge.data.statusColor
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
-import com.example.aguiabrancachallenge.network.GeminiClient
+import com.example.aguiabrancachallenge.network.GroqClient
 import com.example.aguiabrancachallenge.ui.theme.*
-
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -59,16 +62,48 @@ import java.util.Locale
 val BrandBlue = Color(0xFF0088FF)
 val PremiumIceBlue = Color(0xFFC2D3E0)
 
-// ─────────────────────────────────────────────────────────────
-// BANCO DE DADOS MOCKADO PARA A AGENDA
-// ─────────────────────────────────────────────────────────────
 object AgendaGlobal {
     val eventos = mutableStateMapOf<String, String>()
 }
 
-// ─────────────────────────────────────────────────────────────
-// TELA PRINCIPAL
-// ─────────────────────────────────────────────────────────────
+// ---------------------------------------------------------
+// VIEWMODEL PARA A IA DA LIDERANÇA
+// ---------------------------------------------------------
+class LiderancaIaViewModel : ViewModel() {
+    private val _resumoIa = MutableStateFlow<String?>(null)
+    val resumoIa = _resumoIa.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private var ultimaChaveFinanceira = ""
+
+    fun carregarResumoFinanceiro(roiTotal: Int, investidoTotal: Double, lucroTotal: Double) {
+        val chaveAtual = "$roiTotal-$investidoTotal-$lucroTotal"
+        if (chaveAtual == ultimaChaveFinanceira) return
+
+        ultimaChaveFinanceira = chaveAtual
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            val systemPrompt = """
+                Você é a Águia IA, analista financeira estratégica da Viação Águia Branca.
+                Seu objetivo é fornecer um resumo executivo para a LIDERANÇA da empresa sobre o desempenho do portfólio de inovação.
+                Seja direto, utilize termos como ROI e Lucro Líquido, e responda sempre em Português do Brasil.
+            """.trimIndent()
+
+            val userMsg = "Analise estes números: ROI de $roiTotal%, Investimento total de R$ $investidoTotal e Lucro de R$ $lucroTotal. Gere um comentário de no máximo 2 linhas."
+
+            GroqClient.chat(systemPrompt, userMsg)
+                .onSuccess { _resumoIa.value = it }
+                .onFailure { _resumoIa.value = "O portfólio apresenta ROI de $roiTotal% gerando lucro positivo. Os resultados estão sólidos." }
+
+            _isLoading.value = false
+        }
+    }
+}
+// ---------------------------------------------------------
+
 @Composable
 fun LiderancaHomeScreen(
     onNavigateBottomBar: (String) -> Unit = {},
@@ -111,9 +146,7 @@ fun LiderancaHomeScreen(
     }
 
     Scaffold(
-        topBar = {
-            LiderancaTopBar()
-        },
+        topBar = { LiderancaTopBar() },
         bottomBar = {
             val navItems = listOf(
                 Triple("Início",     R.drawable.ic_home,   "inicio"),
@@ -206,18 +239,6 @@ fun LiderancaHomeScreen(
                             }
                         }
                     }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF12141A))
-                            .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Não há próximos eventos agendados.", color = Color(0xFF555555), fontSize = 13.sp)
-                    }
                 }
                 Spacer(Modifier.height(32.dp))
             }
@@ -275,9 +296,6 @@ fun LiderancaHomeScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// TELA SECUNDÁRIA: GERENCIADOR DE EVENTOS DA LIDERANÇA
-// ─────────────────────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiderancaEventsScreen(onDismiss: () -> Unit) {
@@ -464,25 +482,21 @@ fun LiderancaEventsScreen(onDismiss: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// COMPONENTES REUTILIZÁVEIS DA TELA LIDERANÇA
-// ─────────────────────────────────────────────────────────────
+// ---------------------------------------------------------
+// MODIFICADO: AiFinancialSummaryCard COM VIEWMODEL
+// ---------------------------------------------------------
 @Composable
-fun AiFinancialSummaryCard(roiTotal: Int, investidoTotal: Double, lucroTotal: Double) {
-    var aiTip by remember(roiTotal, investidoTotal, lucroTotal) { mutableStateOf<String?>(null) }
-    var isLoading by remember(roiTotal, investidoTotal, lucroTotal) { mutableStateOf(false) }
+fun AiFinancialSummaryCard(
+    roiTotal: Int,
+    investidoTotal: Double,
+    lucroTotal: Double,
+    iaViewModel: LiderancaIaViewModel = viewModel()
+) {
+    val aiTip by iaViewModel.resumoIa.collectAsState()
+    val isLoading by iaViewModel.isLoading.collectAsState()
 
     LaunchedEffect(roiTotal, investidoTotal, lucroTotal) {
-        isLoading = true
-        val inv = (investidoTotal / 1000).toInt()
-        val luc = (lucroTotal / 1000).toInt()
-        val prompt = "Aja como um analista financeiro IA. A empresa tem $roiTotal% de ROI, R$ ${inv}K investidos e R$ ${luc}K de lucro atual. Escreva um resumo em 2 linhas parabenizando ou alertando a liderança de forma direta."
-
-        GeminiClient.chat(prompt, "")
-            .onSuccess { aiTip = it }
-            .onFailure { aiTip = "O portfólio apresenta ROI de $roiTotal% gerando um lucro de R$ ${luc}K. Os resultados estão dentro do esperado." }
-
-        isLoading = false
+        iaViewModel.carregarResumoFinanceiro(roiTotal, investidoTotal, lucroTotal)
     }
 
     Box(
@@ -512,7 +526,7 @@ fun AiFinancialSummaryCard(roiTotal: Int, investidoTotal: Double, lucroTotal: Do
 
             Spacer(Modifier.height(14.dp))
 
-            if (isLoading) {
+            if (isLoading && aiTip == null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(color = PremiumIceBlue, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(12.dp))
@@ -630,7 +644,7 @@ fun LiderancaTopBar() {
                 .fillMaxWidth()
                 .background(Color(0xFF0A0C10))
                 .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
