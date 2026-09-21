@@ -304,7 +304,7 @@ fun GestorInboxScreen(
                         ideiasArquivadas.forEach { ideia ->
                             DarkArquivadaItem(
                                 ideia = ideia,
-                                onReopen = { viewModel.atualizarStatus(ideia.id, "Em Análise") }
+                                onReopen = { viewModel.atualizarStatus(ideia.id, "ENVIADA") }
                             )
                             Spacer(Modifier.height(12.dp))
                         }
@@ -332,18 +332,18 @@ fun GestorInboxScreen(
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F)),
                             border = BorderStroke(1.dp, Color(0xFFD32F2F))
-                        ) { Text("Rejeitar / Arquivar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                        ) { Text("Rejeitar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
 
                         if (ideiaAtual!!.status.equals("ENVIADA", ignoreCase = true)) {
                             OutlinedButton(
                                 onClick = {
-                                    viewModel.atualizarStatus(ideiaAtual.id, "EM_ANALISE")
+                                    viewModel.atualizarStatus(ideiaAtual.id, "REJEITADA")
                                 },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF0088FF)),
                                 border = BorderStroke(1.dp, Color(0xFF0088FF))
-                            ) { Text("Analisar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                            ) { Text("Arquivar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
                         }
 
                         Button(
@@ -423,7 +423,7 @@ fun GestorInboxScreen(
                             ideiaSelecionada?.let { ideia ->
                                 when (acaoDialog) {
                                     "APROVAR" -> viewModel.aprovarIdeia(ideia.id, aplicarBonus)
-                                    "REJEITAR" -> viewModel.atualizarStatus(ideia.id, "Arquivada", justificativa.trim())
+                                    "REJEITAR" -> viewModel.deletarIdeia(ideia)
                                 }
                             }
                             ideiaSelecionada = null; acaoDialog = null

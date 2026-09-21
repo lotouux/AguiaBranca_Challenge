@@ -58,6 +58,11 @@ interface ApiService {
     @GET("api/ideias/minhas")
     suspend fun listarMinhasIdeias(): Response<List<Ideia>>
 
+    @DELETE("api/ideias/{id}")
+    suspend fun deletarIdeia(
+        @Path("id") id: String,
+    ): Response<Unit>
+
     // ── FOCO ESTRATÉGICO ──────────────────────────────────────
 
     /**

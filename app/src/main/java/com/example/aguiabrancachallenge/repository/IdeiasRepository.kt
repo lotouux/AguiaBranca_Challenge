@@ -142,6 +142,18 @@ class IdeiaRepository {
         }
     }
 
+    suspend fun deletarIdeia(
+        id: String
+    ): Result<Unit> {
+        return try {
+            val response = api.deletarIdeia(id)
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Erro ao deletar ideia: ${response.code()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /**
      * Cria uma sub-etapa (Milestone) para execução do projeto.
      */

@@ -68,7 +68,7 @@ class GestorInboxViewModel(
             repository.atualizarIdeia(
                 id,
                 AtualizarIdeiaRequest(
-                    status = "Aprovada",
+                    status = "APROVADA",
                     responsavel = GlobalStateManager.nomeUser,
                     isStrategicBonus = bonus
                 )
@@ -111,6 +111,13 @@ class GestorInboxViewModel(
                 ideia.id,
                 AtualizarIdeiaRequest(prioridade = nova)
             )
+            buscarIdeias()
+        }
+    }
+
+    fun deletarIdeia(ideia: Ideia) {
+        viewModelScope.launch {
+            repository.deletarIdeia(ideia.id)
             buscarIdeias()
         }
     }
