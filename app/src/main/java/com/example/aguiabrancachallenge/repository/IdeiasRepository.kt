@@ -37,6 +37,7 @@ class IdeiaRepository {
                         retorno = it.retorno,
                         observacaoProgresso = it.observacaoProgresso,
                         responsavel = it.responsavel,
+                        feedbackGestor = it.feedbackGestor ?: "",
 
                         marcos = it.marcos.map { marco ->
                             MarcoProjeto(

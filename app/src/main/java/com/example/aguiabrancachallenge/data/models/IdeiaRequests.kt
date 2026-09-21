@@ -19,7 +19,8 @@ data class IdeiaResponseDTO(
     val retorno: Float,
     val observacaoProgresso: String,
     val marcos: List<MarcoProjetoDTO>,
-    val responsavel: String
+    val responsavel: String,
+    val feedbackGestor: String? = null
 )
 
 data class AtualizarIdeiaRequest(
@@ -30,7 +31,8 @@ data class AtualizarIdeiaRequest(
     val prazo: String? = null,
     val investimento: Float? = null,
     val retorno: Float? = null,
-    val roiEsperado: Float? = null
+    val roiEsperado: Float? = null,
+    val feedbackGestor: String? = null
 )
 
 data class MarcoProjetoDTO(
@@ -49,5 +51,5 @@ data class CriarIdeiaRequest(
     val impacto: String,
     val esforco: String,
     val prazo: String,
-    val focoEstrategiaId: String? = null  // vínculo com a estratégia vigente
+    val focoEstrategiaId: String? = null
 )

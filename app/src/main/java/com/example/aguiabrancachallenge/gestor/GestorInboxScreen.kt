@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -59,7 +60,6 @@ fun getCorFixaPorId(id: String): Color {
     return cores[abs(id.hashCode()) % cores.size]
 }
 
-// ── modelo de mensagem do chat ──────────────────────────────────
 data class ChatMessage(val text: String, val isUser: Boolean)
 
 // ─────────────────────────────────────────────────────────────
@@ -89,14 +89,15 @@ fun GestorInboxScreen(
         .filter { it.status == "Aprovada" || it.status == "Em Execução" }
         .sortedByDescending { pesoPrioridade(it.prioridade) }
 
-    if (currentIndex >= ideiasCuradoria.size && ideiasCuradoria.isNotEmpty())
+    val ideiasArquivadas = todasIdeias.filter { it.status.equals("Arquivada", ignoreCase = true) }
+
+    if (selectedTab == 0 && currentIndex >= ideiasCuradoria.size && ideiasCuradoria.isNotEmpty())
         currentIndex = ideiasCuradoria.size - 1
 
     val mostrarAcoesCuradoria = selectedTab == 0 &&
             ideiasCuradoria.isNotEmpty() &&
             ideiasCuradoria.getOrNull(currentIndex) != null
 
-    // Se abrindo chat IA, mostra o painel de chat
     if (showAiChat && ideiaParaIA != null) {
         AiChatPanel(
             ideia = ideiaParaIA!!,
@@ -110,6 +111,7 @@ fun GestorInboxScreen(
             val navItems = listOf(
                 Triple("Início",   R.drawable.ic_home,   "inicio"),
                 Triple("Inbox",    R.drawable.ic_inbox,  "inbox"),
+                Triple("Equipe",   R.drawable.ic_person, "equipe"),
                 Triple("Projetos", R.drawable.ic_target, "projetos"),
                 Triple("Perfil",   R.drawable.ic_person, "perfil")
             )
@@ -140,26 +142,34 @@ fun GestorInboxScreen(
                     fontSize = 28.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
-                val textoSubtitulo = if (selectedTab == 0)
-                    "${ideiasCuradoria.size} ideias aguardando avaliação"
-                else
-                    "${ideiasPriorizar.size} ideias ativas para priorizar"
+                val textoSubtitulo = when(selectedTab) {
+                    0 -> "${ideiasCuradoria.size} ideias aguardando avaliação"
+                    1 -> "${ideiasPriorizar.size} ideias ativas para priorizar"
+                    else -> "${ideiasArquivadas.size} ideias arquivadas"
+                }
                 Text(textoSubtitulo, color = Color(0xFF8A8F98), fontSize = 14.sp)
                 Spacer(Modifier.height(24.dp))
 
                 // ── abas ──
                 Row(modifier = Modifier.fillMaxWidth()) {
                     DarkTabButton(
-                        title = "Curadoria (${ideiasCuradoria.size})",
+                        title = "Curadoria",
                         isSelected = selectedTab == 0,
                         onClick = { selectedTab = 0; currentIndex = 0 },
                         modifier = Modifier.weight(1f)
                     )
-                    Spacer(Modifier.width(12.dp))
+                    Spacer(Modifier.width(8.dp))
                     DarkTabButton(
-                        title = "Priorizar (${ideiasPriorizar.size})",
+                        title = "Priorizar",
                         isSelected = selectedTab == 1,
                         onClick = { selectedTab = 1 },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    DarkTabButton(
+                        title = "Arquivo",
+                        isSelected = selectedTab == 2,
+                        onClick = { selectedTab = 2 },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -235,11 +245,11 @@ fun GestorInboxScreen(
                                 )
                             }
                         }
-                        Spacer(Modifier.height(120.dp)) // espaço pros botões fixos
+                        Spacer(Modifier.height(120.dp))
                     } else {
                         DarkEmptyState("Nenhuma ideia na Curadoria.")
                     }
-                } else {
+                } else if (selectedTab == 1) {
                     if (ideiasPriorizar.isNotEmpty()) {
                         Box(
                             modifier = Modifier
@@ -268,6 +278,19 @@ fun GestorInboxScreen(
                     } else {
                         DarkEmptyState("Nenhuma ideia ativa para priorizar.")
                     }
+                } else {
+                    // TAB ARQUIVO
+                    if (ideiasArquivadas.isNotEmpty()) {
+                        ideiasArquivadas.forEach { ideia ->
+                            DarkArquivadaItem(
+                                ideia = ideia,
+                                onReopen = { viewModel.atualizarStatus(ideia.id, "Em Análise") }
+                            )
+                            Spacer(Modifier.height(12.dp))
+                        }
+                    } else {
+                        DarkEmptyState("Nenhuma ideia arquivada.")
+                    }
                 }
             }
 
@@ -284,12 +307,12 @@ fun GestorInboxScreen(
                 ) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
-                            onClick = { ideiaSelecionada = ideiaAtual; acaoDialog = "ARQUIVAR" },
+                            onClick = { ideiaSelecionada = ideiaAtual; acaoDialog = "REJEITAR" },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFD32F2F)),
                             border = BorderStroke(1.dp, Color(0xFFD32F2F))
-                        ) { Text("Arquivar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                        ) { Text("Rejeitar / Arquivar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
 
                         if (ideiaAtual!!.status == "Enviada") {
                             OutlinedButton(
@@ -316,23 +339,27 @@ fun GestorInboxScreen(
     // ── dialog de confirmação ──
     if (ideiaSelecionada != null && acaoDialog != null) {
         var aplicarBonus by remember { mutableStateOf(false) }
+        var justificativa by remember { mutableStateOf("") }
+        var justificativaErro by remember { mutableStateOf(false) }
+
         AlertDialog(
             onDismissRequest = { ideiaSelecionada = null; acaoDialog = null },
             containerColor = Color(0xFF12141A),
             title = {
                 Text(
-                    if (acaoDialog == "APROVAR") "Aprovar Ideia" else "Arquivar Ideia",
+                    if (acaoDialog == "APROVAR") "Aprovar Ideia" else "Justificativa de Rejeição",
                     color = Color.White, fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Column {
                     Text(
-                        if (acaoDialog == "APROVAR") "Deseja aprovar esta ideia?" else "Tem certeza que deseja arquivar?",
+                        if (acaoDialog == "APROVAR") "Deseja aprovar esta ideia?" else "Explique o motivo de arquivar/rejeitar esta ideia para o operador:",
                         color = Color(0xFF8A8F98)
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(ideiaSelecionada?.titulo ?: "", color = Color.White, fontWeight = FontWeight.Bold)
+                    
                     if (acaoDialog == "APROVAR") {
                         Spacer(Modifier.height(16.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -343,19 +370,42 @@ fun GestorInboxScreen(
                             )
                             Text("Alinhada ao Foco Estratégico (+250 KM)", color = Color.White, fontSize = 13.sp)
                         }
+                    } else {
+                        Spacer(Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = justificativa,
+                            onValueChange = { justificativa = it; justificativaErro = false },
+                            placeholder = { Text("Ex: Ideia já foi implementada no setor X...", color = Color(0xFF555555)) },
+                            modifier = Modifier.fillMaxWidth().height(100.dp),
+                            isError = justificativaErro,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedBorderColor = Color(0xFF0088FF),
+                                unfocusedBorderColor = Color(0xFF2A2D35)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        if (justificativaErro) {
+                            Text("A justificativa é obrigatória.", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                        }
                     }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        ideiaSelecionada?.let { ideia ->
-                            when (acaoDialog) {
-                                "APROVAR" -> viewModel.aprovarIdeia(ideia.id, aplicarBonus)
-                                "ARQUIVAR" -> viewModel.atualizarStatus(ideia.id, "Arquivada")
+                        if (acaoDialog == "REJEITAR" && justificativa.trim().isBlank()) {
+                            justificativaErro = true
+                        } else {
+                            ideiaSelecionada?.let { ideia ->
+                                when (acaoDialog) {
+                                    "APROVAR" -> viewModel.aprovarIdeia(ideia.id, aplicarBonus)
+                                    "REJEITAR" -> viewModel.atualizarStatus(ideia.id, "Arquivada", justificativa.trim())
+                                }
                             }
+                            ideiaSelecionada = null; acaoDialog = null
                         }
-                        ideiaSelecionada = null; acaoDialog = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0088FF))
                 ) { Text("Confirmar", color = Color.White) }
@@ -369,9 +419,32 @@ fun GestorInboxScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PAINEL DE CHAT IA
-// ─────────────────────────────────────────────────────────────
+@Composable
+fun DarkArquivadaItem(ideia: Ideia, onReopen: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF12141A))
+            .border(1.dp, Color(0xFF222222), RoundedCornerShape(12.dp))
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(ideia.titulo, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(ideia.autor, color = Color(0xFF555555), fontSize = 12.sp)
+            }
+            IconButton(onClick = onReopen) {
+                Icon(Icons.Default.Refresh, contentDescription = "Reabrir", tint = Color(0xFF0088FF))
+            }
+        }
+        if (ideia.feedbackGestor.isNotBlank()) {
+            Spacer(Modifier.height(8.dp))
+            Text("Justificativa: ${ideia.feedbackGestor}", color = Color(0xFF8A8F98), fontSize = 12.sp, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+        }
+    }
+}
+
 @Composable
 fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
@@ -420,7 +493,6 @@ fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
             .fillMaxSize()
             .background(Color(0xFF0A0C10))
     ) {
-        // ── header ──
         Column {
             Row(
                 modifier = Modifier
@@ -452,7 +524,6 @@ fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
             HorizontalDivider(color = Color(0xFF1A1C20))
         }
 
-        // ── mensagens ──
         LazyColumn(
             state = listState,
             modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
@@ -477,7 +548,6 @@ fun AiChatPanel(ideia: Ideia, onDismiss: () -> Unit) {
             }
         }
 
-        // ── input ──
         HorizontalDivider(color = Color(0xFF1A1C20))
         Row(
             modifier = Modifier
@@ -556,9 +626,6 @@ private fun ChatBubble(msg: ChatMessage) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// CARD DA IDEIA NO INBOX (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkInboxIdeiaCard(ideia: Ideia) {
     val cor = getCorFixaPorId(ideia.id)
@@ -630,9 +697,6 @@ private fun DarkMetricCol(label: String, value: String) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// CARD PRIORIZAR (dark)
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkPriorizarCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> Unit) {
     val cor = getCorFixaPorId(ideia.id)
@@ -686,9 +750,6 @@ fun DarkPriorizarCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> Un
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// UTILITÁRIOS
-// ─────────────────────────────────────────────────────────────
 fun pesoPrioridade(prioridade: String) = when (prioridade) {
     "Alta"  -> 3; "Média" -> 2; "Baixa" -> 1; else -> 0
 }
@@ -724,9 +785,6 @@ fun DarkEmptyState(mensagem: String) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PREVIEW
-// ─────────────────────────────────────────────────────────────
 @Preview(showBackground = true)
 @Composable
 fun GestorInboxPreview() {

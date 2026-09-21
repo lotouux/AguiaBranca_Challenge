@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -207,6 +208,33 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
             Text(ideia.status, color = ideia.statusColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
 
+        if (ideia.status.equals("Arquivada", ignoreCase = true) && ideia.feedbackGestor.isNotBlank()) {
+            Spacer(Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFF221314))
+                    .border(1.dp, Color(0xFFE53935).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                    .padding(12.dp)
+            ) {
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = Color(0xFFE53935),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text("Motivo do Arquivamento:", color = Color(0xFFEF9A9A), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(2.dp))
+                        Text(ideia.feedbackGestor, color = Color(0xFFE0E0E0), fontSize = 12.sp, lineHeight = 16.sp)
+                    }
+                }
+            }
+        }
+
         if (isExpanded) {
             Spacer(Modifier.height(18.dp))
             HorizontalDivider(color = Color(0xFF1C1F26))
@@ -221,18 +249,22 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
                 Text("Bônus estratégico aplicado!", color = Color(0xFF4CAF50), fontSize = 11.sp)
             }
 
-            Spacer(Modifier.height(20.dp))
-            Text("Evolução", color = Color(0xFF8A8F98), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(14.dp))
-            DarkIdeaStepper(currentStatus = ideia.status, activeColor = ideia.statusColor)
+            if (!ideia.status.equals("Arquivada", ignoreCase = true)) {
+                Spacer(Modifier.height(20.dp))
+                Text("Evolução", color = Color(0xFF8A8F98), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(14.dp))
+                DarkIdeaStepper(currentStatus = ideia.status, activeColor = ideia.statusColor)
+            }
         } else {
-            Spacer(Modifier.height(14.dp))
-            LinearProgressIndicator(
-                progress = { ideia.progress },
-                modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(50)),
-                color = ideia.statusColor,
-                trackColor = Color(0xFF1C1F26)
-            )
+            if (!ideia.status.equals("Arquivada", ignoreCase = true)) {
+                Spacer(Modifier.height(14.dp))
+                LinearProgressIndicator(
+                    progress = { ideia.progress },
+                    modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(50)),
+                    color = ideia.statusColor,
+                    trackColor = Color(0xFF1C1F26)
+                )
+            }
         }
     }
 }

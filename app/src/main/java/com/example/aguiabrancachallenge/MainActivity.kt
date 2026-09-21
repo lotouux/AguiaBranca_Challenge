@@ -26,6 +26,7 @@ import com.example.aguiabrancachallenge.lideranca.LiderancaGestaoEstrategicaScre
 import com.example.aguiabrancachallenge.operador.OperadorIdeiasScreen
 import com.example.aguiabrancachallenge.operador.OperadorEstrategiaScreen
 import com.example.aguiabrancachallenge.gestor.GestorInboxScreen
+import com.example.aguiabrancachallenge.gestor.GestorEquipeScreen
 import com.example.aguiabrancachallenge.perfil.PerfilScreen
 import com.example.aguiabrancachallenge.perfil.PrivacidadeScreen
 import com.example.aguiabrancachallenge.perfil.AjudaSuporteScreen
@@ -82,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     when (currentScreen) {
                         "login_selection" -> {
                             LoginScreen(
-                                isTransitioning = false, // Pode manter ou até remover se não precisar mais dessa variável
+                                isTransitioning = false, 
                                 onProfileConfirmed = { profile ->
                                     selectedProfile = profile
                                     currentScreen = "credentials"
@@ -176,6 +177,15 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        "equipe" -> {
+                            GestorEquipeScreen(
+                                onNavigateBottomBar = { route ->
+                                    currentScreen = if (route == "inicio") "home" else route
+                                },
+                                ideiaRepository = ideiaRepository
+                            )
+                        }
+
                         "estrategia" -> {
                             OperadorEstrategiaScreen(
                                 onNavigateBottomBar = { route ->
@@ -228,8 +238,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SplashScreen(
                             onLoadingComplete = {
-                                // Decide para onde ir quando a barra carregar:
-                                // Vai direto para a Home se já estiver logado, se não, vai pro Login!
                                 currentScreen = if (authRepository.isLogged()) "home" else "login_selection"
                             }
                         )

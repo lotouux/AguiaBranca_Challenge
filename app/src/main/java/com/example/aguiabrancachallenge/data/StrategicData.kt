@@ -31,7 +31,7 @@ data class Ideia(
     val id: String,
     val titulo: String,
     val descricao: String,
-    val status: String, // Enviada, Em Análise, Aprovada, Em Execução, Concluída
+    val status: String, // Enviada, Em Análise, Aprovada, Em Execução, Concluída, Arquivada
     val area: String,   // Logística, Operação, TI...
     val data: String,
     val autor: String = "Abobrinha da Silva",
@@ -48,7 +48,8 @@ data class Ideia(
     val retorno: Float = 0f,
     val observacaoProgresso: String = "",
     val marcos: List<MarcoProjeto> = emptyList(),
-    val responsavel: String = ""
+    val responsavel: String = "",
+    val feedbackGestor: String = "" // Adicionado para explicar arquivamento/rejeição
 )
 
 val Ideia.statusColor: Color

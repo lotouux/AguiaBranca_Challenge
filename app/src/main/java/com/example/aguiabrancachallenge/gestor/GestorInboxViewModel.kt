@@ -31,11 +31,14 @@ class GestorInboxViewModel(
         }
     }
 
-    fun atualizarStatus(id: String, status: String) {
+    fun atualizarStatus(id: String, status: String, feedback: String? = null) {
         viewModelScope.launch {
             repository.atualizarIdeia(
                 id,
-                AtualizarIdeiaRequest(status = status)
+                AtualizarIdeiaRequest(
+                    status = status,
+                    feedbackGestor = feedback
+                )
             )
             buscarIdeias()
         }

@@ -73,10 +73,17 @@ fun ProjetosScreen(
             Triple("Resultados", R.drawable.ic_lamp,   "gestao_estrategica"),
             Triple("Perfil",     R.drawable.ic_person, "perfil")
         )
-        else -> listOf(
+        "Gestor" -> listOf(
             Triple("Início",   R.drawable.ic_home,   "inicio"),
             Triple("Inbox",    R.drawable.ic_inbox,  "inbox"),
+            Triple("Equipe",   R.drawable.ic_person, "equipe"),
             Triple("Projetos", R.drawable.ic_target, "projetos"),
+            Triple("Perfil",   R.drawable.ic_person, "perfil")
+        )
+        else -> listOf(
+            Triple("Início",   R.drawable.ic_home,   "inicio"),
+            Triple("Ideias",   R.drawable.ic_lamp,   "ideias"),
+            Triple("Estratégia", R.drawable.ic_target, "estrategia"),
             Triple("Perfil",   R.drawable.ic_person, "perfil")
         )
     }

@@ -12,7 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,11 +32,17 @@ import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.operador.EagleHeadIcon
 import com.example.aguiabrancachallenge.operador.PremiumIceBlue
 import com.example.aguiabrancachallenge.operador.SectionHeader
+import com.example.aguiabrancachallenge.operador.EventCalendarStrip
+import com.example.aguiabrancachallenge.lideranca.AgendaGlobal
 import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GestorHomeScreen(
     onNavigateBottomBar: (String) -> Unit = {},
@@ -44,6 +51,13 @@ fun GestorHomeScreen(
 ) {
     var isLoadingIdeias by remember { mutableStateOf(true) }
     var isLoadingFocos  by remember { mutableStateOf(true) }
+
+    var showFullCalendar by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
+    var dataSelecionada by remember {
+        mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date()))
+    }
 
     LaunchedEffect(Unit) {
         ideiaRepository.listarIdeias().onSuccess { GlobalStateManager.listaDeIdeias = it }
@@ -59,12 +73,45 @@ fun GestorHomeScreen(
     val ideiasAprovadas = listaIdeias.count { it.status == "Aprovada" }
     val totalIdeias     = listaIdeias.size
 
+    if (showFullCalendar) {
+        DatePickerDialog(
+            onDismissRequest = { showFullCalendar = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        dataSelecionada = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date(millis))
+                    }
+                    showFullCalendar = false
+                }) { Text("Ver Eventos do Dia", color = BrandBlue, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFullCalendar = false }) { Text("Fechar", color = Color.Gray) }
+            },
+            colors = DatePickerDefaults.colors(containerColor = Color(0xFF0A0C10))
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    titleContentColor = Color.White,
+                    headlineContentColor = Color.White,
+                    weekdayContentColor = Color.Gray,
+                    dayContentColor = Color.White,
+                    selectedDayContainerColor = BrandBlue,
+                    selectedDayContentColor = Color.White,
+                    todayDateBorderColor = BrandBlue,
+                    todayContentColor = BrandBlue
+                )
+            )
+        }
+    }
+
     Scaffold(
         topBar = { GestorTopBar(onSettingsClick = { onNavigateBottomBar("perfil") }) },
         bottomBar = {
             val navItems = listOf(
                 Triple("Início",   R.drawable.ic_home,   "inicio"),
                 Triple("Inbox",    R.drawable.ic_inbox,  "inbox"),
+                Triple("Equipe",   R.drawable.ic_person, "equipe"),
                 Triple("Projetos", R.drawable.ic_target, "projetos"),
                 Triple("Perfil",   R.drawable.ic_person, "perfil")
             )
@@ -105,10 +152,37 @@ fun GestorHomeScreen(
                 Spacer(Modifier.height(40.dp))
             }
 
-            // ── card IA ─────────────────────────────────────────
+            // ── calendário de eventos ───────────────────────────
             item {
-                GestorAiCard(onAbrirInbox = { onNavigateBottomBar("inbox") })
-                Spacer(Modifier.height(32.dp))
+                EventCalendarStrip(
+                    dataSelecionada = dataSelecionada,
+                    onAbrirCalendarioCompleto = { showFullCalendar = true }
+                )
+
+                val eventoDoDia = AgendaGlobal.eventos[dataSelecionada]
+                if (eventoDoDia != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BrandBlue.copy(alpha = 0.15f))
+                            .border(1.dp, BrandBlue.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Notifications, contentDescription = null, tint = BrandBlue, modifier = Modifier.size(28.dp))
+                            Spacer(Modifier.width(16.dp))
+                            Column {
+                                val diaFormatado = dataSelecionada.take(5)
+                                Text("Lembrete da Liderança ($diaFormatado)", color = BrandBlue, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.height(4.dp))
+                                Text(eventoDoDia, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(32.dp))
             }
 
             // ── foco estratégico ────────────────────────────────
@@ -127,12 +201,12 @@ fun GestorHomeScreen(
                 SectionHeader("VISÃO GERAL")
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        GestorMetricCard(Modifier.weight(1f), "Total", totalIdeias, Color(0xFF8D6E63), isLoadingIdeias)
-                        GestorMetricCard(Modifier.weight(1f), "Aprovadas", ideiasAprovadas, Color(0xFF4CAF50), isLoadingIdeias)
+                        GestorMetricCard(Modifier.weight(1f), "Total", totalIdeias, Color(0xFF8D6E63), Icons.Default.List, isLoadingIdeias)
+                        GestorMetricCard(Modifier.weight(1f), "Aprovadas", ideiasAprovadas, Color(0xFF4CAF50), Icons.Default.Check, isLoadingIdeias)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        GestorMetricCard(Modifier.weight(1f), "Pendentes", ideiasPendentes, Color(0xFFFF8F00), isLoadingIdeias)
-                        GestorMetricCard(Modifier.weight(1f), "Em Análise", ideiasEmAnalise, Color(0xFF1E88E5), isLoadingIdeias)
+                        GestorMetricCard(Modifier.weight(1f), "Pendentes", ideiasPendentes, Color(0xFFFF8F00), Icons.Default.Notifications, isLoadingIdeias)
+                        GestorMetricCard(Modifier.weight(1f), "Em Análise", ideiasEmAnalise, Color(0xFF1E88E5), Icons.Default.Search, isLoadingIdeias)
                     }
                 }
                 Spacer(Modifier.height(32.dp))
@@ -167,9 +241,6 @@ fun GestorHomeScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// TOP BAR GESTOR
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun GestorTopBar(onSettingsClick: () -> Unit) {
     Column {
@@ -202,54 +273,6 @@ fun GestorTopBar(onSettingsClick: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// CARD IA GESTOR
-// ─────────────────────────────────────────────────────────────
-@Composable
-fun GestorAiCard(onAbrirInbox: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(Brush.linearGradient(listOf(Color(0xFF14161C), Color(0xFF0D0E12))))
-            .border(1.dp, Brush.linearGradient(listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))), RoundedCornerShape(8.dp))
-            .padding(20.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color(0xFF1C1F26))
-                    .border(1.dp, Color(0xFF2A2D35), RoundedCornerShape(6.dp))
-                    .padding(12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                EagleHeadIcon(modifier = Modifier.fillMaxSize())
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Águia IA", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold, letterSpacing = (-0.3).sp)
-                Spacer(Modifier.height(2.dp))
-                Text("Assistente de curadoria", color = Color(0xFF8A8F98), fontSize = 13.sp)
-            }
-            Spacer(Modifier.width(12.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(PremiumIceBlue)
-                    .clickable { onAbrirInbox() }
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Text("Avaliar ideias", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────
-// FOCO CARD
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun GestorFocoCard(titulo: String, mes: String, isLoading: Boolean) {
     Box(
@@ -293,11 +316,8 @@ fun GestorFocoCard(titulo: String, mes: String, isLoading: Boolean) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// MÉTRICA CARD GESTOR
-// ─────────────────────────────────────────────────────────────
 @Composable
-fun GestorMetricCard(modifier: Modifier, label: String, value: Int, color: Color, isLoading: Boolean) {
+fun GestorMetricCard(modifier: Modifier, label: String, value: Int, color: Color, icon: ImageVector, isLoading: Boolean) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -306,10 +326,10 @@ fun GestorMetricCard(modifier: Modifier, label: String, value: Int, color: Color
             .padding(16.dp)
     ) {
         Box(
-            modifier = Modifier.size(28.dp).background(color.copy(.2f), RoundedCornerShape(6.dp)),
+            modifier = Modifier.size(32.dp).background(color.copy(.15f), RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Box(modifier = Modifier.size(12.dp).background(color, RoundedCornerShape(3.dp)))
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.height(16.dp))
         if (isLoading) {
@@ -322,9 +342,6 @@ fun GestorMetricCard(modifier: Modifier, label: String, value: Int, color: Color
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// CURADORIA CARD
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun GestorCuradoriaCard(pendentes: Int, onClick: () -> Unit) {
     Row(
@@ -364,9 +381,6 @@ fun GestorCuradoriaCard(pendentes: Int, onClick: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PROJETOS CARD
-// ─────────────────────────────────────────────────────────────
 @Composable
 fun GestorProjetosCard(emExecucao: Int, concluidos: Int, onClick: () -> Unit) {
     Row(
@@ -405,9 +419,6 @@ fun GestorProjetosCard(emExecucao: Int, concluidos: Int, onClick: () -> Unit) {
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// PREVIEW
-// ─────────────────────────────────────────────────────────────
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun GestorPreview() {
