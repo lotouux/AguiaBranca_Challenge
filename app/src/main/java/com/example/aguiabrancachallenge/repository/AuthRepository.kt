@@ -4,12 +4,25 @@ import android.content.SharedPreferences
 import com.example.aguiabrancachallenge.data.models.SignInRequest
 import com.example.aguiabrancachallenge.network.RetrofitClient
 
+/**
+ * REPOSITÓRIO DE AUTENTICAÇÃO
+ * 
+ * Gerencia o login e a persistência da sessão do usuário.
+ * 
+ * INTEGRAÇÃO BACKEND:
+ * Endpoint: POST /api/auth/login
+ * Corpo: { "matricula": "...", "senha": "..." }
+ * Resposta esperada: { "token": "JWT", "perfil": "Gestor|Lideranca|Operador", "nome": "..." }
+ */
 class AuthRepository(
     private val sharedPreferences: SharedPreferences
 ) {
 
     private val api = RetrofitClient.apiService
 
+    /**
+     * Realiza a autenticação e valida se o perfil retornado condiz com o selecionado na UI.
+     */
     suspend fun signIn(
         matricula: String,
         password: String,
@@ -24,34 +37,35 @@ class AuthRepository(
                 )
             )
 
-            if (response.isSuccessful) {
-                var comparativoPerfil = perfil
-                if (perfil.lowercase() == "liderança") comparativoPerfil = "lideranca"
-                if (response.body()?.perfil.equals(comparativoPerfil, ignoreCase = true)){
-                    val token = response.body()!!.token
-                    // Salva o token no interceptor para todas as requisições futuras
-                    com.example.aguiabrancachallenge.network.RetrofitClient.authToken = token
+            if (response.isSuccessful && response.body() != null) {
+                val body = response.body()!!
+                
+                // Normalização para comparação (Backend pode retornar 'lideranca' sem acento)
+                var comparativoPerfil = perfil.lowercase()
+                if (comparativoPerfil == "liderança") comparativoPerfil = "lideranca"
+                
+                val perfilBackend = body.perfil.lowercase()
+
+                if (perfilBackend == comparativoPerfil) {
+                    val token = body.token
+                    
+                    // Injeta o token no Singleton de Rede para requisições subsequentes
+                    RetrofitClient.authToken = token
+                    
                     saveSession(
                         matricula = matricula,
                         password = password,
-                        perfil = perfil,
-                        nome = response.body()!!.nome,
+                        perfil = perfil, // Salva o nome amigável da UI
+                        nome = body.nome,
                         token = token
                     )
                     Result.success(Unit)
                 } else {
-                    Result.failure(Exception("Tipo de conta não coincide com esse tipo de perfil!"))
+                    Result.failure(Exception("Este usuário não possui permissão de $perfil."))
                 }
-
             } else {
-
-                Result.failure(
-                    Exception(
-                        "Erro ao realizar login: ${response.code()}"
-                    )
-                )
+                Result.failure(Exception("Credenciais inválidas ou erro no servidor (${response.code()})"))
             }
-
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -75,59 +89,24 @@ class AuthRepository(
     }
 
     fun logout() {
-        com.example.aguiabrancachallenge.network.RetrofitClient.authToken = null
-        sharedPreferences.edit()
-            .clear()
-            .apply()
+        RetrofitClient.authToken = null
+        sharedPreferences.edit().clear().apply()
     }
 
-    fun isLogged(): Boolean {
-        return sharedPreferences.getBoolean(
-            KEY_IS_LOGGED,
-            false
-        )
-    }
+    fun isLogged(): Boolean = sharedPreferences.getBoolean(KEY_IS_LOGGED, false)
+    fun getMatricula(): String? = sharedPreferences.getString(KEY_MATRICULA, null)
+    fun getNome(): String? = sharedPreferences.getString(KEY_NOME, null)
+    fun getPerfil(): String? = sharedPreferences.getString(KEY_PERFIL, null)
+    fun getToken(): String? = sharedPreferences.getString(KEY_TOKEN, null)
 
-    fun getMatricula(): String? {
-        return sharedPreferences.getString(
-            KEY_MATRICULA,
-            null
-        )
-    }
-
-    fun getNome(): String? {
-        return sharedPreferences.getString(
-            KEY_NOME,
-            null
-        )
-    }
-
-    fun getPassword(): String? {
-        return sharedPreferences.getString(
-            KEY_PASSWORD,
-            null
-        )
-    }
-
-    fun getPerfil(): String? {
-        return sharedPreferences.getString(
-            KEY_PERFIL,
-            null
-        )
-    }
-
-    fun getToken(): String? {
-        return sharedPreferences.getString(
-            KEY_TOKEN,
-            null
-        )
-    }
-
-    // Restaura o token na memória ao abrir o app (sessão persistida)
+    /**
+     * Restaura o token na memória ao abrir o app (sessão persistida).
+     * Chamado na MainActivity.
+     */
     fun restoreSession() {
         val token = getToken()
         if (token != null) {
-            com.example.aguiabrancachallenge.network.RetrofitClient.authToken = token
+            RetrofitClient.authToken = token
         }
     }
 

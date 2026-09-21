@@ -11,13 +11,24 @@ import com.example.aguiabrancachallenge.data.models.AtualizarIdeiaRequest
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import kotlinx.coroutines.launch
 
+/**
+ * VIEWMODEL DE CURADORIA (GESTOR)
+ * 
+ * Responsável por gerenciar o estado da tela de Inbox e as transições de status das ideias.
+ * Integração: Consome o IdeiaRepository.
+ */
 class GestorInboxViewModel(
     private val repository: IdeiaRepository
 ) : ViewModel() {
 
+    // Lista observável de ideias para a UI
     var ideias by mutableStateOf<List<Ideia>>(emptyList())
         private set
 
+    /**
+     * Sincroniza a lista local com o Backend.
+     * Deve ser chamado no LaunchedEffect da tela.
+     */
     fun buscarIdeias() {
         viewModelScope.launch {
             val result = repository.listarIdeias()
@@ -31,6 +42,10 @@ class GestorInboxViewModel(
         }
     }
 
+    /**
+     * Altera o status da ideia (Ex: "Em Análise").
+     * @param feedback: Texto obrigatório caso o status seja "Arquivada".
+     */
     fun atualizarStatus(id: String, status: String, feedback: String? = null) {
         viewModelScope.launch {
             repository.atualizarIdeia(
@@ -40,10 +55,14 @@ class GestorInboxViewModel(
                     feedbackGestor = feedback
                 )
             )
-            buscarIdeias()
+            buscarIdeias() // Refresh automático após alteração
         }
     }
 
+    /**
+     * Aprova uma ideia transformando-a em projeto.
+     * @param bonus: Se true, atribui pontuação extra estratégica.
+     */
     fun aprovarIdeia(id: String, bonus: Boolean) {
         viewModelScope.launch {
             repository.atualizarIdeia(
@@ -58,6 +77,9 @@ class GestorInboxViewModel(
         }
     }
 
+    /**
+     * Incrementa a prioridade da ideia (Baixa -> Média -> Alta).
+     */
     fun subirPrioridade(ideia: Ideia) {
         val nova = when (ideia.prioridade) {
             "Baixa" -> "Média"
@@ -74,6 +96,9 @@ class GestorInboxViewModel(
         }
     }
 
+    /**
+     * Decrementa a prioridade da ideia (Alta -> Média -> Baixa).
+     */
     fun descerPrioridade(ideia: Ideia) {
         val nova = when (ideia.prioridade) {
             "Alta" -> "Média"

@@ -1,64 +1,99 @@
 package com.example.aguiabrancachallenge.data
 
-import android.content.Context.MODE_PRIVATE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.example.aguiabrancachallenge.repository.AuthRepository
 
-// Esse bonitinho aqui ta servindo como simulação de API
+/**
+ * ─────────────────────────────────────────────────────────────
+ * DOCUMENTAÇÃO DE INTEGRAÇÃO - MODELOS DE DADOS
+ * ─────────────────────────────────────────────────────────────
+ * 
+ * Este arquivo define a estrutura de dados utilizada em todo o app.
+ * Ao integrar com o Backend, certifique-se de que o JSON retornado 
+ * possua exatamente os mesmos nomes de campos ou utilize @SerializedName.
+ */
 
-// 1. O molde de como o Foco Estratégico é formado
+/**
+ * 1. StrategicFocus (Foco Estratégico do Mês)
+ * Representa o desafio lançado pela Liderança.
+ * 
+ * Backend Endpoint: GET /api/estrategia/focos
+ * Campo 'ativo': Apenas UM foco deve ser 'true' por vez.
+ */
 data class StrategicFocus(
-    val id: String,
-    val mes: String,
-    val titulo: String,
-    val descricao: String,
-    val areasPotenciais: List<String> = emptyList(),
-    var ativo: Boolean
+    val id: String,         // UUID gerado pelo banco
+    val mes: String,        // Nome curto (Ex: "Jan", "Fev")
+    val titulo: String,     // Título chamativo do desafio
+    val descricao: String,  // Detalhamento do que a empresa busca
+    val areasPotenciais: List<String> = emptyList(), // Tags de áreas (opcional)
+    var ativo: Boolean      // Flag de vigência no app
 )
 
+/**
+ * 2. MarcoProjeto (Milestones)
+ * Sub-etapas de uma ideia que virou projeto.
+ * 
+ * Backend: Tabela relacionada (1 Ideia -> N Marcos)
+ */
 data class MarcoProjeto(
     val id: Int,
     val titulo: String,
     val isCompleto: Boolean = false,
-    val dataCompleto: String = ""
+    val dataCompleto: String = "" // ISO 8601 ou dd/MM/yyyy
 )
 
-// 2. O molde de como uma Ideia é formada no sistema
+/**
+ * 3. Ideia (Entidade Principal)
+ * Molde fundamental para Ideias e Projetos.
+ * 
+ * Backend Endpoint: GET /api/ideias
+ * 
+ * MAPEAMENTO DE STATUS:
+ * - "Enviada": Recém criada pelo operador.
+ * - "Em Análise": Gestor iniciou a curadoria.
+ * - "Aprovada": Gestor validou, mas execução não iniciada.
+ * - "Em Execução": Ideia virou projeto ativo.
+ * - "Concluída": ROI gerado e projeto finalizado.
+ * - "Arquivada": Ideia rejeitada pelo gestor.
+ */
 data class Ideia(
     val id: String,
     val titulo: String,
     val descricao: String,
-    val status: String, // Enviada, Em Análise, Aprovada, Em Execução, Concluída, Arquivada
-    val area: String,   // Logística, Operação, TI...
-    val data: String,
-    val autor: String = "Abobrinha da Silva",
-    val baseKM: Int = 200,             // Valor fixo por enviar
-    val isStrategicBonus: Boolean = false,
-    val impacto: String = "Pendente",
-    val esforco: String = "Pendente",
-    val prioridade: String = "Pendente",
+    val status: String,      // Valores: Enviada, Em Análise, Aprovada, Em Execução, Concluída, Arquivada
+    val area: String,        // Valores: Logística, Passageiros, Comércio
+    val data: String,        // Data de criação (Ex: "25 Mai")
+    val autor: String,       // Nome completo do colaborador
+    val baseKM: Int = 200,   // Pontuação base (fixa backend)
+    val isStrategicBonus: Boolean = false, // Se true, soma +250 KM no cálculo total
+    val impacto: String,     // Baixo, Médio, Alto
+    val esforco: String,     // Baixo, Médio, Alto
+    val prioridade: String,  // Baixa, Média, Alta (definida pelo Gestor)
 
-    // Integração com projeto
-    val prazo: String = "",
-    val roiEsperado: Float = 0f,
-    val investimento: Float = 0f,
-    val retorno: Float = 0f,
+    // Detalhes de Projeto (Populados após Aprovação)
+    val prazo: String = "",       // Data limite (dd/MM/yyyy)
+    val roiEsperado: Float = 0f,  // Valor percentual ou absoluto
+    val investimento: Float = 0f, // Custo inicial em R$
+    val retorno: Float = 0f,      // Retorno gerado em R$
     val observacaoProgresso: String = "",
     val marcos: List<MarcoProjeto> = emptyList(),
-    val responsavel: String = "",
-    val feedbackGestor: String = "" // Adicionado para explicar arquivamento/rejeição
+    val responsavel: String = "", // Gestor que aprovou a ideia
+    val feedbackGestor: String = "" // Motivo preenchido em caso de Arquivamento
 )
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS DE UI (Não precisam de alteração no Backend)
+// ─────────────────────────────────────────────────────────────
 
 val Ideia.statusColor: Color
     get() = when (status) {
-        "Enviada" -> Color(0xFFE53935)     // Vermelho
-        "Em Análise" -> Color(0xFF1E88E5)  // Azul
-        "Aprovada" -> Color(0xFF43A047)    // Verde
-        "Em Execução" -> Color(0xFFFF8F00) // Laranja
-        "Concluída" -> Color(0xFFFDD835)   // Amarelo
+        "Enviada" -> Color(0xFFE53935)
+        "Em Análise" -> Color(0xFF1E88E5)
+        "Aprovada" -> Color(0xFF43A047)
+        "Em Execução" -> Color(0xFFFF8F00)
+        "Concluída" -> Color(0xFFFDD835)
         "Arquivada" -> Color.DarkGray
         else -> Color.Gray
     }
@@ -70,16 +105,13 @@ val Ideia.progress: Float
         "Aprovada" -> 0.6f
         "Em Execução" -> 0.8f
         "Concluída" -> 1.0f
-        "Arquivada" -> 1.0f
         else -> 0.0f
     }
 
-// Calcula o progresso lendo os marcos do projeto
 val Ideia.progressoReal: Float
     get() {
         val total = marcos.size
         if (total == 0) return 0f
-
         val concluidos = marcos.count { it.isCompleto }
         return concluidos.toFloat() / total.toFloat()
     }
@@ -92,23 +124,21 @@ val Ideia.areaColor: Color
         else -> Color.LightGray
     }
 
-// 3. O Banco de Dados Global em Memória (API Simulada)
+/**
+ * 4. GlobalStateManager (Single Source of Truth)
+ * Centraliza os dados carregados das APIs para evitar múltiplas requisições.
+ * Na integração, os ViewModels devem chamar o Repository e atualizar este objeto.
+ */
 object GlobalStateManager {
-//    var nomeOperador by mutableStateOf("Pedro Miranda")
-//    var nomeGestor by mutableStateOf("Leonardo Martin")
-//    var nomeLideranca by mutableStateOf("Beatriz Camargo")
-
+    // Identificação do usuário logado (vindo de /api/auth/login)
     var nomeUser by mutableStateOf("")
 
-    // Guarda o Foco do Mês (Se a Liderança mudar aqui, muda no app todo)
-    var  listaDeFocos by mutableStateOf<List<StrategicFocus>>(
-        emptyList()
-    )
+    // Cache local de Focos Estratégicos
+    var listaDeFocos by mutableStateOf<List<StrategicFocus>>(emptyList())
+    
     val currentFocus: StrategicFocus?
         get() = listaDeFocos.firstOrNull { it.ativo } ?: listaDeFocos.firstOrNull()
 
-    // Guarda a lista de ideias (O Operador adiciona aqui, o Gestor lê e aprova daqui)
-    var listaDeIdeias by mutableStateOf<List<Ideia>>(
-        emptyList()
-    )
+    // Cache local de Ideias (Fonte para Home, Inbox, Equipe e Projetos)
+    var listaDeIdeias by mutableStateOf<List<Ideia>>(emptyList())
 }

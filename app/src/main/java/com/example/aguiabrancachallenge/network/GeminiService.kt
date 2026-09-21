@@ -9,6 +9,15 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
+/**
+ * INTEGRAÇÃO COM IA (GEMINI 2.0 FLASH)
+ * 
+ * Este arquivo gerencia a comunicação direta com o Google AI Studio.
+ * Para produção:
+ * 1. Obtenha uma API Key em https://aistudio.google.com/
+ * 2. Substitua o valor de API_KEY abaixo ou utilize BuildConfig para segurança.
+ */
+
 // ── DTOs da API Gemini ──────────────────────────────────────────
 data class GeminiRequest(
     val contents: List<GeminiContent>
@@ -30,8 +39,12 @@ data class GeminiCandidate(
     val content: GeminiContent?
 )
 
-// ── Interface Retrofit ──────────────────────────────────────────
+// ── Interface Retrofit para Gemini ──────────────────────────────
 interface GeminiApiService {
+    /**
+     * Endpoint oficial do Gemini para geração de conteúdo.
+     * Modelo utilizado: gemini-2.0-flash (rápido e econômico para chat).
+     */
     @POST("v1beta/models/gemini-2.0-flash:generateContent")
     suspend fun generateContent(
         @Query("key") apiKey: String,
@@ -39,10 +52,10 @@ interface GeminiApiService {
     ): retrofit2.Response<GeminiResponse>
 }
 
-// ── Singleton ───────────────────────────────────────────────────
+// ── Singleton de Configuração ───────────────────────────────────
 object GeminiClient {
 
-    // Chave gratuita do Google AI Studio — troque pela chave do projeto
+    // CHAVE DE API: Substitua pela chave real do projeto Águia Branca
     const val API_KEY = "AIzaSyDemo_substitua_pela_chave_real"
 
     private val client = OkHttpClient.Builder()
@@ -59,14 +72,25 @@ object GeminiClient {
         .create(GeminiApiService::class.java)
 
     /**
-     * Envia uma mensagem ao Gemini e retorna o texto de resposta.
-     * Inclui um system prompt focado em inovação corporativa Águia Branca.
+     * Função principal de Chat/Brainstorming.
+     * 
+     * @param userMessage: O que o usuário digitou.
+     * @param contexto: Informações adicionais (detalhes da ideia ou foco estratégico).
+     * 
+     * O 'systemPrompt' abaixo define a personalidade da IA em todas as telas.
      */
     suspend fun chat(userMessage: String, contexto: String = ""): Result<String> {
         val systemPrompt = """
-            Você é a Águia IA, assistente de inovação corporativa da empresa Águia Branca.
-            Você auxilia gestores a avaliar ideias de colaboradores e tomar decisões estratégicas.
-            Seja objetivo, profissional e direto. Responda em português.
+            Você é a Águia IA, assistente virtual de inovação da Viação Águia Branca.
+            Seu papel é estimular a criatividade de operadores e auxiliar gestores na curadoria técnica.
+            
+            DIRETRIZES:
+            1. Seja profissional, motivadora e objetiva.
+            2. Responda sempre em Português do Brasil.
+            3. Se estiver ajudando um OPERADOR: Sugira melhorias para a ideia dele baseada no foco estratégico.
+            4. Se estiver ajudando um GESTOR: Analise riscos e viabilidade técnica da ideia.
+            
+            CONTEXTO ATUAL:
             $contexto
         """.trimIndent()
 
@@ -87,10 +111,10 @@ object GeminiClient {
                     ?.parts
                     ?.firstOrNull()
                     ?.text
-                    ?: "Sem resposta."
+                    ?: "A Águia IA não conseguiu processar uma resposta no momento."
                 Result.success(text)
             } else {
-                Result.failure(Exception("Erro Gemini: ${response.code()}"))
+                Result.failure(Exception("Falha na comunicação com Google AI Studio: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
