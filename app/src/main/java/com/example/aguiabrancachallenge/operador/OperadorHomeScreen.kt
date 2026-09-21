@@ -54,6 +54,7 @@ import com.example.aguiabrancachallenge.repository.EstrategiaRepository
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.components.ChatBubble
 import com.example.aguiabrancachallenge.components.ChatMessage
+import com.example.aguiabrancachallenge.lideranca.LiderancaViewModel
 import com.example.aguiabrancachallenge.network.GeminiClient
 import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.delay
@@ -87,11 +88,16 @@ fun OperadorHomeScreen(
         mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).format(Date()))
     }
 
+    val viewModel = remember { LiderancaViewModel(ideiaRepository, estrategiaRepository) }
+
     LaunchedEffect(Unit) {
         delay(600)
         ideiaRepository.listarIdeias().onSuccess { GlobalStateManager.listaDeIdeias = it }
         estrategiaRepository.listarFocosEstrategicos().onSuccess { GlobalStateManager.listaDeFocos = it }
     }
+
+    val focos = viewModel.focos
+    val focoAtivo = focos.firstOrNull { it.ativo } ?: focos.firstOrNull()
 
     val totalKm = minhasIdeias.sumOf { ideia ->
         ideia.baseKM + if (ideia.isStrategicBonus) 250 else 0

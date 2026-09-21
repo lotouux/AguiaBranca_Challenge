@@ -245,6 +245,7 @@ fun CredentialLoginScreen(
                     result.fold(
                         onSuccess = { onLoginClick() },
                         onFailure = { error ->
+                            System.out.println("O ERRO É: " + error.message)
                             errorMessage = when (error.message) {
                                 "401" -> "Senha incorreta ou não autorizado."
                                 "404" -> "Usuário não encontrado."

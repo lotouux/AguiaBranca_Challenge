@@ -55,7 +55,9 @@ fun OperadorEstrategiaScreen(
     }
 
     val focosEstrategicos = GlobalStateManager.listaDeFocos
+    println("FOCOS ESTRATÉGICOS: "+focosEstrategicos)
     val focoAtivo = GlobalStateManager.currentFocus
+    println("FOCO ATIVO: "+focoAtivo)
     val isPrimeiroCarregamento = isLoading && focosEstrategicos.isEmpty()
 
     Scaffold(
@@ -106,7 +108,9 @@ fun OperadorEstrategiaScreen(
             item {
                 SectionHeader("FOCO ATUAL")
                 if (isPrimeiroCarregamento) {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = BrandBlueE, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                     }
                 } else {
@@ -132,7 +136,9 @@ fun OperadorEstrategiaScreen(
 
             if (isPrimeiroCarregamento) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = BrandBlueE, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
                     }
                 }
@@ -187,7 +193,11 @@ fun AiStrategyTipCard(focoTitulo: String) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(Brush.linearGradient(listOf(Color(0xFF14161C), Color(0xFF0D0E12))))
-            .border(1.dp, Brush.linearGradient(listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))), RoundedCornerShape(12.dp))
+            .border(
+                1.dp,
+                Brush.linearGradient(listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))),
+                RoundedCornerShape(12.dp)
+            )
             .padding(20.dp)
     ) {
         Column {
@@ -234,12 +244,19 @@ fun AiStrategyTipCard(focoTitulo: String) {
 @Composable
 fun DarkFocoAtualCard(titulo: String, descricao: String, mes: String) {
     Box(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(DarkCard).border(1.dp, BrandBlueE.copy(.4f), RoundedCornerShape(12.dp)).padding(20.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(DarkCard)
+            .border(1.dp, BrandBlueE.copy(.4f), RoundedCornerShape(12.dp))
+            .padding(20.dp)
     ) {
         Column {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("META ESTRATÉGICA ATUAL", color = DarkSub, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                Box(modifier = Modifier.background(BrandBlueE.copy(.15f), RoundedCornerShape(20.dp)).padding(horizontal = 10.dp, vertical = 4.dp)) {
+                Box(modifier = Modifier
+                    .background(BrandBlueE.copy(.15f), RoundedCornerShape(20.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)) {
                     Text(mes, color = BrandBlueE, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
             }
@@ -260,9 +277,16 @@ fun DarkFocoAtualCard(titulo: String, descricao: String, mes: String) {
 // ─────────────────────────────────────────────────────────────
 @Composable
 fun DarkProximoFocoCard(titulo: String, mes: String, descricao: String, areasPotenciais: List<String> = emptyList()) {
-    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(DarkCard).border(1.dp, DarkBorder, RoundedCornerShape(12.dp)).padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(12.dp))
+        .background(DarkCard)
+        .border(1.dp, DarkBorder, RoundedCornerShape(12.dp))
+        .padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(38.dp).background(Color(0xFF16181D), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier
+                .size(38.dp)
+                .background(Color(0xFF16181D), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
                 Icon(painter = painterResource(R.drawable.ic_lamp), contentDescription = null, tint = Color(0xFF8A8F98), modifier = Modifier.size(18.dp))
             }
             Spacer(Modifier.width(14.dp))
@@ -270,7 +294,9 @@ fun DarkProximoFocoCard(titulo: String, mes: String, descricao: String, areasPot
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(titulo, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 2.dp)) {
+                    Box(modifier = Modifier
+                        .border(1.dp, Color(0xFF333333), RoundedCornerShape(50))
+                        .padding(horizontal = 8.dp, vertical = 2.dp)) {
                         Text(mes, color = DarkSub, fontSize = 10.sp)
                     }
                 }
@@ -284,7 +310,9 @@ fun DarkProximoFocoCard(titulo: String, mes: String, descricao: String, areasPot
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 areasPotenciais.forEach { area ->
                     val cor = getAreaColor(area)
-                    Box(modifier = Modifier.background(cor.copy(.15f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp)) {
+                    Box(modifier = Modifier
+                        .background(cor.copy(.15f), RoundedCornerShape(50))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)) {
                         Text(area, color = cor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }

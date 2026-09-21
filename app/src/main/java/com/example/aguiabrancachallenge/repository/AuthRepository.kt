@@ -42,7 +42,6 @@ class AuthRepository(
                 
                 // Normalização para comparação (Backend pode retornar 'lideranca' sem acento)
                 var comparativoPerfil = perfil.lowercase()
-                if (comparativoPerfil == "liderança") comparativoPerfil = "lideranca"
                 
                 val perfilBackend = body.perfil.lowercase()
 
