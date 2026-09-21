@@ -864,6 +864,14 @@ fun PerformanceCard(totalKm: Int) {
 
 @Composable
 fun MinimalistIdeaCard(ideia: Ideia) {
+    val status = when(ideia.status){
+        "ENVIADA" -> "ENVIADA"
+        "EM_ANALISE" -> "EM ANÁLISE"
+        "APROVADA" -> "APROVADA"
+        "EM_EXECUCAO" -> "EM EXECUÇÃO"
+        "CONCLUIDA" -> "CONCLUÍDA"
+        else -> "INVÁLIDA"
+    }
     val corDot = if (ideia.status == "Aprovada") Color(0xFF00E676) else if (ideia.status == "Em Análise") Color(0xFFFFC107) else Color(0xFFE57373)
     Column(modifier = Modifier.fillMaxWidth().clickable { }.padding(vertical = 8.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
@@ -875,7 +883,7 @@ fun MinimalistIdeaCard(ideia: Ideia) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                 Box(modifier = Modifier.size(6.dp).background(corDot, CircleShape))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(ideia.status, color = Color(0xFFAAAAAA), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Text(status, color = Color(0xFFAAAAAA), fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
