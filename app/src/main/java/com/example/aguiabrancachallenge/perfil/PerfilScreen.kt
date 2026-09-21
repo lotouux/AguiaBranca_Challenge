@@ -152,7 +152,7 @@ fun PerfilScreen(
                     val totalKm = minhasIdeias.sumOf { it.baseKM + if (it.isStrategicBonus) 250 else 0 }
                     val temAprovadaOuExecucao = minhasIdeias.any { it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída" }
                     val temEstrategica = minhasIdeias.any { it.isStrategicBonus }
-                    val temRetornoFinanceiro = minhasIdeias.any { it.retorno > 0 }
+                    val temRetornoFinanceiro = minhasIdeias.any { it.retorno!! > 0 }
 
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SectionHeader("MEU DESEMPENHO")

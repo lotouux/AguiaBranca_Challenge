@@ -82,9 +82,9 @@ class GestorInboxViewModel(
      */
     fun subirPrioridade(ideia: Ideia) {
         val nova = when (ideia.prioridade) {
-            "Baixa" -> "Média"
-            "Média" -> "Alta"
-            else -> "Alta"
+            "BAIXA" -> "MEDIA"
+            "MEDIA" -> "ALTA"
+            else -> "ALTA"
         }
 
         viewModelScope.launch {
@@ -101,9 +101,9 @@ class GestorInboxViewModel(
      */
     fun descerPrioridade(ideia: Ideia) {
         val nova = when (ideia.prioridade) {
-            "Alta" -> "Média"
-            "Média" -> "Baixa"
-            else -> "Baixa"
+            "ALTA" -> "MEDIA"
+            "MEDIA" -> "BAIXA"
+            else -> "BAIXA"
         }
 
         viewModelScope.launch {

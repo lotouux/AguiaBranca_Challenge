@@ -64,23 +64,24 @@ data class Ideia(
     val descricao: String,
     val status: String,      // Valores: Enviada, Em Análise, Aprovada, Em Execução, Concluída, Arquivada
     val area: String,        // Valores: Logística, Passageiros, Comércio
-    val data: String,        // Data de criação (Ex: "25 Mai")
-    val autor: String,       // Nome completo do colaborador
+    val data: String?,        // Data de criação (Ex: "25 Mai")
+    val autor: String?,       // Nome completo do colaborador
+    val autorId: String?,
     val baseKM: Int = 200,   // Pontuação base (fixa backend)
     val isStrategicBonus: Boolean = false, // Se true, soma +250 KM no cálculo total
-    val impacto: String,     // Baixo, Médio, Alto
-    val esforco: String,     // Baixo, Médio, Alto
-    val prioridade: String,  // Baixa, Média, Alta (definida pelo Gestor)
+    val impacto: String? = "",     // Baixo, Médio, Alto
+    val esforco: String? = "",     // Baixo, Médio, Alto
+    val prioridade: String? = "",  // Baixa, Média, Alta (definida pelo Gestor)
 
     // Detalhes de Projeto (Populados após Aprovação)
-    val prazo: String = "",       // Data limite (dd/MM/yyyy)
-    val roiEsperado: Float = 0f,  // Valor percentual ou absoluto
-    val investimento: Float = 0f, // Custo inicial em R$
-    val retorno: Float = 0f,      // Retorno gerado em R$
-    val observacaoProgresso: String = "",
-    val marcos: List<MarcoProjeto> = emptyList(),
-    val responsavel: String = "", // Gestor que aprovou a ideia
-    val feedbackGestor: String = "" // Motivo preenchido em caso de Arquivamento
+    val prazo: String? = "",       // Data limite (dd/MM/yyyy)
+    val roiEsperado: Float? = 0f,  // Valor percentual ou absoluto
+    val investimento: Float? = 0f, // Custo inicial em R$
+    val retorno: Float? = 0f,      // Retorno gerado em R$
+    val observacaoProgresso: String? = "",
+    val marcos: List<MarcoProjeto>? = emptyList(),
+    val responsavel: String? = "", // Gestor que aprovou a ideia
+    val feedbackGestor: String? = "" // Motivo preenchido em caso de Arquivamento
 )
 
 // ─────────────────────────────────────────────────────────────
@@ -110,9 +111,9 @@ val Ideia.progress: Float
 
 val Ideia.progressoReal: Float
     get() {
-        val total = marcos.size
+        val total = marcos!!.size
         if (total == 0) return 0f
-        val concluidos = marcos.count { it.isCompleto }
+        val concluidos = marcos!!.count { it.isCompleto }
         return concluidos.toFloat() / total.toFloat()
     }
 

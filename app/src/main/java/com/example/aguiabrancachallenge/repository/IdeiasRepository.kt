@@ -54,14 +54,15 @@ class IdeiaRepository {
                         responsavel = it.responsavel,
                         feedbackGestor = it.feedbackGestor ?: "",
 
-                        marcos = it.marcos.map { marco ->
+                        marcos = it.marcos.orEmpty().map { marco ->
                             MarcoProjeto(
                                 id = marco.id,
                                 titulo = marco.titulo,
                                 isCompleto = marco.isCompleto,
                                 dataCompleto = marco.dataCompleto
                             )
-                        }
+                        },
+                        autorId = it.autorId
                     )
                 } ?: emptyList()
 

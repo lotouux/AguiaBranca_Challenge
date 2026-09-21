@@ -248,7 +248,7 @@ fun DarkIdeiaProgressCard(ideia: Ideia) {
 
         if (
             ideia.status.equals("Arquivada", ignoreCase = true) &&
-            ideia.feedbackGestor.isNotBlank()
+            ideia.feedbackGestor!!.isNotBlank()
         ) {
             Spacer(Modifier.height(10.dp))
             Box(

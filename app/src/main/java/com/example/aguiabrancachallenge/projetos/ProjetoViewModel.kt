@@ -64,7 +64,7 @@ class DetalhesProjetoViewModel(
 
             result.onSuccess {
                 projeto = projeto?.copy(
-                    marcos = projeto!!.marcos + MarcoProjeto(
+                    marcos = projeto!!.marcos!! + MarcoProjeto(
                         id = Random.nextInt(),
                         titulo = titulo,
                         isCompleto = false,

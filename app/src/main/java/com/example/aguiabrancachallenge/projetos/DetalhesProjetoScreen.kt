@@ -161,7 +161,7 @@ fun DetalhesProjetoScreen(
                 }
 
                 // ── botão definir plano (somente gestor) ──
-                if (projetoAtual.status == "Aprovada" && projetoAtual.marcos.isEmpty() && profile == "Gestor") {
+                if (projetoAtual.status == "Aprovada" && projetoAtual.marcos!!.isEmpty() && profile == "Gestor") {
                     item {
                         Button(
                             onClick = { showDefinirPlano = true },
@@ -180,10 +180,10 @@ fun DetalhesProjetoScreen(
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Prazo",
-                                valor = projetoAtual.prazo.ifEmpty { "Não definido" },
+                                valor = projetoAtual.prazo!!.ifEmpty { "Não definido" },
                                 valorCor = Color.White
                             )
-                            val roiText = if (projetoAtual.roiEsperado > 0)
+                            val roiText = if (projetoAtual.roiEsperado!! > 0)
                                 "${(projetoAtual.roiEsperado * 100).toInt()}%" else "0%"
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
@@ -197,13 +197,13 @@ fun DetalhesProjetoScreen(
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Investimento",
-                                valor = formatarMoedaAbreviada(projetoAtual.investimento),
+                                valor = formatarMoedaAbreviada(projetoAtual.investimento!!),
                                 valorCor = Color.White
                             )
                             DarkMetricaCard(
                                 modifier = Modifier.weight(1f),
                                 titulo = "Retorno",
-                                valor = formatarMoedaAbreviada(projetoAtual.retorno),
+                                valor = formatarMoedaAbreviada(projetoAtual.retorno!!),
                                 valorCor = Color.White
                             )
                         }
@@ -240,7 +240,7 @@ fun DetalhesProjetoScreen(
                                         .background(if (projetoAtual.progressoReal >= 1f) Color(0xFF4CAF50) else BrandBlueD)
                                 )
                             }
-                            if (projetoAtual.observacaoProgresso.isNotEmpty()) {
+                            if (projetoAtual.observacaoProgresso!!                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .isNotEmpty()) {
                                 Spacer(Modifier.height(12.dp))
                                 Text("Última atualização: ${projetoAtual.observacaoProgresso}", color = DarkSub, fontSize = 11.sp)
                             }
@@ -250,7 +250,7 @@ fun DetalhesProjetoScreen(
 
                     // ── marcos ──
                     item {
-                        val concluidos = projetoAtual.marcos.count { it.isCompleto }
+                        val concluidos = projetoAtual.marcos!!.count { it.isCompleto }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -271,10 +271,10 @@ fun DetalhesProjetoScreen(
                                     }
                                 }
                             }
-                            Text("$concluidos/${projetoAtual.marcos.size} concluídos", color = DarkSub, fontSize = 11.sp)
+                            Text("$concluidos/${projetoAtual.marcos!!.size} concluídos", color = DarkSub, fontSize = 11.sp)
                             Spacer(Modifier.height(14.dp))
 
-                            projetoAtual.marcos.forEachIndexed { index, marco ->
+                            projetoAtual.marcos!!.forEachIndexed { index, marco ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -320,7 +320,7 @@ fun DetalhesProjetoScreen(
 
                 // ── responsável ──
                 item {
-                    val nomeResp = projetoAtual.responsavel.ifEmpty { "Não designado" }
+                    val nomeResp = projetoAtual.responsavel!!.ifEmpty { "Não designado" }
                     val iniciais = if (projetoAtual.responsavel.isNotEmpty()) {
                         projetoAtual.responsavel.split(" ").let { p ->
                             if (p.size > 1) "${p.first().take(1)}${p.last().take(1)}"

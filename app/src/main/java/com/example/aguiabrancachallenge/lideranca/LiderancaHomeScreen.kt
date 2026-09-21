@@ -92,9 +92,9 @@ fun LiderancaHomeScreen(
     }
 
     val ideiasVisiveis = todasIdeias
-    val comFinanceiro = ideiasVisiveis.filter { it.investimento > 0f }
-    val investidoTotal = comFinanceiro.sumOf { it.investimento.toDouble() }
-    val retornoTotal   = comFinanceiro.sumOf { it.retorno.toDouble() }
+    val comFinanceiro = ideiasVisiveis.filter { it.investimento!! > 0f }
+    val investidoTotal = comFinanceiro.sumOf { it.investimento!!.toDouble() }
+    val retornoTotal   = comFinanceiro.sumOf { it.retorno!!.toDouble() }
     val lucroTotal     = retornoTotal - investidoTotal
     val roiTotal       = if (investidoTotal > 0) ((lucroTotal / investidoTotal) * 100).toInt() else 0
 
@@ -772,8 +772,8 @@ fun DarkProjectReturnsSection(projetos: List<Ideia>) {
                 Text("Nenhum projeto com dados financeiros.", color = Color(0xFF555555), fontSize = 13.sp)
             }
             projetos.forEach { projeto ->
-                val lucro = projeto.retorno - projeto.investimento
-                val roi   = if (projeto.investimento > 0) ((lucro / projeto.investimento) * 100).toInt() else 0
+                val lucro = projeto.retorno!! - projeto.investimento!!
+                val roi   = if (projeto.investimento > 0) ((lucro / projeto.investimento!!) * 100).toInt() else 0
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

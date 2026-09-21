@@ -13,6 +13,7 @@ data class IdeiaResponseDTO(
     val area: String,                // Categoria (Logística, Passageiros, Comércio)
     val data: String,                // Data amigável (Ex: "25 Mai")
     val autor: String,               // Nome do colaborador
+    val autorId: String,
     val baseKM: Int,                 // Pontos de inovação base
     val strategicBonus: Boolean,     // Flag se a ideia está no foco estratégico
     val impacto: String,             // Nível de impacto (Baixo, Médio, Alto)

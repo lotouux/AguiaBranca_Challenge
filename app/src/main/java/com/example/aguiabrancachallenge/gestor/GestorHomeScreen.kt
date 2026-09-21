@@ -106,7 +106,7 @@ fun GestorHomeScreen(
     }
 
     Scaffold(
-        topBar = { GestorTopBar(onSettingsClick = { onNavigateBottomBar("perfil") }) },
+        topBar = { GestorTopBar() },
         bottomBar = {
             val navItems = listOf(
                 Triple("Início",   R.drawable.ic_home,   "inicio"),
@@ -242,7 +242,7 @@ fun GestorHomeScreen(
 }
 
 @Composable
-fun GestorTopBar(onSettingsClick: () -> Unit) {
+fun GestorTopBar() {
     Column {
         Row(
             modifier = Modifier
@@ -258,16 +258,6 @@ fun GestorTopBar(onSettingsClick: () -> Unit) {
                 modifier = Modifier.width(100.dp),
                 colorFilter = ColorFilter.tint(Color.White)
             )
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF16181D))
-                    .clickable { onSettingsClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-            }
         }
         HorizontalDivider(color = Color(0xFF1A1C20), thickness = 1.dp)
     }

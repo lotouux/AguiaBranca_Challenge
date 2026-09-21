@@ -39,11 +39,11 @@ fun GestorEquipeScreen(
 
     // Obtém lista única de autores
     val funcionariosList = remember(todasIdeias) {
-        todasIdeias.map { it.autor }.distinct().filter { it.isNotBlank() }
+        todasIdeias.map { it.autor }.distinct().filter { it!!.isNotBlank() }
     }
 
     val filteredFuncionarios = funcionariosList.filter {
-        it.contains(searchQuery, ignoreCase = true)
+        it!!.contains(searchQuery, ignoreCase = true)
     }
 
     val navItems = listOf(
@@ -55,7 +55,7 @@ fun GestorEquipeScreen(
     )
 
     Scaffold(
-        topBar = { GestorTopBar(onSettingsClick = { onNavigateBottomBar("perfil") }) },
+        topBar = { GestorTopBar() },
         bottomBar = {
             BottomNavBar(currentRoute = "equipe", items = navItems, onNavigate = onNavigateBottomBar)
         },
@@ -122,7 +122,7 @@ fun GestorEquipeScreen(
                         if (qtdTotal >= 5) conquistasCount++
                         if (ideiasDoFunc.any { it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída" }) conquistasCount++
                         if (qtdEstrategicas >= 1) conquistasCount++
-                        if (ideiasDoFunc.any { it.retorno > 0 }) conquistasCount++
+                        if (ideiasDoFunc.any { it.retorno!! > 0 }) conquistasCount++
 
                         Column(
                             modifier = Modifier
@@ -146,7 +146,7 @@ fun GestorEquipeScreen(
                                 }
                                 Spacer(Modifier.width(14.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(nome, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                    Text(nome!!, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                     Text("$qtdTotal ideias enviadas", color = Color(0xFF8A8F98), fontSize = 13.sp)
                                 }
                             }

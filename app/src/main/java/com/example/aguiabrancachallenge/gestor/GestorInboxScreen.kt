@@ -45,7 +45,7 @@ import com.example.aguiabrancachallenge.navigation.BottomNavBar
 import com.example.aguiabrancachallenge.network.GeminiClient
 import com.example.aguiabrancachallenge.operador.EagleHeadIcon
 import com.example.aguiabrancachallenge.operador.PremiumIceBlue
-import com.example.aguiabrancachallenge.operador.SectionHeader
+import com.example.aguiabrancachallenge.operador.formatarStatus
 import com.example.aguiabrancachallenge.repository.IdeiaRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.launch
@@ -78,19 +78,29 @@ fun GestorInboxScreen(
     var ideiaParaIA  by remember { mutableStateOf<Ideia?>(null) }
 
     val viewModel = remember { GestorInboxViewModel(ideiaRepository) }
+
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) { viewModel.buscarIdeias() }
 
     val todasIdeias = viewModel.ideias
+
     val ideiasCuradoria = todasIdeias.filter {
-        it.status.equals("Enviada", ignoreCase = true) ||
-        it.status.equals("Em Análise", ignoreCase = true)
+        it.status.equals("ENVIADA", ignoreCase = true) ||
+                it.status.equals("EM_ANALISE", ignoreCase = true)
     }
+
     val ideiasPriorizar = todasIdeias
-        .filter { it.status == "Aprovada" || it.status == "Em Execução" }
+        .filter {
+            it.status.equals("APROVADA", ignoreCase = true) ||
+                    it.status.equals("EM_EXECUCAO", ignoreCase = true)
+        }
         .sortedByDescending { pesoPrioridade(it.prioridade) }
 
-    val ideiasArquivadas = todasIdeias.filter { it.status.equals("Arquivada", ignoreCase = true) }
-
+    val ideiasArquivadas = todasIdeias.filter {
+        it.status.equals("ARQUIVADA", ignoreCase = true) ||
+                it.status.equals("REJEITADA", ignoreCase = true)
+    }
     if (selectedTab == 0 && currentIndex >= ideiasCuradoria.size && ideiasCuradoria.isNotEmpty())
         currentIndex = ideiasCuradoria.size - 1
 
@@ -270,8 +280,18 @@ fun GestorInboxScreen(
                         ideiasPriorizar.forEach { ideia ->
                             DarkPriorizarCard(
                                 ideia = ideia,
-                                onUpClick = { viewModel.subirPrioridade(ideia) },
-                                onDownClick = { viewModel.descerPrioridade(ideia) }
+                                onUpClick = {
+                                    viewModel.subirPrioridade(ideia)
+                                    scope.launch {
+                                        viewModel.buscarIdeias()
+                                    }
+                                },
+                                onDownClick = {
+                                    viewModel.descerPrioridade(ideia)
+                                    scope.launch {
+                                        viewModel.buscarIdeias()
+                                    }
+                                }
                             )
                             Spacer(Modifier.height(10.dp))
                         }
@@ -314,9 +334,11 @@ fun GestorInboxScreen(
                             border = BorderStroke(1.dp, Color(0xFFD32F2F))
                         ) { Text("Rejeitar / Arquivar", fontSize = 13.sp, fontWeight = FontWeight.Bold) }
 
-                        if (ideiaAtual!!.status == "Enviada") {
+                        if (ideiaAtual!!.status.equals("ENVIADA", ignoreCase = true)) {
                             OutlinedButton(
-                                onClick = { viewModel.atualizarStatus(ideiaAtual.id, "Em Análise") },
+                                onClick = {
+                                    viewModel.atualizarStatus(ideiaAtual.id, "EM_ANALISE")
+                                },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF0088FF)),
@@ -432,13 +454,17 @@ fun DarkArquivadaItem(ideia: Ideia, onReopen: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(ideia.titulo, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(ideia.autor, color = Color(0xFF555555), fontSize = 12.sp)
+                Text(
+                    ideia.autor ?: "Autor desconhecido",
+                    color = Color(0xFF555555),
+                    fontSize = 12.sp
+                )
             }
             IconButton(onClick = onReopen) {
                 Icon(Icons.Default.Refresh, contentDescription = "Reabrir", tint = Color(0xFF0088FF))
             }
         }
-        if (ideia.feedbackGestor.isNotBlank()) {
+        if (ideia.feedbackGestor?.isNotBlank() == true) {
             Spacer(Modifier.height(8.dp))
             Text("Justificativa: ${ideia.feedbackGestor}", color = Color(0xFF8A8F98), fontSize = 12.sp, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
         }
@@ -649,7 +675,12 @@ fun DarkInboxIdeiaCard(ideia: Ideia) {
                 DarkBadge(ideia.area, Color(0xFF4CAF50))
                 Spacer(Modifier.width(8.dp))
                 Box(modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                    Text(ideia.status, color = Color(0xFF8A8F98), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        formatarStatus(ideia.status),
+                        color = Color(0xFF8A8F98),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -664,7 +695,11 @@ fun DarkInboxIdeiaCard(ideia: Ideia) {
             }
             Spacer(Modifier.width(8.dp))
             Column {
-                Text(ideia.autor, color = Color(0xFF555555), fontSize = 12.sp)
+                Text(
+                    ideia.autor ?: "Autor desconhecido",
+                    color = Color(0xFF555555),
+                    fontSize = 12.sp
+                )
                 Text("Enviado em ${ideia.data}", color = Color(0xFF444444), fontSize = 10.sp)
             }
         }
@@ -689,11 +724,13 @@ private fun DarkBadge(text: String, color: Color) {
 }
 
 @Composable
-private fun DarkMetricCol(label: String, value: String) {
+private fun DarkMetricCol(label: String, value: String?) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, color = Color(0xFF444444), fontSize = 10.sp)
         Spacer(Modifier.height(4.dp))
-        Text(value, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        if (value != null) {
+            Text(value, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -701,9 +738,9 @@ private fun DarkMetricCol(label: String, value: String) {
 fun DarkPriorizarCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> Unit) {
     val cor = getCorFixaPorId(ideia.id)
     val corPrioridade = when (ideia.prioridade) {
-        "Alta"  -> Color(0xFFE53935)
-        "Média" -> Color(0xFFFF8F00)
-        "Baixa" -> Color(0xFF43A047)
+        "ALTA"  -> Color(0xFFE53935)
+        "MEDIA" -> Color(0xFFFF8F00)
+        "BAIXA" -> Color(0xFF43A047)
         else    -> Color(0xFF555555)
     }
     Row(
@@ -726,7 +763,7 @@ fun DarkPriorizarCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> Un
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Star, contentDescription = null, tint = corPrioridade, modifier = Modifier.size(12.dp))
                 Spacer(Modifier.width(4.dp))
-                Text(ideia.prioridade, color = corPrioridade, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                ideia.prioridade?.let { Text(it, color = corPrioridade, fontSize = 11.sp, fontWeight = FontWeight.Bold) }
             }
         }
         Spacer(Modifier.width(10.dp))
@@ -750,8 +787,11 @@ fun DarkPriorizarCard(ideia: Ideia, onUpClick: () -> Unit, onDownClick: () -> Un
     }
 }
 
-fun pesoPrioridade(prioridade: String) = when (prioridade) {
-    "Alta"  -> 3; "Média" -> 2; "Baixa" -> 1; else -> 0
+fun pesoPrioridade(prioridade: String?) = when (prioridade) {
+    "ALTA" -> 3
+    "MEDIA" -> 2
+    "BAIXA" -> 1
+    else -> 0
 }
 
 @Composable

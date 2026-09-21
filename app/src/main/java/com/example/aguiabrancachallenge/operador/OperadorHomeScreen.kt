@@ -100,7 +100,7 @@ fun OperadorHomeScreen(
     val totalIdeias = minhasIdeias.size
     val temAprovadaOuExecucao = minhasIdeias.any { it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída" }
     val temEstrategica = minhasIdeias.any { it.isStrategicBonus }
-    val temRetornoFinanceiro = minhasIdeias.any { it.retorno > 0 }
+    val temRetornoFinanceiro = minhasIdeias.any { it.retorno!! > 0 }
 
     if (showAiChat) {
         OperadorAiChatPanel(
