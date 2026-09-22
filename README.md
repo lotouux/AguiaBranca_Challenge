@@ -6,9 +6,7 @@
 [![Retrofit](https://img.shields.io/badge/Retrofit-48B983?style=for-the-badge&logo=square&logoColor=white)](https://square.github.io/retrofit/)
 [![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white)](https://console.groq.com/)
 [![Status](https://img.shields.io/badge/status-Development-yellow?style=for-the-badge)](#)
-<p align="center">
-  <img src="./downloads/AguiaBranca.jpeg" alt="Demonstração" width="600">
-</p>
+
 ---
 
 ## About the Project
