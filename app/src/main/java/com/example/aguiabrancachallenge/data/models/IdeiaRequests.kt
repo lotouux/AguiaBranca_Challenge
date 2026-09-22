@@ -32,12 +32,10 @@ data class IdeiaResponseDTO(
 data class AtualizarIdeiaRequest(
     val status: String? = null,
     val prioridade: String? = null,
-    val isStrategicBonus: Boolean? = null,
     val responsavel: String? = null,
-    val prazo: String? = null,
-    val investimento: Float? = null,
-    val retorno: Float? = null,
-    val roiEsperado: Float? = null,
+    val impacto: String? = null,
+    val esforco: String? = null,
+    val isStrategicBonus: Boolean? = null,
     val feedbackGestor: String? = null
 )
 

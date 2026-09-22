@@ -89,6 +89,22 @@ class IdeiaRepository {
         }
     }
 
+    suspend fun listarMarcos(id: String): Result<List<MarcoProjeto>> {
+        return try {
+            val response = api.listarMarcos(id)
+
+            if (response.isSuccessful) {
+                Result.success(response.body().orEmpty())
+            } else {
+                Result.failure(
+                    Exception("Erro ao listar marcos: ${response.code()}")
+                )
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /**
      * Submete uma nova ideia.
      * @param focoEstrategiaId: ID do foco ativo no momento da criação (para bônus futuro).

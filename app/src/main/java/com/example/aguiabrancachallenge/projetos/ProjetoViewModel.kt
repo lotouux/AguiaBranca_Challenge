@@ -21,10 +21,31 @@ class DetalhesProjetoViewModel(
         viewModelScope.launch {
             repository.listarIdeias()
                 .onSuccess { lista ->
-                    projeto = lista.firstOrNull { it.id == id }
+
+                    val projetoEncontrado = lista.firstOrNull { it.id == id }
+
+                    if (projetoEncontrado == null) {
+                        projeto = null
+                        return@onSuccess
+                    }
+
+                    repository.listarMarcos(id)
+                        .onSuccess { marcos ->
+                            projeto = projetoEncontrado.copy(
+                                marcos = marcos
+                            )
+                        }
+                        .onFailure {
+                            it.printStackTrace()
+
+                            projeto = projetoEncontrado.copy(
+                                marcos = emptyList()
+                            )
+                        }
                 }
                 .onFailure {
                     it.printStackTrace()
+                    projeto = null
                 }
         }
     }
@@ -42,11 +63,7 @@ class DetalhesProjetoViewModel(
             val result = repository.atualizarIdeia(
                 id,
                 AtualizarIdeiaRequest(
-                    status = "Em Execução",
-                    prazo = prazo,
-                    investimento = investimento,
-                    retorno = retorno,
-                    roiEsperado = roi,
+                    status = "EM_EXECUCAO",
                     responsavel = responsavel
                 )
             )

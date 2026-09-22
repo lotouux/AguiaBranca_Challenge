@@ -1,6 +1,7 @@
 package com.example.aguiabrancachallenge.network
 
 import com.example.aguiabrancachallenge.data.Ideia
+import com.example.aguiabrancachallenge.data.MarcoProjeto
 import com.example.aguiabrancachallenge.data.models.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -104,6 +105,11 @@ interface ApiService {
 
     // ── PROJETOS E MARCOS ─────────────────────────────────────
 
+    @GET("api/ideias/{id}/marcos")
+    suspend fun listarMarcos(
+        @Path("id") id: String
+    ): Response<List<MarcoProjeto>>
+
     /**
      * POST /api/ideias/{id}/marcos
      * Request: { "titulo": "string" }
@@ -112,7 +118,7 @@ interface ApiService {
     suspend fun criarMarco(
         @Path("id") id: String,
         @Body body: NovoMarcoRequest
-    ): Response<Unit>
+    ): Response<MarcoProjeto>
 
     /**
      * PATCH /api/ideias/{id}/marcos/{marcoId}
