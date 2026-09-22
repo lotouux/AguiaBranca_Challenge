@@ -115,7 +115,8 @@ class MainActivity : ComponentActivity() {
                                 else -> OperadorHomeScreen(
                                     onNavigateBottomBar = navigationHandler,
                                     ideiaRepository = ideiaRepository,
-                                    estrategiaRepository = estrategiaRepository
+                                    estrategiaRepository = estrategiaRepository,
+                                    authRepository = authRepository
                                 )
                             }
                         }

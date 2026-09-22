@@ -56,6 +56,7 @@ import com.example.aguiabrancachallenge.components.ChatBubble
 import com.example.aguiabrancachallenge.components.ChatMessage
 import com.example.aguiabrancachallenge.lideranca.LiderancaViewModel
 import com.example.aguiabrancachallenge.network.GroqClient // <-- CORRIGIDO AQUI
+import com.example.aguiabrancachallenge.repository.AuthRepository
 import com.example.aguiabrancachallenge.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -72,6 +73,7 @@ val PremiumIceBlue = Color(0xFFC2D3E0)
 fun OperadorHomeScreen(
     onNavigateBottomBar: (String) -> Unit = {},
     ideiaRepository: IdeiaRepository,
+    authRepository: AuthRepository,
     estrategiaRepository: EstrategiaRepository
 ) {
     val minhasIdeias = GlobalStateManager.listaDeIdeias
@@ -102,6 +104,8 @@ fun OperadorHomeScreen(
     val totalKm = minhasIdeias.sumOf { ideia ->
         ideia.baseKM + if (ideia.isStrategicBonus) 250 else 0
     }
+
+    println("BEATRIZ OLHA PRA MIIIM AQUI A KEEEY: " + authRepository.getAiKey())
 
     val totalIdeias = minhasIdeias.size
     val temAprovadaOuExecucao = minhasIdeias.any { it.status == "Aprovada" || it.status == "Em Execução" || it.status == "Concluída" }
@@ -337,7 +341,11 @@ fun ConquistaDetailRow(titulo: String, desc: String, imageRes: Int, isUnlocked: 
                 .size(45.dp, 60.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .background(if (isUnlocked) Color(0xFF16181D) else Color(0xFF0A0C10))
-                .border(1.dp, if (isUnlocked) BrandBlue.copy(alpha = 0.5f) else Color(0xFF222222), RoundedCornerShape(4.dp)),
+                .border(
+                    1.dp,
+                    if (isUnlocked) BrandBlue.copy(alpha = 0.5f) else Color(0xFF222222),
+                    RoundedCornerShape(4.dp)
+                ),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -414,8 +422,15 @@ fun EventCalendarStrip(dataSelecionada: String, onAbrirCalendarioCompleto: () ->
                     modifier = Modifier
                         .width(56.dp)
                         .height(72.dp)
-                        .background(if (isSelected) Color(0xFF16181D) else Color.Transparent, RoundedCornerShape(12.dp))
-                        .border(1.dp, if (isSelected) Color(0xFF222222) else Color.Transparent, RoundedCornerShape(12.dp)),
+                        .background(
+                            if (isSelected) Color(0xFF16181D) else Color.Transparent,
+                            RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            1.dp,
+                            if (isSelected) Color(0xFF222222) else Color.Transparent,
+                            RoundedCornerShape(12.dp)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -425,9 +440,13 @@ fun EventCalendarStrip(dataSelecionada: String, onAbrirCalendarioCompleto: () ->
                         Spacer(modifier = Modifier.height(6.dp))
 
                         if (hasEvent) {
-                            Box(modifier = Modifier.size(4.dp).background(BrandBlue, CircleShape))
+                            Box(modifier = Modifier
+                                .size(4.dp)
+                                .background(BrandBlue, CircleShape))
                         } else {
-                            Box(modifier = Modifier.size(4.dp).background(Color.Transparent, CircleShape))
+                            Box(modifier = Modifier
+                                .size(4.dp)
+                                .background(Color.Transparent, CircleShape))
                         }
                     }
                 }
@@ -632,7 +651,9 @@ fun OperadorAiChatPanel(
 @Composable
 fun FlagsStrip(totalIdeias: Int, temAprovadaOuExecucao: Boolean, temEstrategica: Boolean, temRetornoFinanceiro: Boolean) {
     Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         OperadorConquistaBadge("Primeira\nFaísca", R.drawable.badge_primeira_faisca, totalIdeias >= 1)
@@ -651,7 +672,11 @@ fun OperadorConquistaBadge(titulo: String, imageRes: Int, isUnlocked: Boolean) {
                 .size(72.dp, 100.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(if (isUnlocked) Color(0xFF16181D) else Color(0xFF0A0C10))
-                .border(1.dp, if (isUnlocked) Color(0xFF0088FF).copy(alpha = 0.5f) else Color(0xFF222222), RoundedCornerShape(6.dp)),
+                .border(
+                    1.dp,
+                    if (isUnlocked) Color(0xFF0088FF).copy(alpha = 0.5f) else Color(0xFF222222),
+                    RoundedCornerShape(6.dp)
+                ),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -746,7 +771,11 @@ fun EagleAiHeroCard(onNovaIdeiaClick: () -> Unit = {}) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(Brush.linearGradient(colors = listOf(Color(0xFF14161C), Color(0xFF0D0E12))))
-            .border(width = 1.dp, brush = Brush.linearGradient(colors = listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))), shape = RoundedCornerShape(8.dp))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(colors = listOf(Color(0xFF2A2D35), Color(0xFF1A1C20))),
+                shape = RoundedCornerShape(8.dp)
+            )
             .padding(20.dp)
     ) {
         Row(
@@ -801,15 +830,28 @@ fun TopBar(onNotificationClick: () -> Unit, onSettingsClick: () -> Unit) {
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onNotificationClick() },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF16181D))
+                        .clickable { onNotificationClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.Notifications, contentDescription = "Notificações", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Box(modifier = Modifier.align(Alignment.TopEnd).padding(top = 10.dp, end = 10.dp).size(8.dp).background(BrandBlue, CircleShape).border(1.5.dp, Color(0xFF16181D), CircleShape))
+                    Box(modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 10.dp, end = 10.dp)
+                        .size(8.dp)
+                        .background(BrandBlue, CircleShape)
+                        .border(1.5.dp, Color(0xFF16181D), CircleShape))
                 }
 
                 Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF16181D)).clickable { onSettingsClick() },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF16181D))
+                        .clickable { onSettingsClick() },
                     contentAlignment = Alignment.Center
                 ) { Icon(Icons.Default.Settings, contentDescription = "Configurações", tint = Color.White, modifier = Modifier.size(20.dp)) }
             }
@@ -821,7 +863,12 @@ fun TopBar(onNotificationClick: () -> Unit, onSettingsClick: () -> Unit) {
 @Composable
 fun PremiumFocusCard(focoTitulo: String) {
     Box(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color(0xFF12141A)).border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp)).padding(20.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFF12141A))
+            .border(1.dp, Color(0xFF222222), RoundedCornerShape(8.dp))
+            .padding(20.dp)
     ) {
         Column {
             Text("META ESTRATÉGICA ATUAL", color = Color(0xFF555555), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
@@ -838,8 +885,14 @@ fun PerformanceCard(totalKm: Int) {
     val metaMaxKm = 5000
     val progressoPercentual = ((totalKm.toFloat() / metaMaxKm) * 100).toInt().coerceIn(0, 100)
 
-    Row(modifier = Modifier.fillMaxWidth().height(100.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Box(modifier = Modifier.weight(1.2f).fillMaxHeight().background(Color(0xFF12141A), RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)).padding(16.dp), contentAlignment = Alignment.CenterStart) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(100.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Box(modifier = Modifier
+            .weight(1.2f)
+            .fillMaxHeight()
+            .background(Color(0xFF12141A), RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+            .padding(16.dp), contentAlignment = Alignment.CenterStart) {
             Column {
                 Text("Saldo de\nInovação", color = Color(0xFFAAAAAA), fontSize = 11.sp, lineHeight = 14.sp)
                 Spacer(modifier = Modifier.weight(1f))
@@ -850,7 +903,11 @@ fun PerformanceCard(totalKm: Int) {
             }
         }
 
-        Box(modifier = Modifier.weight(1f).fillMaxHeight().background(Color(0xFF12141A), RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)).padding(16.dp), contentAlignment = Alignment.CenterStart) {
+        Box(modifier = Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .background(Color(0xFF12141A), RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+            .padding(16.dp), contentAlignment = Alignment.CenterStart) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text("Nível da\nJornada", color = Color(0xFFAAAAAA), fontSize = 11.sp, lineHeight = 14.sp)
                 Box(contentAlignment = Alignment.Center) {
@@ -873,7 +930,10 @@ fun MinimalistIdeaCard(ideia: Ideia) {
         else -> "INVÁLIDA"
     }
     val corDot = if (ideia.status == "Aprovada") Color(0xFF00E676) else if (ideia.status == "Em Análise") Color(0xFFFFC107) else Color(0xFFE57373)
-    Column(modifier = Modifier.fillMaxWidth().clickable { }.padding(vertical = 8.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { }
+        .padding(vertical = 8.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(ideia.titulo, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -881,7 +941,9 @@ fun MinimalistIdeaCard(ideia: Ideia) {
                 Text("ID #${ideia.id.take(5).uppercase()} • ${ideia.baseKM} KM", color = Color(0xFF555555), fontSize = 11.sp)
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
-                Box(modifier = Modifier.size(6.dp).background(corDot, CircleShape))
+                Box(modifier = Modifier
+                    .size(6.dp)
+                    .background(corDot, CircleShape))
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(status, color = Color(0xFFAAAAAA), fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
@@ -893,7 +955,9 @@ fun MinimalistIdeaCard(ideia: Ideia) {
 
 @Composable
 fun SectionHeader(title: String, onVerTodos: (() -> Unit)? = null) {
-    Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
         if (onVerTodos != null) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onVerTodos() }) {
@@ -908,6 +972,6 @@ fun SectionHeader(title: String, onVerTodos: (() -> Unit)? = null) {
 @Composable
 fun OperadorPreview() {
     AguiaBrancaChallengeTheme {
-        OperadorHomeScreen(ideiaRepository = IdeiaRepository(), estrategiaRepository = EstrategiaRepository())
+        //OperadorHomeScreen(ideiaRepository = IdeiaRepository(), estrategiaRepository = EstrategiaRepository())
     }
 }

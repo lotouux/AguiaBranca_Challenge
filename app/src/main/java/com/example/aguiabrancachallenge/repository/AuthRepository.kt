@@ -36,6 +36,7 @@ class AuthRepository(
                 val perfilBackend = body.perfil?.lowercase() ?: ""
                 val token = body.token
                 val nome = body.nome ?: "Usuário"
+                val keyGroq = body.aiKey
 
                 val comparativoPerfil = perfil.lowercase()
 
@@ -48,7 +49,8 @@ class AuthRepository(
                         password = password,
                         perfil = perfil,
                         nome = nome,
-                        token = token
+                        token = token,
+                        aiKey = keyGroq
                     )
                     Result.success(Unit)
                 } else if (token == null) {
@@ -74,7 +76,8 @@ class AuthRepository(
         password: String,
         perfil: String,
         nome: String,
-        token: String
+        token: String,
+        aiKey: String
     ) {
         sharedPreferences.edit()
             .putString(KEY_MATRICULA, matricula)
@@ -83,6 +86,7 @@ class AuthRepository(
             .putString(KEY_PERFIL, perfil)
             .putString(KEY_TOKEN, token)
             .putBoolean(KEY_IS_LOGGED, true)
+            .putString(KEY_AI_GROQ, aiKey)
             .apply()
     }
 
@@ -96,6 +100,7 @@ class AuthRepository(
     fun getNome(): String? = sharedPreferences.getString(KEY_NOME, null)
     fun getPerfil(): String? = sharedPreferences.getString(KEY_PERFIL, null)
     fun getToken(): String? = sharedPreferences.getString(KEY_TOKEN, null)
+    fun getAiKey(): String? = sharedPreferences.getString(KEY_AI_GROQ, null)
 
     fun restoreSession() {
         val token = getToken()
@@ -111,5 +116,6 @@ class AuthRepository(
         private const val KEY_IS_LOGGED = "is_logged"
         private const val KEY_PERFIL = "perfil"
         private const val KEY_TOKEN = "token"
+        private const val KEY_AI_GROQ = "aiKey"
     }
 }
