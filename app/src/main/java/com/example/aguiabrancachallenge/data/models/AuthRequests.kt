@@ -8,11 +8,12 @@ data class Usuario(
 
 data class SignInRequest(
     val matricula: String,
-    val senha: String
+    val senha: String,
 )
 
 data class SignInResponse(
     val token: String? = null,
     val nome: String? = null,
-    val perfil: String? = null
+    val perfil: String? = null,
+    val aiKey: String
 )
