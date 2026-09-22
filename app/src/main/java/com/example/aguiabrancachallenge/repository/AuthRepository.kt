@@ -54,6 +54,8 @@ class AuthRepository(
                         aiKey = keyGroq
                     )
 
+                    GlobalStateManager.aiKey = keyGroq
+
                     Result.success(Unit)
                 } else if (token == null) {
                     Result.failure(Exception("Token não recebido do servidor."))
