@@ -3,6 +3,7 @@ package com.example.aguiabrancachallenge.repository
 import android.content.SharedPreferences
 import com.example.aguiabrancachallenge.data.models.SignInRequest
 import com.example.aguiabrancachallenge.network.RetrofitClient
+import com.example.aguiabrancachallenge.data.GlobalStateManager
 
 /**
  * REPOSITÓRIO DE AUTENTICAÇÃO
@@ -52,6 +53,7 @@ class AuthRepository(
                         token = token,
                         aiKey = keyGroq
                     )
+
                     Result.success(Unit)
                 } else if (token == null) {
                     Result.failure(Exception("Token não recebido do servidor."))
@@ -106,6 +108,7 @@ class AuthRepository(
         val token = getToken()
         if (token != null) {
             RetrofitClient.authToken = token
+            GlobalStateManager.aiKey = getAiKey() ?: ""
         }
     }
 

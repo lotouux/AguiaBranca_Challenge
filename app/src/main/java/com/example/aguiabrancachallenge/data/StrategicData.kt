@@ -135,6 +135,8 @@ object GlobalStateManager {
     // Identificação do usuário logado (vindo de /api/auth/login)
     var nomeUser by mutableStateOf("")
 
+    var aiKey by mutableStateOf("")
+
     // Cache local de Focos Estratégicos
     var listaDeFocos by mutableStateOf<List<StrategicFocus>>(emptyList())
     
