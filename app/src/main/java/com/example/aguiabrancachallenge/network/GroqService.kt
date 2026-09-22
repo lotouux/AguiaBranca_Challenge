@@ -1,6 +1,7 @@
 package com.example.aguiabrancachallenge.network
 
-import com.example.aguiabrancachallenge.BuildConfig
+import android.util.Log
+import com.example.aguiabrancachallenge.data.GlobalStateManager
 import com.example.aguiabrancachallenge.data.models.GroqMessage
 import com.example.aguiabrancachallenge.data.models.GroqRequest
 import com.example.aguiabrancachallenge.data.models.GroqResponse
@@ -20,7 +21,8 @@ interface GroqApiService {
 }
 
 object GroqClient {
-    private val API_KEY = "Bearer ${BuildConfig.GROQ_API_KEY}"
+    private val API_KEY: String
+        get() = "Bearer ${GlobalStateManager.aiKey}"
 
     private val client = OkHttpClient.Builder()
         .addInterceptor { chain ->
@@ -44,6 +46,8 @@ object GroqClient {
         .create(GroqApiService::class.java)
 
     suspend fun chat(systemPrompt: String, userMessage: String): Result<String> {
+        Log.d("GroqDebug", "Key atual: '${GlobalStateManager.aiKey}'")
+
         val request = GroqRequest(
             messages = listOf(
                 GroqMessage(role = "system", content = systemPrompt),
